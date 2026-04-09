@@ -160,6 +160,17 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .cat-num{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f0f0f0;color:#888;margin-left:5px;font-family:monospace;letter-spacing:.02em;vertical-align:middle}
 .hist-desc-wrap{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
 
+/* ── MODAL IMPORTAR EXTRATO ─────────────────────────────────────────────── */
+.extrato-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.extrato-item:last-child{border-bottom:none}
+.extrato-item input[type=checkbox]{margin-top:3px;accent-color:#1D9E75;width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.extrato-item-info{flex:1;min-width:0}
+.extrato-item-desc{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.extrato-item-sub{font-size:11px;color:#aaa;margin-top:2px}
+.extrato-item-val{font-size:13px;font-weight:600;white-space:nowrap;padding-top:2px}
+.extrato-dup{opacity:.55}
+.extrato-dup-badge{font-size:9px;background:#fff3cd;color:#856404;border-radius:4px;padding:1px 5px;margin-left:5px;font-weight:600}
+
 /* ── MODAL DE EDIÇÃO ──────────────────────────────────────────────────── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -1572,6 +1583,14 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
       </div>
       <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
         <div>
+          <div class="cfg-row-label">Importar extrato bancário</div>
+          <div class="cfg-row-sub">CSV ou OFX — Nubank, Inter, Itaú e outros</div>
+        </div>
+        <button class="cfg-btn" onclick="document.getElementById('extrato-import-file').click()">📥 Importar extrato</button>
+        <input type="file" id="extrato-import-file" accept=".csv,.ofx,.txt" style="display:none" onchange="importarExtrato(event)"/>
+      </div>
+      <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
+        <div>
           <div class="cfg-row-label">Apagar todos os registros</div>
           <div class="cfg-row-sub">Remove histórico permanentemente</div>
         </div>
@@ -1640,6 +1659,19 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
       <button class="modal-btn-delete" onclick="deletarDoModal()">Excluir</button>
       <button class="modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de importação de extrato -->
+<div class="modal-overlay" id="extrato-modal" onclick="fecharModalExtrato(event)">
+  <div class="modal-sheet" style="max-height:85vh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:calc(12px + var(--safe-bottom))">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="extrato-modal-title">Importar extrato</div>
+    <div id="extrato-preview" style="overflow-y:auto;flex:1;padding:0 2px"></div>
+    <div class="modal-actions" style="margin-top:12px;flex-shrink:0">
+      <button class="modal-btn-cancel" onclick="fecharModalExtrato()">Cancelar</button>
+      <button class="modal-btn-save" id="extrato-btn-import" onclick="confirmarImportExtrato()">Importar</button>
     </div>
   </div>
 </div>
@@ -2256,6 +2288,149 @@ function importarJSON(event){
   event.target.value='';
 }
 
+
+// ── IMPORTAR EXTRATO ─────────────────────────────────────────────────────────
+let _extratoItens = [];
+
+function importarExtrato(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const text = e.target.result;
+      const itens = ext==='ofx' ? parseOFX(text) : parseCSVExtrato(text);
+      if(!itens.length){ alert('Nenhuma transação encontrada no arquivo.\n\nVerifique se o formato é CSV ou OFX.'); return; }
+      abrirModalExtrato(itens);
+    }catch(err){ alert('Erro ao ler arquivo: '+err.message); }
+  };
+  reader.readAsText(file, 'latin1');
+  event.target.value='';
+}
+
+function parseOFX(text){
+  const itens=[];
+  const blocos = text.split(/<STMTTRN>/i).slice(1);
+  for(const bloco of blocos){
+    const get = tag=>{const m=bloco.match(new RegExp('<'+tag+'>([^<\r\n]+)','i'));return m?m[1].trim():'';};
+    const dtRaw=get('DTPOSTED')||get('DTUSER');
+    const amtRaw=get('TRNAMT');
+    const memo=get('MEMO')||get('NAME')||get('FITID');
+    if(!dtRaw||!amtRaw) continue;
+    const yr=parseInt(dtRaw.slice(0,4)),mo=parseInt(dtRaw.slice(4,6))-1,dy=parseInt(dtRaw.slice(6,8));
+    if(isNaN(yr)||isNaN(mo)||isNaN(dy)) continue;
+    const data=new Date(yr,mo,dy).toISOString();
+    const valorNum=parseFloat(amtRaw.replace(',','.'));
+    if(isNaN(valorNum)||valorNum===0) continue;
+    const valor=Math.abs(valorNum);
+    const tipo=valorNum<0?'gasto':'receita';
+    const cat=detectarCat(memo);
+    const dup=isDupExtrato(data,valor);
+    itens.push({data,valor,tipo,descricao:limparDescExtrato(memo),categoria:cat,dup});
+  }
+  return itens;
+}
+
+function parseCSVExtrato(text){
+  const sep=((text.split('\n')[0]||'').split(';').length >= (text.split('\n')[0]||'').split(',').length)?';':',';
+  const linhas=text.trim().split(/\r?\n/);
+  if(linhas.length<2) return[];
+  const header=linhas[0].split(sep).map(h=>norm(h));
+  const iData =header.findIndex(h=>/data|date|^dt/.test(h));
+  const iDesc =header.findIndex(h=>/hist|descri|memo|lancam|nome|title|narrat/.test(h));
+  const iValor=header.findIndex(h=>/valor|value|amount|quantia/.test(h));
+  const iType =header.findIndex(h=>/tipo|type|trntype|naturez/.test(h));
+  const iDataF =iData >=0?iData :0;
+  const iDescF =iDesc >=0?iDesc :linhas[0].split(sep).length-1;
+  const iValorF=iValor>=0?iValor:1;
+  const itens=[];
+  for(let i=1;i<linhas.length;i++){
+    const cols=linhas[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
+    if(cols.length<2) continue;
+    const dataRaw=cols[iDataF]||'', descRaw=cols[iDescF]||'', valorRaw=cols[iValorF]||'';
+    const typeRaw=iType>=0?cols[iType]:'';
+    if(!dataRaw||!valorRaw) continue;
+    let data;
+    const dmY=dataRaw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    const Ymd=dataRaw.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if(dmY){const yr=parseInt(dmY[3]);data=new Date(yr<100?2000+yr:yr,parseInt(dmY[2])-1,parseInt(dmY[1])).toISOString();}
+    else if(Ymd){data=new Date(parseInt(Ymd[1]),parseInt(Ymd[2])-1,parseInt(Ymd[3])).toISOString();}
+    else continue;
+    const valorNum=parseFloat(valorRaw.replace(/\./g,'').replace(',','.').replace(/[^0-9.\-]/g,''));
+    if(isNaN(valorNum)||valorNum===0) continue;
+    const valor=Math.abs(valorNum);
+    let tipo;
+    if(typeRaw){ tipo=/credit|receita|entrada|credito|cred/i.test(typeRaw)?'receita':'gasto'; }
+    else if(valorNum<0){ tipo='gasto'; }
+    else{ const tk=detectarTipoTexto(descRaw); tipo=tk||'gasto'; }
+    const cat=detectarCat(descRaw);
+    const dup=isDupExtrato(data,valor);
+    itens.push({data,valor,tipo,descricao:limparDescExtrato(descRaw),categoria:cat,dup});
+  }
+  return itens;
+}
+
+function limparDescExtrato(s){
+  return s.replace(/\*+/g,' ').replace(/\s+/g,' ').trim().slice(0,40)||'Transação';
+}
+
+function isDupExtrato(data,valor){
+  const d=new Date(data);
+  return registros.some(r=>{
+    const rd=new Date(r.data);
+    return rd.getFullYear()===d.getFullYear()&&rd.getMonth()===d.getMonth()&&rd.getDate()===d.getDate()&&Math.abs(r.valor-valor)<0.02;
+  });
+}
+
+function abrirModalExtrato(itens){
+  _extratoItens=itens;
+  const dups=itens.filter(i=>i.dup).length;
+  document.getElementById('extrato-modal-title').textContent=
+    `${itens.length} transações encontradas${dups?` · ${dups} possível${dups>1?'is':''} duplicata${dups>1?'s':''}` :''}`;
+  document.getElementById('extrato-preview').innerHTML=itens.map((it,idx)=>`
+    <label class="extrato-item${it.dup?' extrato-dup':''}" for="ext-chk-${idx}">
+      <input type="checkbox" id="ext-chk-${idx}" ${it.dup?'':'checked'} onchange="atualizarBtnExtrato()"/>
+      <div class="extrato-item-info">
+        <div class="extrato-item-desc">${it.descricao}${it.dup?'<span class="extrato-dup-badge">duplicata?</span>':''}</div>
+        <div class="extrato-item-sub">${fmtD(it.data)} · ${it.categoria.label}</div>
+      </div>
+      <div class="extrato-item-val" style="color:${it.tipo==='receita'?'#1D9E75':'#E24B4A'}">${it.tipo==='receita'?'+':'−'} ${fmt(it.valor)}</div>
+    </label>`).join('');
+  atualizarBtnExtrato();
+  document.getElementById('extrato-modal').classList.add('open');
+}
+
+function atualizarBtnExtrato(){
+  const n=_extratoItens.filter((_,i)=>document.getElementById('ext-chk-'+i)?.checked).length;
+  const btn=document.getElementById('extrato-btn-import');
+  btn.textContent=`Importar ${n} registro${n!==1?'s':''}`;
+  btn.disabled=n===0;
+}
+
+function fecharModalExtrato(e){
+  if(e&&e.target!==document.getElementById('extrato-modal'))return;
+  document.getElementById('extrato-modal').classList.remove('open');
+}
+
+function confirmarImportExtrato(){
+  const novos=_extratoItens
+    .filter((_,i)=>document.getElementById('ext-chk-'+i)?.checked)
+    .map(it=>({
+      id: Date.now()+Math.random(),
+      tipo: it.tipo, valor: it.valor,
+      categoria: it.categoria,
+      descricao: it.descricao,
+      data: it.data,
+      confianca: 70,
+    }));
+  if(!novos.length) return;
+  registros=[...registros,...novos].sort((a,b)=>new Date(a.data)-new Date(b.data));
+  salvar(registros);
+  renderAll();
+  document.getElementById('extrato-modal').classList.remove('open');
+  mostrarToast(`✓ ${novos.length} registro${novos.length!==1?'s':''} importado${novos.length!==1?'s':''}!`);
+}
 
 // ── GEMINI API ────────────────────────────────────────────────────────────────
 const GEMINI_KEY_STORAGE = 'finchat_gemini_key';

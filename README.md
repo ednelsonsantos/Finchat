@@ -308,7 +308,7 @@ python -m http.server 8080
 - [ ] Capacitor — APK Android / iOS com SQLite nativo
 - [ ] Electron — app desktop com SQLite local
 - [ ] Sincronização Google Drive / Dropbox
-- [ ] Importação de extrato OFX/CSV bancário
+- [x] Importação de extrato OFX/CSV bancário
 - [ ] Notificações push nativas
 
 ---
