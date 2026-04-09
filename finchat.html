@@ -15,7 +15,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#f5f5f3;color:#1a1a1a;padding:16px}
-.app{max-width:720px;margin:0 auto}
+.app{max-width:720px;margin:0 auto;padding:12px 12px calc(68px + var(--safe-bottom));position:relative}
 h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .subtitle{font-size:13px;color:#888;margin-bottom:16px}
 
@@ -35,9 +35,9 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .toast{display:none;background:#E1F5EE;border-radius:8px;padding:8px 14px;color:#0F6E56;font-size:13px;font-weight:500;margin-bottom:8px}
 
 /* hint */
-.hint-box{border:1px solid #ddd;border-radius:12px;margin-bottom:10px;display:none;overflow:hidden;animation:fadeIn .15s ease;background:#fff}
+.hint-box{border:1px solid #e0e0e0;border-radius:12px;margin-bottom:10px;display:none;overflow:hidden;animation:fadeIn .15s ease;background:#fff}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.hint-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #eee}
+.hint-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #eee;background:#fff}
 .hint-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px}
 .hint-label{font-size:13px;font-weight:600;color:#1a1a1a}
 .hint-sub{font-size:11px;color:#aaa;margin-top:1px}
@@ -54,11 +54,11 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .intent-btn.sel-receita{background:#E1F5EE;border-color:#1D9E75;color:#0F6E56}
 .examples-section{padding:10px 14px}
 .examples-label{font-size:11px;color:#aaa;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
-.hint-ex{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:#f5f5f3;cursor:pointer;margin-bottom:5px;transition:background .15s}
+.hint-ex{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:#f5f5f5;cursor:pointer;margin-bottom:5px;transition:background .15s;border:1px solid #eee}
 .hint-ex:last-child{margin-bottom:0}
 .hint-ex:hover{background:#E1F5EE}
 .ex-text{font-size:13px;font-family:monospace;flex:1;color:#1a1a1a}
-.ex-desc{font-size:11px;color:#aaa}
+.ex-desc{font-size:11px;color:#888}
 .ex-arrow{font-size:12px;color:#1D9E75;opacity:0}
 .hint-ex:hover .ex-arrow{opacity:1}
 .hint-tip{font-size:11px;color:#aaa;padding:8px 14px;border-top:1px solid #eee;background:#fafafa}
@@ -78,7 +78,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .error-box{background:#FCEBEB;border-radius:8px;padding:10px 14px;color:#A32D2D;font-size:13px}
 
 /* tabs */
-.tabs{display:flex;gap:0;border-bottom:1px solid #eee;margin-bottom:14px}
+.tabs{display:none}
 .tab{padding:8px 16px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tab:hover{color:#1a1a1a}
 .tab.active{color:#1D9E75;border-bottom-color:#1D9E75;font-weight:600}
@@ -220,7 +220,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
   --safe-top: env(safe-area-inset-top, 0px);
 }
 body{padding:0;background:#f5f5f3}
-.app{max-width:720px;margin:0 auto;padding:12px 12px calc(70px + var(--safe-bottom));position:relative}
+.app{max-width:720px;margin:0 auto;padding:12px 12px calc(68px + var(--safe-bottom));position:relative}
 
 /* header fixo mobile */
 .app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;margin-bottom:4px}
@@ -234,7 +234,7 @@ body{padding:0;background:#f5f5f3}
 .month-label{font-size:12px;font-weight:600;color:#1a1a1a;min-width:70px;text-align:center}
 
 /* bottom nav mobile */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:100;padding:0 0 var(--safe-bottom)}
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:100;padding:0 0 var(--safe-bottom)}
 .bottom-nav-inner{display:flex;justify-content:space-around;padding:6px 0}
 .bnav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:8px;min-width:52px}
 .bnav-item .bi-icon{font-size:20px;line-height:1}
@@ -244,7 +244,6 @@ body{padding:0;background:#f5f5f3}
 
 /* tabs — esconder no mobile, usar bottom nav */
 @media(max-width:600px){
-  .tabs{display:none}
   .bottom-nav{display:block}
   .export-bar{flex-wrap:wrap;gap:6px}
   .exp-sel{margin-left:0;width:100%}
@@ -478,7 +477,7 @@ body{padding:0;background:#f5f5f3}
   --safe-top: env(safe-area-inset-top, 0px);
 }
 body{padding:0;background:#f5f5f3}
-.app{max-width:720px;margin:0 auto;padding:12px 12px calc(70px + var(--safe-bottom));position:relative}
+.app{max-width:720px;margin:0 auto;padding:12px 12px calc(68px + var(--safe-bottom));position:relative}
 
 /* header fixo mobile */
 .app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;margin-bottom:4px}
@@ -492,7 +491,7 @@ body{padding:0;background:#f5f5f3}
 .month-label{font-size:12px;font-weight:600;color:#1a1a1a;min-width:70px;text-align:center}
 
 /* bottom nav mobile */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:100;padding:0 0 var(--safe-bottom)}
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:100;padding:0 0 var(--safe-bottom)}
 .bottom-nav-inner{display:flex;justify-content:space-around;padding:6px 0}
 .bnav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:8px;min-width:52px}
 .bnav-item .bi-icon{font-size:20px;line-height:1}
@@ -502,7 +501,6 @@ body{padding:0;background:#f5f5f3}
 
 /* tabs — esconder no mobile, usar bottom nav */
 @media(max-width:600px){
-  .tabs{display:none}
   .bottom-nav{display:block}
   .export-bar{flex-wrap:wrap;gap:6px}
   .exp-sel{margin-left:0;width:100%}
@@ -678,10 +676,6 @@ body.dark .app-subtitle,
 body.dark .placeholder-msg,
 body.dark .empty,
 body.dark .rec-resumo-card .rl,
-body.dark .hint-sub,
-body.dark .intent-label,
-body.dark .examples-label,
-body.dark .hint-tip,
 body.dark .meta-form-title,
 body.dark .rec-form-title,
 body.dark .obj-form-title,
@@ -914,8 +908,9 @@ body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
 
 /* ── HOME MINIMALISTA ──────────────────────────────────────────── */
 .home-screen{
-  display:flex;flex-direction:column;min-height:calc(100vh - 70px);
-  padding-bottom:8px;
+  display:flex;flex-direction:column;
+  min-height:calc(100vh - 68px);
+  padding-bottom:12px;
 }
 .home-topbar{
   display:flex;align-items:center;justify-content:space-between;
@@ -1016,24 +1011,96 @@ body.dark .home-result{background:#242424;border-color:#333}
 .home-mode-ind{font-size:12px;margin:6px 0 4px;min-height:18px}
 
 /* Toast na home */
-.home-toast{
-  background:#1D9E75;color:#fff;border-radius:12px;
-  padding:10px 16px;font-size:13px;font-weight:500;
-  display:none;margin-top:8px;text-align:center;
-  animation:fadeIn .2s ease;
-}
-body.dark .home-toast{background:#0d5c3f}
+/* home-toast removido — usar .global-toast */
 
 /* Botão acessar dashboard */
-.home-dash-btn{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  width:100%;padding:10px;border-radius:12px;margin-top:10px;
-  border:1px solid #eee;background:none;cursor:pointer;
-  font-size:13px;color:#888;transition:all .15s;
+
+
+
+/* header de contexto dentro de cada aba */
+.aba-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0 14px;margin-bottom:4px;
 }
-.home-dash-btn:hover{border-color:#1D9E75;color:#1D9E75;background:#E1F5EE}
-body.dark .home-dash-btn{border-color:#333;color:#666}
-body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a2e26}
+.aba-header-back{
+  background:none;border:none;cursor:pointer;
+  font-size:20px;color:#888;padding:2px 4px;
+  border-radius:8px;line-height:1;
+}
+.aba-header-back:hover{background:#f0f0f0;color:#1D9E75}
+body.dark .aba-header-back:hover{background:#2a2a2a;color:#4eca97}
+.aba-header-title{font-size:16px;font-weight:600;color:#1a1a1a}
+body.dark .aba-header-title{color:#e8e8e6}
+
+
+/* toast global */
+.global-toast{
+  display:none;
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  z-index:999;
+  background:#1D9E75;color:#fff;
+  border-radius:24px;padding:10px 22px;
+  font-size:13px;font-weight:600;
+  box-shadow:0 4px 16px rgba(29,158,117,.35);
+  white-space:nowrap;
+  animation:toastIn .2s ease;
+  pointer-events:none;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+body.dark .global-toast{background:#0d5c3f;box-shadow:0 4px 16px rgba(13,92,63,.5)}
+
+
+/* ── HINT DARK MODE — preto e branco puro ───────────────────── */
+body.dark .hint-box,
+body.dark .home-hint{
+  background:#000;border-color:#333}
+
+body.dark .hint-head{
+  background:#000;border-color:#222}
+
+body.dark .hint-label{color:#fff !important}
+body.dark .hint-sub{color:#aaa !important}
+
+body.dark .hint-tip{
+  background:#0a0a0a;border-color:#222;color:#aaa}
+
+body.dark .examples-section{background:#000}
+body.dark .examples-label{color:#666 !important}
+
+body.dark .hint-ex{
+  background:#111;border:1px solid #222}
+body.dark .hint-ex:hover{
+  background:#1a1a1a;border-color:#1D9E75}
+body.dark .ex-text{color:#fff}
+body.dark .ex-desc{color:#888}
+body.dark .ex-arrow{color:#1D9E75}
+
+body.dark .hint-icon{
+  background:#111;border:1px solid #222}
+
+body.dark .intent-section{
+  background:#0a0a0a;border-color:#222}
+body.dark .intent-label{color:#666 !important}
+body.dark .intent-btn{
+  background:#111;border-color:#333;color:#ccc}
+body.dark .intent-btn:hover{
+  border-color:#1D9E75;color:#fff;background:#0d2018}
+body.dark .intent-btn.sel-receita{
+  background:#0d2018;border-color:#1D9E75;color:#fff}
+body.dark .intent-btn.sel-gasto{
+  background:#200d0d;border-color:#E24B4A;color:#fff}
+
+/* badges — alto contraste no dark (com !important para sobrescrever herança) */
+body.dark .bg-green{background:#0d2018 !important;color:#4eca97 !important}
+body.dark .bg-red{background:#200d0d !important;color:#f08080 !important}
+body.dark .bg-blue{background:#0d1520 !important;color:#7bb3f0 !important}
+body.dark .bg-amber{background:#201500 !important;color:#f0b860 !important}
+body.dark .bg-purple{background:#130d20 !important;color:#b3a0f0 !important}
+body.dark .bg-gray{background:#111 !important;color:#aaa !important}
+body.dark .bg-pink{background:#200d14 !important;color:#f090c0 !important}
+
+/* cat-num no dark */
+body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1042,6 +1109,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
 </head>
 <body>
 <div class="app">
+
+  <!-- Toast global -->
+  <div id="toast" class="global-toast">✓ Registro salvo!</div>
+  <span id="storage-label" style="display:none"></span>
 
   <!-- ══ HOME SCREEN ══════════════════════════════════════════════ -->
   <div class="home-screen" id="home-screen">
@@ -1055,7 +1126,6 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
       </div>
     </div>
 
-    <div id="toast" class="home-toast">✓ Registro salvo!</div>
 
     <!-- Hero: quanto posso gastar -->
     <div class="home-hero" id="home-hero-card">
@@ -1123,11 +1193,6 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
       </div>
     </div>
 
-    <!-- Acessar dashboard / histórico -->
-    <button class="home-dash-btn" onclick="setTab('resumo')">
-      📊 Ver dashboard, histórico e relatórios
-    </button>
-
   </div>
   <!-- ══ FIM HOME SCREEN ══════════════════════════════════════════ -->
 
@@ -1144,6 +1209,19 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-resumo">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">📊 Dashboard</span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <select id="exp-periodo" style="padding:4px 8px;border-radius:12px;border:1px solid #ddd;font-size:12px;background:#f5f5f3;color:#555;outline:none">
+          <option value="mes">Este mês</option>
+          <option value="semana">Esta semana</option>
+          <option value="todos">Todos</option>
+        </select>
+        <button onclick="exportarPDF()" style="padding:5px 10px;border-radius:12px;border:1px solid #ddd;background:#f5f5f3;font-size:12px;cursor:pointer">📄 PDF</button>
+        <button onclick="exportarCSV()" style="padding:5px 10px;border-radius:12px;border:1px solid #ddd;background:#f5f5f3;font-size:12px;cursor:pointer">📊 CSV</button>
+      </div>
+    </div>
     <!-- KPIs -->
     <div class="dash-row4">
       <div class="kpi"><div class="kl">Receitas</div><div class="kv" id="m-rec" style="color:#1D9E75">R$ 0</div></div>
@@ -1201,6 +1279,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-historico" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">📋 Histórico</span>
+    </div>
     <div class="card" style="margin-bottom:0">
       <div class="card-title-row">
         <span class="card-title">Todos os registros</span>
@@ -1222,6 +1304,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-categorias" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">📈 Categorias</span>
+    </div>
     <div class="card" style="margin-bottom:0">
       <div class="card-title" style="margin-bottom:10px">Gastos por categoria</div>
       <div class="bar-wrap" id="cat-bars"><div class="empty">Sem dados de gastos</div></div>
@@ -1229,6 +1315,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-metas" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">🎯 Metas</span>
+    </div>
     <div class="meta-form">
       <div class="meta-form-title">Nova meta de gasto</div>
       <div class="meta-form-row">
@@ -1255,6 +1345,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-recorrentes" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">🔁 Fixos</span>
+    </div>
     <div class="rec-resumo">
       <div class="rec-resumo-card"><div class="rl">Gastos fixos/mês</div><div class="rv" id="rec-total-gas" style="color:#E24B4A">R$ 0</div></div>
       <div class="rec-resumo-card"><div class="rl">Receitas fixas/mês</div><div class="rv" id="rec-total-rec" style="color:#1D9E75">R$ 0</div></div>
@@ -1299,6 +1393,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-objetivos" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">⭐ Objetivos</span>
+    </div>
     <div class="obj-form">
       <div class="obj-form-title">Novo objetivo de poupança</div>
       <div class="obj-form-grid">
@@ -1320,6 +1418,10 @@ body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a
   </div>
 
   <div id="tab-config" style="display:none">
+    <div class="aba-header">
+      <button class="aba-header-back" onclick="mostrarHome()" title="Voltar ao início">←</button>
+      <span class="aba-header-title">⚙️ Configurações</span>
+    </div>
     <!-- Perfil -->
     <div class="cfg-section">
       <div class="cfg-section-title">Perfil</div>
@@ -1713,7 +1815,16 @@ const fmtD=iso=>{try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-dig
 // STORAGE — localStorage
 function salvar(regs){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);}catch(e){alert('Erro ao salvar: '+e.message);}}
 function carregar(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);atualizarLabel(d.length);return d;}}catch{}atualizarLabel(0);return[];}
-function atualizarLabel(n){document.getElementById('storage-label').textContent=n===0?'Dados salvos no navegador — nenhum registro ainda':`${n} registro${n!==1?'s':''} salvo${n!==1?'s':''} no navegador`;}
+function atualizarLabel(n){
+  const msg = n===0
+    ? 'Nenhum registro ainda'
+    : `${n} registro${n!==1?'s':''} salvo${n!==1?'s':''}`;
+  // atualizar qualquer elemento que exiba o status
+  ['storage-label','app-subtitle-label'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=msg;
+  });
+}
 
 let registros=[], resultadoAtual=null, intentForçado=null, profAtual=null, tabAtual='resumo', filtro='todos';
 
@@ -1722,11 +1833,11 @@ function mostrarHint(prof,tipoTexto){
   const box=document.getElementById('hint-box');
   if(!prof){box.style.display='none';return;}
   profAtual=prof;
-  document.getElementById('hint-icon').textContent=prof.icon;
-  document.getElementById('hint-label').textContent=prof.label;
-  document.getElementById('hint-sub').textContent=prof.sub;
-  document.getElementById('hint-badge').innerHTML=`<span class="badge ${prof.badge}">${prof.cat}</span>`;
-  document.getElementById('hint-tip').textContent=prof.tip;
+  document.getElementById('hint-icon').textContent =prof.icon;
+  document.getElementById('hint-label').textContent =prof.label;
+  document.getElementById('hint-sub').textContent =prof.sub;
+  document.getElementById('hint-badge').innerHTML =`<span class="badge ${prof.badge}">${prof.cat}</span>`;
+  document.getElementById('hint-tip').textContent =prof.tip;
   const is=document.getElementById('intent-section');
   if(prof.ambiguo&&!tipoTexto){
     is.style.display='block';
@@ -1737,7 +1848,7 @@ function mostrarHint(prof,tipoTexto){
   if(intentForçado==='gasto')exs=exs.filter(e=>norm(e.t).startsWith('pag')||norm(e.t).startsWith('gast'));
   if(intentForçado==='receita')exs=exs.filter(e=>norm(e.t).startsWith('rec')||norm(e.t).startsWith('ent'));
   if(!exs.length)exs=prof.exemplos;
-  document.getElementById('hint-examples').innerHTML=exs.map(e=>`<div class="hint-ex" onclick="usarEx('${e.t.replace(/'/g,"\\'")}')"><span class="ex-text">${e.t}</span><span class="ex-desc">${e.d}</span><span class="ex-arrow">↗</span></div>`).join('');
+  document.getElementById('hint-examples').innerHTML =exs.map(e=>`<div class="hint-ex" onclick="usarEx('${e.t.replace(/'/g,"\\'")}')"><span class="ex-text">${e.t}</span><span class="ex-desc">${e.d}</span><span class="ex-arrow">↗</span></div>`).join('');
   box.style.display='block';
 }
 function setIntent(tipo){intentForçado=tipo;const t=document.getElementById('inp').value;mostrarHint(profAtual,detectarTipoTexto(t));atualizarParser(t);}
@@ -1747,14 +1858,14 @@ function atualizarHint(texto){if(!texto.trim()){intentForçado=null;profAtual=nu
 // PARSER
 function atualizarParser(texto){
   const btn=document.getElementById('btn');
-  if(!texto.trim()){document.getElementById('result').innerHTML='<div class="placeholder-msg">Aguardando entrada...</div>';btn.disabled=true;resultadoAtual=null;return;}
+  if(!texto.trim()){document.getElementById('result').innerHTML ='<div class="placeholder-msg">Aguardando entrada...</div>';btn.disabled=true;resultadoAtual=null;return;}
   const prof=detectarProf(texto),tipoTexto=detectarTipoTexto(texto),valor=detectarValor(texto),data=detectarData(texto),desc=extrairDesc(texto);
   let catFinal,tipoFinal;
   if(prof){catFinal={key:norm(prof.cat),label:prof.cat,badge:prof.badge,cor:prof.cor||'#888'};tipoFinal=tipoTexto||intentForçado||prof.tipo;}
   else{catFinal=detectarCat(texto);tipoFinal=tipoTexto||(catFinal.key==='salario'||catFinal.key==='freela'?'receita':'gasto');}
   let conf=0;if(tipoFinal)conf+=35;if(valor)conf+=35;if(catFinal&&catFinal.key!=='outros')conf+=20;if(desc&&desc!=='Transação')conf+=10;
-  if(!valor){document.getElementById('result').innerHTML='<div class="error-box">Informe o valor — ex: "paguei 200 dermatologista" ou clique num exemplo acima.</div>';btn.disabled=true;resultadoAtual=null;return;}
-  if(prof&&prof.ambiguo&&!tipoFinal){document.getElementById('result').innerHTML='<div class="placeholder-msg" style="color:#888">Escolha acima se pagou ou recebeu por este serviço.</div>';btn.disabled=true;resultadoAtual=null;return;}
+  if(!valor){document.getElementById('result').innerHTML ='<div class="error-box">Informe o valor — ex: "paguei 200 dermatologista" ou clique num exemplo acima.</div>';btn.disabled=true;resultadoAtual=null;return;}
+  if(prof&&prof.ambiguo&&!tipoFinal){document.getElementById('result').innerHTML ='<div class="placeholder-msg" style="color:#888">Escolha acima se pagou ou recebeu por este serviço.</div>';btn.disabled=true;resultadoAtual=null;return;}
   const cColor=conf>=80?'#1D9E75':conf>=50?'#EF9F27':'#E24B4A',sinal=tipoFinal==='receita';
   resultadoAtual={id:Date.now(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf};
   // preview do número que será atribuído
@@ -1765,7 +1876,7 @@ function atualizarParser(texto){
     const cores=corBadgeNum(catFinal.key);
     numPreview=`<span class="cat-num" style="background:${cores.bg};color:${cores.txt}">#${proximo}</span>`;
   }
-  document.getElementById('result').innerHTML=`
+  document.getElementById('result').innerHTML =`
     <div class="field-row"><span class="field-key">Tipo</span><span class="badge ${sinal?'bg-green':'bg-red'}">${sinal?'Receita':'Gasto'}</span></div>
     <div class="field-row"><span class="field-key">Valor</span><span class="field-val" style="color:${sinal?'#1D9E75':'#E24B4A'}">${sinal?'+':'−'} ${fmt(valor)}</span></div>
     <div class="field-row"><span class="field-key">Categoria</span><span class="field-val" style="display:flex;align-items:center;gap:6px"><span class="badge ${catFinal.badge}">${catFinal.label}</span>${numPreview}</span></div>
@@ -1786,10 +1897,10 @@ function registrar(){
   checarAlertasMetas(novoReg);
   document.getElementById('inp').value='';
   document.getElementById('hint-box').style.display='none';
-  document.getElementById('result').innerHTML='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
+  document.getElementById('result').innerHTML ='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
   document.getElementById('btn').disabled=true;
   resultadoAtual=null;intentForçado=null;profAtual=null;
-  const toast=document.getElementById('toast');toast.style.display='block';setTimeout(()=>toast.style.display='none',2000);
+  mostrarToast('✓ Registro salvo!');
 }
 function deletar(id){if(!confirm('Remover este registro?'))return;registros=registros.filter(r=>r.id!==id);salvar(registros);renderAll();}
 function limparTudo(){if(!confirm('Apagar TODOS os registros? Esta ação não pode ser desfeita.'))return;registros=[];salvar(registros);renderAll();}
@@ -1820,7 +1931,17 @@ function setFiltro(f){
 }
 
 // RENDER
-function renderAll(){renderHome();renderResumo();renderHistorico();renderCategorias();renderMetas();renderRecorrentes();if(tabAtual==='config')renderConfig();if(tabAtual==='objetivos')renderObjetivos();}
+function renderAll(){
+  renderHome();
+  if(tabAtual==='home') return; // na home, só renderiza home
+  renderResumo();
+  renderHistorico();
+  renderCategorias();
+  renderMetas();
+  renderRecorrentes();
+  if(tabAtual==='config')    renderConfig();
+  if(tabAtual==='objetivos') renderObjetivos();
+}
 function renderResumo(){
   renderDashboard();
 }
@@ -1833,7 +1954,7 @@ function renderHistorico(){
       return n.includes(termoBusca);
     });
   }
-  document.getElementById('history').innerHTML=[...lista].reverse().map(r=>histHTML(r,true)).join('')||
+  document.getElementById('history').innerHTML =[...lista].reverse().map(r=>histHTML(r,true)).join('')||
     '<div class="empty">'+( termoBusca?'Nenhum resultado para "'+termoBusca+'"'  :'Nenhum registro neste mês')+'</div>';
 }
 function histHTML(r,del){
@@ -1874,10 +1995,10 @@ function renderCategorias(){
     globalCount[k]=(globalCount[k]||0)+1;
   });
   const entries=Object.entries(gc).sort((a,b)=>b[1].total-a[1].total);
-  if(!entries.length){document.getElementById('cat-bars').innerHTML='<div class="empty">Sem dados de gastos</div>';return;}
+  if(!entries.length){document.getElementById('cat-bars').innerHTML ='<div class="empty">Sem dados de gastos</div>';return;}
   const max=entries[0][1].total;
   const cores=k=>corBadgeNum(gc[k]?.key||'outros');
-  document.getElementById('cat-bars').innerHTML=entries.map(([cat,d])=>{
+  document.getElementById('cat-bars').innerHTML =entries.map(([cat,d])=>{
     const c=cores(cat);
     const totGlobal=globalCount[cat]||d.count;
     return`<div class="bar-row">
@@ -1976,10 +2097,7 @@ function salvarEdicao(){
   salvar(registros);
   renderAll();
   fecharModal();
-  const toast=document.getElementById('toast');
-  toast.textContent='✓ Registro atualizado!';
-  toast.style.display='block';
-  setTimeout(()=>{toast.style.display='none';toast.textContent='✓ Registro salvo!';},2200);
+  mostrarToast('✓ Registro atualizado!');
 }
 
 function deletarDoModal(){
@@ -2385,6 +2503,19 @@ function gerarManifest(){
 }
 
 
+
+// ── TOAST GLOBAL ─────────────────────────────────────────────────────────────
+function mostrarToast(msg, duracao){
+  msg = msg || '✓ Registro salvo!';
+  duracao = duracao || 2200;
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ el.style.display='none'; }, duracao);
+}
+
 // ── MODO ESCURO ───────────────────────────────────────────────────────────────
 function toggleDarkMode(ativo){
   document.body.classList.toggle('dark', ativo);
@@ -2436,10 +2567,10 @@ function calcularPossoGastar(){
   const fmt2 = v=>Math.abs(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
   if(totRec===0){
-    card.className='gasto-hoje-card amarelo';
+    card.className='gasto-hoje-card verde';
     val.textContent='—';
     sub.textContent='Registre uma receita para calcular';
-    icon.textContent='💡';
+    icon.textContent='💬';
     return;
   }
 
@@ -2635,6 +2766,7 @@ function renderHome(){
   if(totRec===0){
     if(heroVal) heroVal.textContent='—';
     if(heroSub) heroSub.textContent='Registre uma receita para calcular';
+    if(heroCard) heroCard.style.background='linear-gradient(135deg,#1D9E75,#0F6E56)';
   } else if(porDia<=0){
     if(heroVal) heroVal.textContent='-'+fmt2(Math.abs(porDia));
     if(heroSub) heroSub.textContent=`Orçamento estourado · ${diasRestantes}d restantes`;
@@ -2702,17 +2834,19 @@ function preencherAtalho(tipo,desc,catKey,valor){
 
 // controlar visibilidade da home vs tabs
 function mostrarHome(){
-  const hs=document.getElementById('home-screen');
-  const tabs=['resumo','historico','categorias','metas','recorrentes','objetivos','config'];
+  tabAtual = 'home';
+  const hs = document.getElementById('home-screen');
+  // mostrar home
   if(hs) hs.style.display='flex';
-  tabs.forEach(id=>{
+  // esconder todas as abas
+  ['resumo','historico','categorias','metas','recorrentes','objetivos','config'].forEach(id=>{
     const el=document.getElementById('tab-'+id);
     if(el) el.style.display='none';
   });
-  // bottom nav: nenhum item ativo
-  document.querySelectorAll('.bnav-item').forEach(el=>el.classList.remove('active'));
-  const homeBtn=document.getElementById('bn-home');
-  if(homeBtn) homeBtn.classList.add('active');
+  // resetar abas do desktop
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  // ativar botão home no bottom nav
+  atualizarBottomNav('home');
   renderHome();
 }
 
@@ -2752,6 +2886,11 @@ function atualizarBottomNav(tab){
     const el = document.getElementById('bn-'+id);
     if(el) el.className = 'bnav-item' + (id===tab?' active':'');
   });
+  // garantir que bn-home está ativo quando tabAtual='home'
+  if(tab==='home'){
+    const hb=document.getElementById('bn-home');
+    if(hb) hb.classList.add('active');
+  }
 }
 
 // ── DASHBOARD / GRÁFICOS ──────────────────────────────────────────────────────
@@ -2778,11 +2917,11 @@ function renderDashboard(){
   const saldo=totRec-totGas;
 
   // KPIs
-  document.getElementById('m-rec').textContent=fmt2(totRec);
-  document.getElementById('m-gas').textContent=fmt2(totGas);
+  document.getElementById('m-rec').textContent =fmt2(totRec);
+  document.getElementById('m-gas').textContent =fmt2(totGas);
   const msal=document.getElementById('m-sal');
   msal.textContent=fmt2(saldo); msal.style.color=saldo>=0?'#1D9E75':'#E24B4A';
-  document.getElementById('m-count').textContent=regs.length;
+  document.getElementById('m-count').textContent =regs.length;
 
   // Hero saldo
   const hSal=document.getElementById('dash-saldo');
@@ -2796,7 +2935,7 @@ function renderDashboard(){
 
   // Últimos 5
   const ult=[...regs].reverse().slice(0,5);
-  document.getElementById('resumo-hist').innerHTML=ult.length===0
+  document.getElementById('resumo-hist').innerHTML =ult.length===0
     ?'<div class="empty">Sem registros este mês</div>'
     :ult.map(r=>histHTML(r,false)).join('');
 
@@ -3172,10 +3311,7 @@ function registrarRecorrente(id){
   salvar(registros);
   checarAlertasMetas(novo);
   renderAll();
-  const toast=document.getElementById('toast');
-  toast.textContent = '✓ ' + rec.desc + ' registrado!';
-  toast.style.display='block';
-  setTimeout(()=>{toast.style.display='none'; toast.textContent='✓ Registro salvo!';},2500);
+  mostrarToast('✓ ' + rec.desc + ' registrado!', 2500);
 }
 
 function renderRecorrentes(){
@@ -3285,7 +3421,8 @@ function verificarVencimentosHoje(){
 
 // ── EXPORTAÇÃO ────────────────────────────────────────────────────────────────
 function getFiltradosPorPeriodo(){
-  const p=document.getElementById('exp-periodo').value;
+  const el=document.getElementById('exp-periodo');
+  const p=el?el.value:'mes';
   const hoje=()=>{const d=new Date();d.setHours(0,0,0,0);return d;};
   const semIni=()=>{const d=hoje();d.setDate(d.getDate()-d.getDay());return d;};
   const mesIni=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1);};
@@ -3295,7 +3432,8 @@ function getFiltradosPorPeriodo(){
 }
 
 function periodoLabel(){
-  const p=document.getElementById('exp-periodo').value;
+  const el=document.getElementById('exp-periodo');
+  const p=el?el.value:'mes';
   const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   const m=new Date().getMonth();
   if(p==='mes')    return `${meses[m]}_${new Date().getFullYear()}`;
@@ -3525,10 +3663,10 @@ function atualizarModeIndicator(texto){
   if(eConsulta(texto)){
     ind.innerHTML='<span class="mode-pill mode-query">🔍 Modo consulta</span>';
     document.getElementById('btn').disabled=false;
-    document.getElementById('btn').textContent='Perguntar';
+    document.getElementById('btn').textContent ='Perguntar';
   } else {
     ind.innerHTML='';
-    document.getElementById('btn').textContent='Registrar';
+    document.getElementById('btn').textContent ='Registrar';
   }
 }
 
@@ -3539,9 +3677,9 @@ async function enviar(){
   if(eConsulta(texto)){
     adicionarMsgChat(texto,'user');
     inp.value='';
-    document.getElementById('mode-indicator').innerHTML='';
+    document.getElementById('mode-indicator').innerHTML ='';
     document.getElementById('btn').disabled=true;
-    document.getElementById('btn').textContent='Enviar';
+    document.getElementById('btn').textContent ='Enviar';
     document.getElementById('hint-box').style.display='none';
 
     // verificar se usa IA no chat
@@ -3553,7 +3691,7 @@ async function enviar(){
       const typingDiv=document.createElement('div');
       typingDiv.className='ia-typing'; typingDiv.id=typingId;
       typingDiv.innerHTML='✨ <span class="ia-typing-dots"><span></span><span></span><span></span></span>';
-      document.getElementById('chat-log').appendChild(typingDiv);
+      document.getElementById('chat-log')?.appendChild(typingDiv);
       document.getElementById('chat-log').scrollTop=9999;
       try{
         const iaResp = await consultarComIA(texto);
@@ -3570,7 +3708,7 @@ async function enviar(){
       const resp=responderConsulta(texto);
       setTimeout(()=>adicionarMsgChat(resp,'bot'),200);
     }
-    document.getElementById('result').innerHTML='<div class="placeholder-msg">Aguardando entrada...</div>';
+    document.getElementById('result').innerHTML ='<div class="placeholder-msg">Aguardando entrada...</div>';
   } else {
     registrar();
   }
