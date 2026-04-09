@@ -4,17 +4,20 @@
 
 ### Registre suas finanças como se estivesse mandando mensagem
 
-[![HTML](https://img.shields.io/badge/HTML-único%20arquivo-orange?style=flat-square&logo=html5)](finchat.html)
-[![PWA](https://img.shields.io/badge/PWA-instalável-5A0FC8?style=flat-square&logo=pwa)](finchat.html)
+[![HTML](https://img.shields.io/badge/HTML-único%20arquivo-orange?style=flat-square&logo=html5)](https://ednelsonsantos.github.io/Finchat/)
+[![PWA](https://img.shields.io/badge/PWA-instalável-5A0FC8?style=flat-square&logo=pwa)](https://ednelsonsantos.github.io/Finchat/)
 [![IA](https://img.shields.io/badge/IA-Gemini%202.0%20Flash-4285F4?style=flat-square&logo=google)](https://aistudio.google.com)
 [![Tamanho](https://img.shields.io/badge/tamanho-194KB-brightgreen?style=flat-square)](#)
 [![License](https://img.shields.io/badge/licença-MIT-green?style=flat-square)](LICENSE)
 [![Zero backend](https://img.shields.io/badge/backend-zero-brightgreen?style=flat-square)](#)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ativo-2088FF?style=flat-square&logo=github)](https://ednelsonsantos.github.io/Finchat/)
 
-**App de controle financeiro pessoal que roda inteiramente no navegador.**  
+**App de controle financeiro pessoal que roda inteiramente no navegador.**<br>
 Sem cadastro. Sem servidor. Sem mensalidade. Seus dados ficam no seu dispositivo.
 
-[▶ Como usar](#como-usar) · [📲 Instalar como app](#instalação-pwa) · [✨ Ativar IA](#inteligência-artificial) · [🧪 Testar no mobile](#testando-no-mobile)
+<h3><a href="https://ednelsonsantos.github.io/Finchat/">🌐 Acesse agora no GitHub Pages</a></h3>
+
+<a href="#como-usar">▶ Como usar</a> · <a href="#instalação-pwa">📲 Instalar como app</a> · <a href="#inteligência-artificial">✨ Ativar IA</a> · <a href="#testando-no-mobile">🧪 Testar no mobile</a>
 
 </div>
 
@@ -230,18 +233,28 @@ finchat_dark           → preferência de tema
 
 ## 💻 Como usar
 
+### Opção 1 — GitHub Pages (recomendado, sem instalar nada)
+
+Acesse direto pelo navegador:
+
+👉 **[https://ednelsonsantos.github.io/Finchat/](https://ednelsonsantos.github.io/Finchat/)**
+
+Funciona em qualquer dispositivo. Para instalar como PWA, basta seguir os passos em [Instalação PWA](#instalação-pwa).
+
+### Opção 2 — Rodar localmente
+
 ```bash
 # Clone
-git clone https://github.com/ednelsonsantos/finchat.git
-cd finchat
+git clone https://github.com/ednelsonsantos/Finchat.git
+cd Finchat
 
 # Abrir direto (uso básico)
-start finchat.html       # Windows
-open finchat.html        # macOS
+start index.html       # Windows
+open index.html        # macOS
 
 # Servir via HTTP (PWA + IA Gemini)
 python -m http.server 8080
-# Acesse: http://localhost:8080/finchat.html
+# Acesse: http://localhost:8080
 ```
 
 ---
@@ -258,21 +271,23 @@ python -m http.server 8080
 # 3. Descubra seu IP local
 ipconfig    # Windows — copie o IPv4
 # 4. No Chrome do BlueStacks acesse:
-# http://SEU_IP:8080/finchat.html
+# http://SEU_IP:8080
 ```
 
 **Android Studio AVD:**
 ```bash
 # IP especial do emulador para acessar o localhost da máquina
-http://10.0.2.2:8080/finchat.html
+http://10.0.2.2:8080
 ```
 
 **Celular físico** (mesma rede Wi-Fi):
 ```bash
 python -m http.server 8080
-# No celular: http://SEU_IP_LOCAL:8080/finchat.html
+# No celular: http://SEU_IP_LOCAL:8080
 # Banner de instalação PWA aparece automaticamente no Chrome Android
 ```
+
+> Dica: para testar sem configurar nada, use diretamente o GitHub Pages em qualquer dispositivo: [https://ednelsonsantos.github.io/Finchat/](https://ednelsonsantos.github.io/Finchat/)
 
 ---
 
