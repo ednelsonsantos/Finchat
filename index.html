@@ -1276,6 +1276,14 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
       </div>
     </div>
 
+    <!-- Linha 3: Comparativo 6 meses -->
+    <div class="dash-card-full">
+      <div class="dash-title">Comparativo — últimos 6 meses</div>
+      <div class="dash-canvas-wrap" style="height:180px">
+        <canvas id="chart-comparativo"></canvas>
+      </div>
+    </div>
+
     <!-- Últimos registros -->
     <div class="dash-card-full" style="margin-bottom:0">
       <div class="dash-title">Últimos registros</div>
@@ -2899,7 +2907,7 @@ function atualizarBottomNav(tab){
 }
 
 // ── DASHBOARD / GRÁFICOS ──────────────────────────────────────────────────────
-let chartLinha=null, chartPizza=null, chartBarras=null;
+let chartLinha=null, chartPizza=null, chartBarras=null, chartComparativo=null;
 
 const CORES_CAT = {
   alimentacao:'#E24B4A', saude:'#D4537E', transporte:'#EF9F27',
@@ -2947,6 +2955,7 @@ function renderDashboard(){
   renderChartLinha(regs);
   renderChartPizza(regs);
   renderChartBarras();
+  renderChartComparativo();
   calcularPossoGastar();
 }
 
@@ -3076,6 +3085,44 @@ function renderChartBarras(){
       },
       scales:{
         x:{ticks:{font:{size:9},color:'#aaa'},grid:{display:false}},
+        y:{ticks:{font:{size:9},color:'#aaa',callback:v=>v===0?'0':'R$'+Math.round(v)},grid:{color:'#f0f0f0'}},
+      }
+    }
+  });
+}
+
+function renderChartComparativo(){
+  const ctx=document.getElementById('chart-comparativo');
+  if(!ctx||typeof Chart==='undefined') return;
+  const labels=[], receitas=[], gastos=[];
+  for(let i=5;i>=0;i--){
+    let m=mesFiltro-i, yr=anoFiltro;
+    while(m<0){m+=12;yr--;}
+    const ini=new Date(yr,m,1);
+    const fim=new Date(yr,m+1,0,23,59,59,999);
+    const regs=registros.filter(r=>{const d=new Date(r.data);return d>=ini&&d<=fim;});
+    labels.push(MESES_PTBR[m].substring(0,3)+' '+String(yr).slice(2));
+    receitas.push(regs.filter(r=>r.tipo==='receita').reduce((s,r)=>s+r.valor,0));
+    gastos.push(  regs.filter(r=>r.tipo==='gasto'  ).reduce((s,r)=>s+r.valor,0));
+  }
+  if(chartComparativo){chartComparativo.destroy();chartComparativo=null;}
+  chartComparativo=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Receitas',data:receitas,backgroundColor:'rgba(29,158,117,.8)',borderRadius:4},
+        {label:'Gastos',  data:gastos,  backgroundColor:'rgba(226,75,74,.8)', borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,padding:12}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`}}
+      },
+      scales:{
+        x:{ticks:{font:{size:10},color:'#aaa'},grid:{display:false}},
         y:{ticks:{font:{size:9},color:'#aaa',callback:v=>v===0?'0':'R$'+Math.round(v)},grid:{color:'#f0f0f0'}},
       }
     }
