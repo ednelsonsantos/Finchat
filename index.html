@@ -1546,6 +1546,40 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
       </div>
     </div>
 
+    <!-- Notificações -->
+    <div class="cfg-section">
+      <div class="cfg-section-title">Notificações</div>
+      <div class="cfg-row" style="flex-wrap:wrap;gap:8px" id="cfg-notif-status-row">
+        <div>
+          <div class="cfg-row-label">Notificações nativas</div>
+          <div class="cfg-row-sub" id="cfg-notif-sub">Desativadas — clique para ativar</div>
+        </div>
+        <button class="cfg-btn" id="cfg-notif-btn" onclick="solicitarPermissaoNotif()">🔔 Ativar</button>
+      </div>
+      <div id="cfg-notif-toggles" style="display:none">
+        <div class="cfg-row">
+          <div>
+            <div class="cfg-row-label">Vencimentos e atrasos</div>
+            <div class="cfg-row-sub">Avisa quando uma conta fixa vence hoje ou está atrasada</div>
+          </div>
+          <label class="cfg-toggle">
+            <input type="checkbox" id="cfg-notif-vencimentos" checked onchange="salvarConfig()"/>
+            <span class="cfg-toggle-slider"></span>
+          </label>
+        </div>
+        <div class="cfg-row">
+          <div>
+            <div class="cfg-row-label">Lembrete diário</div>
+            <div class="cfg-row-sub">Lembra de registrar se não houver entradas no dia</div>
+          </div>
+          <label class="cfg-toggle">
+            <input type="checkbox" id="cfg-notif-lembrete" onchange="salvarConfig()"/>
+            <span class="cfg-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- Dados -->
     <div class="cfg-section">
       <div class="cfg-section-title">Inteligência Artificial ✨</div>
@@ -2279,14 +2313,17 @@ function salvarConfig(){
   const darkEl = document.getElementById('cfg-dark-mode');
   if(darkEl && darkEl.checked !== document.body.classList.contains('dark')) toggleDarkMode(darkEl.checked);
   const cfg = {
-    nome:         document.getElementById('cfg-nome')?.value||'',
-    moeda:        document.getElementById('cfg-moeda')?.value||'BRL',
-    diaInicio:    parseInt(document.getElementById('cfg-dia-inicio')?.value)||1,
-    alertas:      document.getElementById('cfg-alertas')?.checked!==false,
-    confirmarDel: document.getElementById('cfg-confirmar-del')?.checked!==false,
-    iaFallback:   document.getElementById('cfg-ia-fallback')?.checked!==false,
-    iaChat:       document.getElementById('cfg-ia-chat')?.checked!==false,
-    desde:        carregarConfig().desde || new Date().toISOString(),
+    nome:             document.getElementById('cfg-nome')?.value||'',
+    moeda:            document.getElementById('cfg-moeda')?.value||'BRL',
+    diaInicio:        parseInt(document.getElementById('cfg-dia-inicio')?.value)||1,
+    alertas:          document.getElementById('cfg-alertas')?.checked!==false,
+    confirmarDel:     document.getElementById('cfg-confirmar-del')?.checked!==false,
+    iaFallback:       document.getElementById('cfg-ia-fallback')?.checked!==false,
+    iaChat:           document.getElementById('cfg-ia-chat')?.checked!==false,
+    notifAtivas:      carregarConfig().notifAtivas||false, // mantém o valor atual
+    notifVencimentos: document.getElementById('cfg-notif-vencimentos')?.checked!==false,
+    notifLembrete:    document.getElementById('cfg-notif-lembrete')?.checked||false,
+    desde:            carregarConfig().desde || new Date().toISOString(),
   };
   try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch{}
   aplicarConfig(cfg);
@@ -2338,6 +2375,24 @@ function renderConfig(){
   if(sc) sc.textContent = cats||0;
   if(smt)smt.textContent= Object.keys(metas).length;
   renderCarteirasCfg();
+  // notificações UI
+  const perm=('Notification' in window)?Notification.permission:'unsupported';
+  const notifAtivas=cfg.notifAtivas&&perm==='granted';
+  const subEl=document.getElementById('cfg-notif-sub');
+  const btnEl=document.getElementById('cfg-notif-btn');
+  const togglesEl=document.getElementById('cfg-notif-toggles');
+  if(subEl){
+    if(perm==='unsupported') subEl.textContent='Não suportado neste navegador';
+    else if(perm==='denied')  subEl.textContent='Bloqueadas — ative nas configurações do navegador';
+    else if(notifAtivas)      subEl.textContent='Ativas ✓';
+    else                      subEl.textContent='Desativadas — clique para ativar';
+  }
+  if(btnEl) btnEl.style.display=notifAtivas?'none':'';
+  if(togglesEl) togglesEl.style.display=notifAtivas?'':'none';
+  const nv=document.getElementById('cfg-notif-vencimentos');
+  const nl=document.getElementById('cfg-notif-lembrete');
+  if(nv) nv.checked=cfg.notifVencimentos!==false;
+  if(nl) nl.checked=cfg.notifLembrete||false;
 }
 
 function exportarJSON(){
@@ -2390,6 +2445,93 @@ function importarJSON(event){
   event.target.value='';
 }
 
+
+// ── NOTIFICAÇÕES NATIVAS ─────────────────────────────────────────────────────
+const NOTIF_LOG_KEY = 'finchat_notif_log';
+const NOTIF_ICON = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231D9E75'/><text y='.9em' font-size='75' x='12'>💬</text></svg>";
+
+function jaNotificouHoje(tag){
+  try{
+    const log=JSON.parse(localStorage.getItem(NOTIF_LOG_KEY)||'{}');
+    return log[tag]===new Date().toISOString().slice(0,10);
+  }catch{return false;}
+}
+function marcarNotificado(tag){
+  try{
+    const log=JSON.parse(localStorage.getItem(NOTIF_LOG_KEY)||'{}');
+    const hoje=new Date().toISOString().slice(0,10);
+    log[tag]=hoje;
+    // limpar entradas > 30 dias
+    for(const k of Object.keys(log)){if(new Date()-new Date(log[k])>30*864e5)delete log[k];}
+    localStorage.setItem(NOTIF_LOG_KEY,JSON.stringify(log));
+  }catch{}
+}
+
+async function showNativeNotif(title,body,tag){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const opts={body,icon:NOTIF_ICON,badge:NOTIF_ICON,tag,renotify:false};
+  try{
+    const sw=await navigator.serviceWorker.ready;
+    await sw.showNotification(title,opts);
+  }catch{
+    try{new Notification(title,opts);}catch{}
+  }
+}
+
+async function solicitarPermissaoNotif(){
+  if(!('Notification' in window)){
+    alert('Seu navegador não suporta notificações nativas.\nUse Chrome, Edge ou Firefox.');
+    return;
+  }
+  if(Notification.permission==='denied'){
+    alert('Notificações bloqueadas pelo navegador.\nVá em Configurações do site → Notificações → Permitir.');
+    return;
+  }
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    const cfg=carregarConfig();
+    cfg.notifAtivas=true;
+    try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch{}
+    renderConfig();
+    mostrarToast('🔔 Notificações ativadas!');
+    await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
+  } else {
+    alert('Permissão negada. Ative manualmente nas configurações do navegador.');
+  }
+}
+
+function checkAndNotify(){
+  const cfg=carregarConfig();
+  if(!cfg.notifAtivas||!('Notification' in window)||Notification.permission!=='granted')return;
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+  // Vencimentos
+  if(cfg.notifVencimentos!==false){
+    recorrentes.forEach(rec=>{
+      const st=statusRecorrente(rec);
+      if(st==='vence-hoje'&&!jaNotificouHoje('venc_'+rec.id)){
+        showNativeNotif(`⚡ Vence hoje: ${rec.desc}`,`${fmt2(rec.val)} — abra FinChat para registrar`,'venc_'+rec.id);
+        marcarNotificado('venc_'+rec.id);
+      } else if(st==='vencido'&&!jaNotificouHoje('atrs_'+rec.id)){
+        showNativeNotif(`⚠️ Em atraso: ${rec.desc}`,`${fmt2(rec.val)} — vencimento dia ${rec.dia}`,'atrs_'+rec.id);
+        marcarNotificado('atrs_'+rec.id);
+      }
+    });
+  }
+
+  // Lembrete diário (só se não registrou nada hoje)
+  if(cfg.notifLembrete&&!jaNotificouHoje('lembrete_dia')){
+    const hoje=new Date();
+    const temHoje=registros.some(r=>{
+      const d=new Date(r.data);
+      return d.getFullYear()===hoje.getFullYear()&&d.getMonth()===hoje.getMonth()&&d.getDate()===hoje.getDate();
+    });
+    if(!temHoje){
+      showNativeNotif('💬 FinChat — lembrete','Você ainda não registrou nenhuma movimentação hoje.','lembrete_dia');
+      marcarNotificado('lembrete_dia');
+    }
+  }
+}
 
 // ── CARTEIRAS ─────────────────────────────────────────────────────────────────
 const CARTEIRAS_KEY = 'finchat_carteiras_v1';
@@ -2899,6 +3041,26 @@ self.addEventListener('activate', e=>{
 });
 self.addEventListener('fetch', e=>{
   e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('/'))));
+});
+self.addEventListener('message', e=>{
+  if(e.data&&e.data.type==='NOTIFY'){
+    self.registration.showNotification(e.data.title||'FinChat',{
+      body:e.data.body||'',
+      icon:e.data.icon||'',
+      badge:e.data.icon||'',
+      tag:e.data.tag||'finchat',
+      renotify:false,
+    }).catch(()=>{});
+  }
+});
+self.addEventListener('notificationclick', e=>{
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
+      if(cs.length)return cs[0].focus();
+      return self.clients.openWindow('./');
+    })
+  );
 });
   `;
   const blob = new Blob([swCode], {type:'application/javascript'});
@@ -4226,6 +4388,7 @@ objetivos=carregarObjetivos();
 renderAll();
 mostrarHome(); // começa na home limpa
 setTimeout(verificarVencimentosHoje,1000);
+setTimeout(checkAndNotify,2000);
 registrarServiceWorker();
 </script>
 </body>

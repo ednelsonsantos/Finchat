@@ -309,7 +309,7 @@ python -m http.server 8080
 - [ ] Electron — app desktop com SQLite local
 - [ ] Sincronização Google Drive / Dropbox
 - [x] Importação de extrato OFX/CSV bancário
-- [ ] Notificações push nativas
+- [x] Notificações push nativas
 
 ---
 
