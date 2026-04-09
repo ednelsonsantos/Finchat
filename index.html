@@ -944,6 +944,29 @@ body.dark .home-saldo-pill{background:#1a2e26}
 body.dark .home-saldo-pill span{color:#4eca97}
 body.dark .home-logo{color:#e8e8e6}
 
+/* ── CARTEIRAS ────────────────────────────────────────────────────────────── */
+.wallet-chips{display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;scrollbar-width:none;margin-bottom:4px}
+.wallet-chips::-webkit-scrollbar{display:none}
+.wallet-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#555;transition:all .15s;user-select:none}
+.wallet-chip.active{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.wallet-chip.chip-add{border-style:dashed;color:#bbb}
+.wallet-chip.chip-transfer{border-color:#EF9F27;color:#EF9F27}
+body.dark .wallet-chip{background:#2a2a2a;border-color:#444;color:#aaa}
+body.dark .wallet-chip.active{background:#1D9E75;border-color:#1D9E75;color:#fff}
+body.dark .wallet-chip.chip-add{color:#555}
+.carteira-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.carteira-item:last-child{border-bottom:none}
+.carteira-icon-wrap{font-size:18px;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.carteira-info{flex:1;min-width:0}
+.carteira-nome{font-size:13px;font-weight:600;color:#1a1a1a}
+.carteira-saldo-label{font-size:11px;color:#aaa;margin-top:1px}
+.carteira-btns{display:flex;gap:5px}
+.btn-carteira-edit{padding:4px 10px;border-radius:8px;border:1px solid #ddd;background:none;font-size:12px;cursor:pointer;color:#555}
+.btn-carteira-del{padding:4px 10px;border-radius:8px;border:1px solid #FCEBEB;background:#FCEBEB;color:#A32D2D;font-size:12px;cursor:pointer}
+body.dark .carteira-nome{color:#e8e8e6}
+body.dark .carteira-item{border-color:#333}
+body.dark .btn-carteira-edit{border-color:#444;color:#aaa;background:#2a2a2a}
+
 /* Card de destaque */
 .home-hero{
   background:linear-gradient(135deg,#1D9E75 0%,#0F6E56 100%);
@@ -1142,6 +1165,8 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
       </div>
     </div>
 
+    <!-- Filtro de carteiras -->
+    <div class="wallet-chips" id="wallet-chips"></div>
 
     <!-- Hero: quanto posso gastar -->
     <div class="home-hero" id="home-hero-card">
@@ -1565,6 +1590,14 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
     </div>
 
     <div class="cfg-section">
+      <div class="cfg-section-title">Carteiras</div>
+      <div id="cfg-carteiras-list"></div>
+      <div style="margin-top:8px">
+        <button class="cfg-btn" onclick="abrirModalCarteira()">+ Adicionar carteira</button>
+      </div>
+    </div>
+
+    <div class="cfg-section">
       <div class="cfg-section-title">Dados e backup</div>
       <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
         <div>
@@ -1672,6 +1705,69 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
     <div class="modal-actions" style="margin-top:12px;flex-shrink:0">
       <button class="modal-btn-cancel" onclick="fecharModalExtrato()">Cancelar</button>
       <button class="modal-btn-save" id="extrato-btn-import" onclick="confirmarImportExtrato()">Importar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal transferência entre carteiras -->
+<div class="modal-overlay" id="transfer-modal" onclick="fecharModalTransferencia(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">↕ Transferir entre carteiras</div>
+    <div class="edit-row">
+      <div class="edit-field">
+        <div class="edit-label">De</div>
+        <select class="edit-select" id="transfer-de"></select>
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">Para</div>
+        <select class="edit-select" id="transfer-para"></select>
+      </div>
+    </div>
+    <div class="edit-row">
+      <div class="edit-field">
+        <div class="edit-label">Valor (R$)</div>
+        <input class="edit-input" id="transfer-valor" type="number" min="0.01" step="0.01" placeholder="0,00"/>
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">Data</div>
+        <input class="edit-input" id="transfer-data" type="date"/>
+      </div>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Descrição (opcional)</div>
+      <input class="edit-input" id="transfer-desc" type="text" placeholder="Ex: pagar fatura Nubank"/>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharModalTransferencia()">Cancelar</button>
+      <button class="modal-btn-save" onclick="confirmarTransferencia()">Transferir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal adicionar/editar carteira -->
+<div class="modal-overlay" id="carteira-modal" onclick="fecharModalCarteira(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="carteira-modal-title">Nova carteira</div>
+    <input type="hidden" id="carteira-modal-id"/>
+    <div class="edit-field">
+      <div class="edit-label">Nome</div>
+      <input class="edit-input" id="carteira-modal-nome" type="text" placeholder="Ex: Nubank, Dinheiro, Itaú..."/>
+    </div>
+    <div class="edit-row">
+      <div class="edit-field">
+        <div class="edit-label">Ícone (emoji)</div>
+        <input class="edit-input" id="carteira-modal-icon" type="text" placeholder="💳" maxlength="4" style="font-size:20px;text-align:center"/>
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">Cor</div>
+        <input class="edit-input" id="carteira-modal-cor" type="color" value="#1D9E75" style="padding:4px;height:42px;cursor:pointer"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharModalCarteira()">Cancelar</button>
+      <button class="modal-btn-save" onclick="salvarModalCarteira()">Salvar</button>
     </div>
   </div>
 </div>
@@ -1935,7 +2031,7 @@ function atualizarParser(texto){
 // REGISTRAR
 function registrar(){
   if(!resultadoAtual)return;
-  const novoReg = {...resultadoAtual};
+  const novoReg = {...resultadoAtual, carteiraId: carteiraAtiva};
   registros.push(novoReg);
   salvar(registros);
   renderAll();
@@ -1984,7 +2080,7 @@ function renderAll(){
   renderCategorias();
   renderMetas();
   renderRecorrentes();
-  if(tabAtual==='config')    renderConfig();
+  if(tabAtual==='config'){renderConfig();renderCarteirasCfg();}
   if(tabAtual==='objetivos') renderObjetivos();
 }
 function renderResumo(){
@@ -2009,10 +2105,13 @@ function histHTML(r,del){
   const numBadge=num
     ?`<span class="cat-num" style="background:${cores.bg};color:${cores.txt}">#${num}</span>`
     :'';
+  const cw=carteiras.length>1?carteiraById(r.carteiraId):null;
+  const wBadge=cw?`<span style="font-size:9px;background:${cw.cor}20;color:${cw.cor};border-radius:4px;padding:1px 5px;margin-left:4px">${cw.icon} ${cw.nome}</span>`:'';
+  const transferIcon=r.isTransferencia?'↕ ':'';
   return`<div class="hist-item" onclick="abrirModal(${r.id})" title="Toque para editar">
     <div style="flex:1;min-width:0">
       <div class="hist-desc-wrap">
-        <span class="hist-desc">${r.descricao}</span>${numBadge}
+        <span class="hist-desc">${transferIcon}${r.descricao}</span>${numBadge}${wBadge}
       </div>
       <div class="hist-cat">${r.categoria.label} · ${fmtD(r.data)}</div>
       ${r.nota?`<div class="hist-nota">📝 ${r.nota}</div>`:''}
@@ -2238,6 +2337,7 @@ function renderConfig(){
   if(sm) sm.textContent = mesesSet||0;
   if(sc) sc.textContent = cats||0;
   if(smt)smt.textContent= Object.keys(metas).length;
+  renderCarteirasCfg();
 }
 
 function exportarJSON(){
@@ -2248,6 +2348,7 @@ function exportarJSON(){
     metas,
     recorrentes,
     objetivos,
+    carteiras,
     config: carregarConfig(),
   };
   const blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
@@ -2270,6 +2371,7 @@ function importarJSON(event){
       metas       = data.metas||{};
       recorrentes = data.recorrentes||[];
       objetivos   = data.objetivos||[];
+      if(data.carteiras&&data.carteiras.length) salvarCarteiras(data.carteiras);
       salvarObjetivos();
       salvar(registros);
       salvarMetas();
@@ -2288,6 +2390,151 @@ function importarJSON(event){
   event.target.value='';
 }
 
+
+// ── CARTEIRAS ─────────────────────────────────────────────────────────────────
+const CARTEIRAS_KEY = 'finchat_carteiras_v1';
+const CARTEIRA_PADRAO = {id:'geral', nome:'Geral', icon:'💼', cor:'#1D9E75'};
+let carteiras = [];
+let carteiraFiltro = 'todas';
+let carteiraAtiva  = 'geral';
+
+function carregarCarteiras(){
+  try{const d=localStorage.getItem(CARTEIRAS_KEY);if(d){const a=JSON.parse(d);if(a&&a.length)return a;}}catch{}
+  return[{...CARTEIRA_PADRAO}];
+}
+function salvarCarteiras(arr){carteiras=arr;localStorage.setItem(CARTEIRAS_KEY,JSON.stringify(arr));}
+function carteiraById(id){return carteiras.find(c=>c.id===id)||CARTEIRA_PADRAO;}
+
+function regsForCalc(regs){
+  // na visão "Todas", exclui transferências internas para não inflar totais
+  return carteiraFiltro==='todas'?regs.filter(r=>!r.isTransferencia):regs;
+}
+
+function renderWalletChips(){
+  const el=document.getElementById('wallet-chips');
+  if(!el)return;
+  const chips=[
+    `<div class="wallet-chip${carteiraFiltro==='todas'?' active':''}" onclick="setCarteiraFiltro('todas')">Todas</div>`,
+    ...carteiras.map(c=>{
+      const ativo=carteiraFiltro===c.id;
+      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${ativo?'background:'+c.cor+';border-color:'+c.cor+';color:#fff':''}">${c.icon} ${c.nome}</div>`;
+    }),
+    `<div class="wallet-chip chip-add" onclick="abrirModalCarteira()" title="Nova carteira">+ Nova</div>`,
+  ];
+  if(carteiras.length>=2)
+    chips.push(`<div class="wallet-chip chip-transfer" onclick="abrirModalTransferencia()" title="Transferir entre carteiras">↕ Transferir</div>`);
+  el.innerHTML=chips.join('');
+}
+
+function setCarteiraFiltro(id){
+  carteiraFiltro=id;
+  if(id!=='todas') carteiraAtiva=id;
+  renderAll();
+}
+
+// ── WALLET CRUD ───────────────────────────────────────────────────────────────
+function abrirModalCarteira(id){
+  const c=id?carteiraById(id):null;
+  document.getElementById('carteira-modal-title').textContent=c?'Editar carteira':'Nova carteira';
+  document.getElementById('carteira-modal-id').value=id||'';
+  document.getElementById('carteira-modal-nome').value=c?c.nome:'';
+  document.getElementById('carteira-modal-icon').value=c?c.icon:'💳';
+  document.getElementById('carteira-modal-cor').value=c?c.cor:'#1D9E75';
+  document.getElementById('carteira-modal').classList.add('open');
+}
+function fecharModalCarteira(e){
+  if(e&&e.target!==document.getElementById('carteira-modal'))return;
+  document.getElementById('carteira-modal').classList.remove('open');
+}
+function salvarModalCarteira(){
+  const nome=document.getElementById('carteira-modal-nome').value.trim();
+  if(!nome){alert('Digite um nome para a carteira.');return;}
+  const icon=document.getElementById('carteira-modal-icon').value.trim()||'💳';
+  const cor=document.getElementById('carteira-modal-cor').value||'#1D9E75';
+  const existingId=document.getElementById('carteira-modal-id').value;
+  if(existingId){
+    const idx=carteiras.findIndex(c=>c.id===existingId);
+    if(idx>=0)carteiras[idx]={...carteiras[idx],nome,icon,cor};
+  }else{
+    carteiras.push({id:'c_'+Date.now(),nome,icon,cor});
+  }
+  salvarCarteiras(carteiras);
+  document.getElementById('carteira-modal').classList.remove('open');
+  renderConfig();renderWalletChips();
+  mostrarToast('✓ Carteira salva!');
+}
+function deletarCarteira(id){
+  if(id==='geral'){alert('A carteira Geral não pode ser removida.');return;}
+  const c=carteiraById(id);
+  const count=registros.filter(r=>r.carteiraId===id).length;
+  if(!confirm(`Remover "${c.nome}"?${count?'\n'+count+' registro(s) serão movidos para Geral.':''}`))return;
+  if(count){registros=registros.map(r=>r.carteiraId===id?{...r,carteiraId:'geral'}:r);salvar(registros);}
+  salvarCarteiras(carteiras.filter(c=>c.id!==id));
+  if(carteiraFiltro===id)carteiraFiltro='todas';
+  if(carteiraAtiva===id)carteiraAtiva='geral';
+  renderAll();renderConfig();
+}
+
+// ── TRANSFERÊNCIA ──────────────────────────────────────────────────────────────
+function abrirModalTransferencia(){
+  const opts=carteiras.map(c=>`<option value="${c.id}">${c.icon} ${c.nome}</option>`).join('');
+  document.getElementById('transfer-de').innerHTML=opts;
+  document.getElementById('transfer-para').innerHTML=opts;
+  if(carteiras.length>=2)document.getElementById('transfer-para').selectedIndex=1;
+  document.getElementById('transfer-valor').value='';
+  document.getElementById('transfer-desc').value='';
+  document.getElementById('transfer-data').value=new Date().toISOString().slice(0,10);
+  document.getElementById('transfer-modal').classList.add('open');
+}
+function fecharModalTransferencia(e){
+  if(e&&e.target!==document.getElementById('transfer-modal'))return;
+  document.getElementById('transfer-modal').classList.remove('open');
+}
+function confirmarTransferencia(){
+  const deId=document.getElementById('transfer-de').value;
+  const paraId=document.getElementById('transfer-para').value;
+  const valor=parseFloat(document.getElementById('transfer-valor').value);
+  const dataStr=document.getElementById('transfer-data').value;
+  const desc=document.getElementById('transfer-desc').value.trim()||'Transferência';
+  if(deId===paraId){alert('Selecione carteiras diferentes.');return;}
+  if(!valor||valor<=0){alert('Digite um valor válido.');return;}
+  const data=new Date(dataStr+'T12:00:00').toISOString();
+  const tid=Date.now();
+  const cDe=carteiraById(deId),cPara=carteiraById(paraId);
+  const catTransf={key:'transferencia',label:'↕ Transferência',badge:'bg-gray',cor:'#888780'};
+  registros.push({id:tid,  tipo:'gasto',   valor,carteiraId:deId,  categoria:catTransf,descricao:`${desc} → ${cPara.icon} ${cPara.nome}`,data,confianca:100,isTransferencia:true,transferId:tid});
+  registros.push({id:tid+1,tipo:'receita', valor,carteiraId:paraId,categoria:catTransf,descricao:`${desc} ← ${cDe.icon} ${cDe.nome}`,  data,confianca:100,isTransferencia:true,transferId:tid});
+  registros.sort((a,b)=>new Date(a.data)-new Date(b.data));
+  salvar(registros);renderAll();
+  document.getElementById('transfer-modal').classList.remove('open');
+  mostrarToast(`↕ ${fmt(valor)} transferido!`);
+}
+
+// ── SALDO POR CARTEIRA ────────────────────────────────────────────────────────
+function calcularSaldoCarteira(id){
+  return registros.filter(r=>r.carteiraId===id).reduce((s,r)=>r.tipo==='receita'?s+r.valor:s-r.valor,0);
+}
+
+function renderCarteirasCfg(){
+  const el=document.getElementById('cfg-carteiras-list');
+  if(!el)return;
+  if(!carteiras.length){el.innerHTML='<div class="empty">Nenhuma carteira</div>';return;}
+  el.innerHTML=carteiras.map(c=>{
+    const saldo=calcularSaldoCarteira(c.id);
+    const isDef=c.id==='geral';
+    return`<div class="carteira-item">
+      <div class="carteira-icon-wrap" style="background:${c.cor}20">${c.icon}</div>
+      <div class="carteira-info">
+        <div class="carteira-nome">${c.nome}${isDef?' <span style="font-size:10px;color:#aaa">(padrão)</span>':''}</div>
+        <div class="carteira-saldo-label" style="color:${saldo>=0?'#1D9E75':'#E24B4A'}">${fmt(saldo)}</div>
+      </div>
+      <div class="carteira-btns">
+        <button class="btn-carteira-edit" onclick="abrirModalCarteira('${c.id}')">✏️</button>
+        ${isDef?'':`<button class="btn-carteira-del" onclick="deletarCarteira('${c.id}')">🗑️</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ── IMPORTAR EXTRATO ─────────────────────────────────────────────────────────
 let _extratoItens = [];
@@ -2729,10 +2976,11 @@ function calcularPossoGastar(){
   const diaAtual    = hoje.getDate();
   const diasRestantes = diasNoMes - diaAtual + 1; // inclui hoje
 
-  const mesRegs = registros.filter(r=>{
+  const mesRegsAll = registros.filter(r=>{
     const d=new Date(r.data);
-    return d.getFullYear()===ano && d.getMonth()===mes;
+    return d.getFullYear()===ano && d.getMonth()===mes && (carteiraFiltro==='todas'||r.carteiraId===carteiraFiltro);
   });
+  const mesRegs = regsForCalc(mesRegsAll);
 
   const totRec = mesRegs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
   const totGas = mesRegs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
@@ -2919,14 +3167,17 @@ function renderHome(){
   const diaAtual    = agora.getDate();
   const diasRestantes = diasNoMes - diaAtual + 1;
 
-  // dados do mês atual (sempre, independente do filtro)
-  const mesRegs = registros.filter(r=>{
+  // dados do mês atual filtrados por carteira
+  const mesRegsAll = registros.filter(r=>{
     const d=new Date(r.data);
-    return d.getFullYear()===ano && d.getMonth()===mes;
+    return d.getFullYear()===ano && d.getMonth()===mes && (carteiraFiltro==='todas'||r.carteiraId===carteiraFiltro);
   });
+  const mesRegs = regsForCalc(mesRegsAll);
   const totRec = mesRegs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
   const totGas = mesRegs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
   const saldo  = totRec - totGas;
+
+  renderWalletChips();
 
   // atualizar pill do header
   const pill = document.getElementById('home-saldo-pill-val');
@@ -3064,7 +3315,10 @@ function atualizarMesLabel(){
 function regsDoMesFiltro(){
   const ini = new Date(anoFiltro, mesFiltro, 1);
   const fim = new Date(anoFiltro, mesFiltro+1, 0, 23, 59, 59);
-  return registros.filter(r=>{ const d=new Date(r.data); return d>=ini && d<=fim; });
+  return registros.filter(r=>{
+    const d=new Date(r.data);
+    return d>=ini && d<=fim && (carteiraFiltro==='todas'||r.carteiraId===carteiraFiltro);
+  });
 }
 
 // ── BOTTOM NAV ────────────────────────────────────────────────────────────────
@@ -3100,8 +3354,9 @@ function mesAtualRegs(){
 function renderDashboard(){
   const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
   const regs=regsDoMesFiltro();
-  const totRec=regs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
-  const totGas=regs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
+  const regsCalc=regsForCalc(regs);
+  const totRec=regsCalc.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
+  const totGas=regsCalc.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
   const saldo=totRec-totGas;
 
   // KPIs
@@ -3955,6 +4210,12 @@ document.getElementById('inp').addEventListener('input',e=>{
 });
 document.getElementById('inp').addEventListener('keydown',e=>{if(e.key==='Enter')enviar();});
 registros=carregar();
+carteiras=carregarCarteiras();
+// migrar registros sem carteiraId (dados anteriores à feature)
+if(registros.some(r=>!r.carteiraId)){
+  registros=registros.map(r=>r.carteiraId?r:{...r,carteiraId:'geral'});
+  salvar(registros);
+}
 metas=carregarMetas();
 recorrentes=carregarRecorrentes();
 gerarManifest();

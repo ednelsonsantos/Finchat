@@ -303,7 +303,7 @@ python -m http.server 8080
 
 ## 🗺️ Roadmap
 
-- [ ] Múltiplas carteiras (Nubank, dinheiro, cartão de crédito)
+- [x] Múltiplas carteiras (Nubank, dinheiro, cartão de crédito)
 - [x] Gráfico comparativo dos últimos 6 meses
 - [ ] Capacitor — APK Android / iOS com SQLite nativo
 - [ ] Electron — app desktop com SQLite local
