@@ -911,6 +911,130 @@ body.dark .rec-form *:not(input):not(select):not(button) { color: inherit; }
 body.dark .meta-form *:not(input):not(select):not(button) { color: inherit; }
 body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
 
+
+/* ── HOME MINIMALISTA ──────────────────────────────────────────── */
+.home-screen{
+  display:flex;flex-direction:column;min-height:calc(100vh - 70px);
+  padding-bottom:8px;
+}
+.home-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0 10px;
+}
+.home-logo{font-size:17px;font-weight:700;color:#1a1a1a;display:flex;align-items:center;gap:7px}
+.home-logo-dot{width:9px;height:9px;border-radius:50%;background:#1D9E75}
+.home-saldo-pill{
+  display:flex;align-items:center;gap:6px;
+  background:#E1F5EE;border-radius:20px;padding:5px 12px;cursor:pointer;
+}
+.home-saldo-pill span{font-size:12px;font-weight:600;color:#0F6E56}
+.home-saldo-pill .saldo-eye{font-size:13px;color:#1D9E75}
+body.dark .home-saldo-pill{background:#1a2e26}
+body.dark .home-saldo-pill span{color:#4eca97}
+body.dark .home-logo{color:#e8e8e6}
+
+/* Card de destaque */
+.home-hero{
+  background:linear-gradient(135deg,#1D9E75 0%,#0F6E56 100%);
+  border-radius:20px;padding:20px 20px 18px;margin-bottom:16px;
+  color:#fff;position:relative;overflow:hidden;
+}
+.home-hero::after{
+  content:'';position:absolute;right:-20px;top:-20px;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(255,255,255,.07);
+}
+.home-hero-label{font-size:11px;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.home-hero-val{font-size:36px;font-weight:700;line-height:1;margin-bottom:6px}
+.home-hero-sub{font-size:12px;opacity:.75}
+.home-hero-mini{
+  display:flex;gap:12px;margin-top:14px;padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.2);
+}
+.home-mini-item{flex:1;text-align:center}
+.home-mini-item .mi-lbl{font-size:10px;opacity:.7;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.home-mini-item .mi-val{font-size:14px;font-weight:600}
+
+/* Atalhos recentes */
+.home-atalhos-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.home-atalhos{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.home-atalho{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1px solid #eee;background:#fff;cursor:pointer;color:#555;
+  transition:all .15s;
+}
+.home-atalho:hover{border-color:#1D9E75;color:#0F6E56;background:#E1F5EE}
+.home-atalho .at-icon{font-size:14px}
+body.dark .home-atalho{background:#242424;border-color:#333;color:#bbb}
+body.dark .home-atalho:hover{border-color:#1D9E75;color:#4eca97;background:#1a2e26}
+
+/* Input principal da home */
+.home-input-wrap{margin-top:auto;padding-top:12px}
+.home-input-row{display:flex;gap:8px;align-items:center}
+.home-input-row input{
+  flex:1;padding:13px 18px;border-radius:28px;
+  border:1.5px solid #e0e0e0;font-size:15px;
+  background:#fff;color:#1a1a1a;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.home-input-row input:focus{
+  border-color:#1D9E75;
+  box-shadow:0 2px 12px rgba(29,158,117,.15);
+}
+body.dark .home-input-row input{
+  background:#242424;border-color:#333;color:#e8e8e6;
+  box-shadow:none;
+}
+.home-send-btn{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;
+  background:#1D9E75;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(29,158,117,.35);
+  transition:transform .15s,background .15s;
+}
+.home-send-btn:hover{background:#0F6E56;transform:scale(1.05)}
+.home-send-btn:active{transform:scale(.96)}
+.home-send-btn:disabled{background:#ccc;box-shadow:none;cursor:default}
+.home-send-btn svg{fill:white;width:20px;height:20px}
+
+/* Hint na home — diferente, mais integrado */
+.home-hint{
+  background:#fff;border:1px solid #e8f5f0;border-radius:16px;
+  margin-top:8px;overflow:hidden;display:none;
+  animation:fadeIn .15s ease;
+}
+body.dark .home-hint{background:#242424;border-color:#1a3d2e}
+.home-hint .hint-head{padding:10px 14px;border-bottom:1px solid #f0f0f0}
+body.dark .home-hint .hint-head{border-color:#333}
+.home-result{
+  background:#fff;border:1px solid #eee;border-radius:16px;
+  padding:13px 16px;margin-top:8px;display:none;
+}
+body.dark .home-result{background:#242424;border-color:#333}
+.home-mode-ind{font-size:12px;margin:6px 0 4px;min-height:18px}
+
+/* Toast na home */
+.home-toast{
+  background:#1D9E75;color:#fff;border-radius:12px;
+  padding:10px 16px;font-size:13px;font-weight:500;
+  display:none;margin-top:8px;text-align:center;
+  animation:fadeIn .2s ease;
+}
+body.dark .home-toast{background:#0d5c3f}
+
+/* Botão acessar dashboard */
+.home-dash-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:10px;border-radius:12px;margin-top:10px;
+  border:1px solid #eee;background:none;cursor:pointer;
+  font-size:13px;color:#888;transition:all .15s;
+}
+.home-dash-btn:hover{border-color:#1D9E75;color:#1D9E75;background:#E1F5EE}
+body.dark .home-dash-btn{border-color:#333;color:#666}
+body.dark .home-dash-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a2e26}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -918,73 +1042,94 @@ body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
 </head>
 <body>
 <div class="app">
-  <div class="app-header">
-    <div>
-      <div class="app-logo"><div class="app-logo-dot"></div> FinChat</div>
-      <div class="app-subtitle" id="storage-label">Carregando...</div>
-    </div>
-    <div class="header-right">
-      <div class="month-nav">
-        <button onclick="mudarMes(-1)" title="Mês anterior">‹</button>
-        <span class="month-label" id="month-label">—</span>
-        <button onclick="mudarMes(1)" id="btn-mes-next" title="Próximo mês">›</button>
+
+  <!-- ══ HOME SCREEN ══════════════════════════════════════════════ -->
+  <div class="home-screen" id="home-screen">
+
+    <!-- Topbar -->
+    <div class="home-topbar">
+      <div class="home-logo"><div class="home-logo-dot"></div> FinChat</div>
+      <div class="home-saldo-pill" onclick="setTab('resumo')" title="Ver dashboard">
+        <span class="saldo-eye">💰</span>
+        <span id="home-saldo-pill-val">R$ 0</span>
       </div>
     </div>
-  </div>
-  <div id="toast" class="toast" style="display:none">✓ Registro salvo!</div>
 
-  <div class="query-chips">
-    <div class="qchip" onclick="consultaRapida('quanto gastei hoje?')">quanto gastei hoje?</div>
-    <div class="qchip" onclick="consultaRapida('quanto gastei essa semana?')">essa semana?</div>
-    <div class="qchip" onclick="consultaRapida('qual meu saldo?')">qual meu saldo?</div>
-    <div class="qchip" onclick="consultaRapida('onde gastei mais?')">onde gastei mais?</div>
-    <div class="qchip" onclick="consultaRapida('resumo do m\u00eas')">resumo do m\u00eas</div>
-    <div class="qchip" onclick="consultaRapida('quanto recebi esse m\u00eas?')">quanto recebi?</div>
-  </div>
-  <div class="chat-log" id="chat-log"></div>
-  <div id="mode-indicator" style="margin-bottom:6px"></div>
-  <div class="input-row">
-    <input id="inp" type="text" placeholder='Registre ou pergunte: "gasto 180 mercado" ou "quanto gastei hoje?"' autocomplete="off"/>
-    <button class="send-btn" id="btn" onclick="enviar()" disabled>Enviar</button>
-  </div>
+    <div id="toast" class="home-toast">✓ Registro salvo!</div>
 
-  <div class="hint-box" id="hint-box">
-    <div class="hint-head">
-      <div class="hint-icon" id="hint-icon"></div>
-      <div style="flex:1"><div class="hint-label" id="hint-label"></div><div class="hint-sub" id="hint-sub"></div></div>
-      <span id="hint-badge"></span>
-    </div>
-    <div class="intent-section" id="intent-section" style="display:none">
-      <div class="intent-label">O que aconteceu?</div>
-      <div class="intent-btns">
-        <button class="intent-btn" id="btn-paguei" onclick="setIntent('gasto')"><span>💸</span> Paguei este profissional</button>
-        <button class="intent-btn" id="btn-recebi" onclick="setIntent('receita')"><span>💰</span> Recebi por este serviço</button>
+    <!-- Hero: quanto posso gastar -->
+    <div class="home-hero" id="home-hero-card">
+      <div class="home-hero-label">Você pode gastar hoje</div>
+      <div class="home-hero-val" id="home-hero-val">—</div>
+      <div class="home-hero-sub" id="home-hero-sub">Registre uma receita para calcular</div>
+      <div class="home-hero-mini">
+        <div class="home-mini-item">
+          <div class="mi-lbl">Receitas</div>
+          <div class="mi-val" id="home-mini-rec">R$ 0</div>
+        </div>
+        <div class="home-mini-item">
+          <div class="mi-lbl">Gastos</div>
+          <div class="mi-val" id="home-mini-gas">R$ 0</div>
+        </div>
+        <div class="home-mini-item">
+          <div class="mi-lbl">Saldo</div>
+          <div class="mi-val" id="home-mini-sal">R$ 0</div>
+        </div>
       </div>
     </div>
-    <div class="examples-section">
-      <div class="examples-label">Exemplos de como registrar</div>
-      <div id="hint-examples"></div>
-    </div>
-    <div class="hint-tip" id="hint-tip"></div>
-  </div>
 
-  <div class="card">
-    <div class="card-title-row"><span class="card-title">Resultado da análise</span></div>
-    <div id="result"><div class="placeholder-msg">Aguardando entrada...</div></div>
-  </div>
-
-  <div class="export-bar">
-    <span class="eb-label">Exportar:</span>
-    <button class="exp-btn" onclick="exportarPDF()"><span class="ico">📄</span> PDF</button>
-    <button class="exp-btn" onclick="exportarCSV()"><span class="ico">📊</span> Excel / CSV</button>
-    <div class="exp-sel">
-      <select id="exp-periodo">
-        <option value="mes">Este mês</option>
-        <option value="semana">Esta semana</option>
-        <option value="todos">Todos os registros</option>
-      </select>
+    <!-- Atalhos rápidos (últimas categorias usadas) -->
+    <div id="home-atalhos-wrap" style="display:none">
+      <div class="home-atalhos-label">Registrar rápido</div>
+      <div class="home-atalhos" id="home-atalhos"></div>
     </div>
+
+    <!-- Input principal -->
+    <div class="home-input-wrap">
+      <div class="home-input-row">
+        <input id="inp" type="text"
+          placeholder='"gasto 80 farmácia" ou "recebi 4000 salário"'
+          autocomplete="off"/>
+        <button class="home-send-btn" id="btn" onclick="enviar()" disabled title="Registrar / Perguntar">
+          <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="home-mode-ind" id="mode-indicator"></div>
+
+      <!-- Hint contextual -->
+      <div class="home-hint hint-box" id="hint-box">
+        <div class="hint-head">
+          <div class="hint-icon" id="hint-icon"></div>
+          <div style="flex:1"><div class="hint-label" id="hint-label"></div><div class="hint-sub" id="hint-sub"></div></div>
+          <span id="hint-badge"></span>
+        </div>
+        <div class="intent-section" id="intent-section" style="display:none">
+          <div class="intent-label">O que aconteceu?</div>
+          <div class="intent-btns">
+            <button class="intent-btn" id="btn-paguei" onclick="setIntent('gasto')"><span>💸</span> Paguei este profissional</button>
+            <button class="intent-btn" id="btn-recebi" onclick="setIntent('receita')"><span>💰</span> Recebi por este serviço</button>
+          </div>
+        </div>
+        <div class="examples-section">
+          <div class="examples-label">Exemplos de como registrar</div>
+          <div id="hint-examples"></div>
+        </div>
+        <div class="hint-tip" id="hint-tip"></div>
+      </div>
+
+      <!-- Resultado do parser (compacto) -->
+      <div class="home-result" id="result">
+        <div class="placeholder-msg">Aguardando entrada...</div>
+      </div>
+    </div>
+
+    <!-- Acessar dashboard / histórico -->
+    <button class="home-dash-btn" onclick="setTab('resumo')">
+      📊 Ver dashboard, histórico e relatórios
+    </button>
+
   </div>
+  <!-- ══ FIM HOME SCREEN ══════════════════════════════════════════ -->
 
   <div id="meta-notif" class="meta-notif"></div>
 
@@ -1386,8 +1531,11 @@ body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
 
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
-    <div class="bnav-item active" id="bn-resumo" onclick="setTab('resumo')">
-      <span class="bi-icon">📊</span><span class="bi-label">Início</span>
+    <div class="bnav-item active" id="bn-home" onclick="mostrarHome()">
+      <span class="bi-icon">🏠</span><span class="bi-label">Início</span>
+    </div>
+    <div class="bnav-item" id="bn-resumo" onclick="setTab('resumo')">
+      <span class="bi-icon">📊</span><span class="bi-label">Dashboard</span>
     </div>
     <div class="bnav-item" id="bn-historico" onclick="setTab('historico')">
       <span class="bi-icon">📋</span><span class="bi-label">Histórico</span>
@@ -1397,12 +1545,6 @@ body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
     </div>
     <div class="bnav-item" id="bn-recorrentes" onclick="setTab('recorrentes')">
       <span class="bi-icon">🔁</span><span class="bi-label">Fixos</span>
-    </div>
-    <div class="bnav-item" id="bn-categorias" onclick="setTab('categorias')">
-      <span class="bi-icon">📈</span><span class="bi-label">Categ.</span>
-    </div>
-    <div class="bnav-item" id="bn-objetivos" onclick="setTab('objetivos')">
-      <span class="bi-icon">⭐</span><span class="bi-label">Sonhos</span>
     </div>
     <div class="bnav-item" id="bn-config" onclick="setTab('config')">
       <span class="bi-icon">⚙️</span><span class="bi-label">Config</span>
@@ -1655,6 +1797,9 @@ function limparTudo(){if(!confirm('Apagar TODOS os registros? Esta ação não p
 // TABS / FILTROS
 function setTab(t){
   tabAtual=t;
+  // esconder home screen
+  const hs=document.getElementById('home-screen');
+  if(hs) hs.style.display='none';
   ['resumo','historico','categorias','metas','recorrentes','objetivos','config'].forEach((id,i)=>{
     document.getElementById('tab-'+id).style.display=id===t?'block':'none';
     document.querySelectorAll('.tab')[i].className='tab'+(id===t?' active':'');
@@ -1675,7 +1820,7 @@ function setFiltro(f){
 }
 
 // RENDER
-function renderAll(){renderResumo();renderHistorico();renderCategorias();renderMetas();renderRecorrentes();if(tabAtual==='config')renderConfig();if(tabAtual==='objetivos')renderObjetivos();}
+function renderAll(){renderHome();renderResumo();renderHistorico();renderCategorias();renderMetas();renderRecorrentes();if(tabAtual==='config')renderConfig();if(tabAtual==='objetivos')renderObjetivos();}
 function renderResumo(){
   renderDashboard();
 }
@@ -2445,6 +2590,132 @@ function renderObjetivos(){
   }).join('');
 }
 
+
+// ── HOME MINIMALISTA ──────────────────────────────────────────────────────────
+function renderHome(){
+  const fmt2 = v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const agora = new Date();
+  const ano=agora.getFullYear(), mes=agora.getMonth();
+  const diasNoMes   = new Date(ano,mes+1,0).getDate();
+  const diaAtual    = agora.getDate();
+  const diasRestantes = diasNoMes - diaAtual + 1;
+
+  // dados do mês atual (sempre, independente do filtro)
+  const mesRegs = registros.filter(r=>{
+    const d=new Date(r.data);
+    return d.getFullYear()===ano && d.getMonth()===mes;
+  });
+  const totRec = mesRegs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
+  const totGas = mesRegs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
+  const saldo  = totRec - totGas;
+
+  // atualizar pill do header
+  const pill = document.getElementById('home-saldo-pill-val');
+  if(pill) pill.textContent = fmt2(saldo);
+
+  // mini stats no hero
+  const mr=document.getElementById('home-mini-rec');
+  const mg=document.getElementById('home-mini-gas');
+  const ms=document.getElementById('home-mini-sal');
+  if(mr) mr.textContent=fmt2(totRec);
+  if(mg) mg.textContent=fmt2(totGas);
+  if(ms){ ms.textContent=fmt2(saldo); ms.style.color=saldo>=0?'rgba(255,255,255,1)':'rgba(255,150,150,1)'; }
+
+  // card hero: quanto posso gastar
+  const fixosPend = recorrentes
+    .filter(r=>r.tipo==='gasto' && statusRecorrente(r)!=='registrado')
+    .reduce((a,r)=>a+r.val,0);
+  const dispMes   = totRec - totGas - fixosPend;
+  const porDia    = diasRestantes>0 ? dispMes/diasRestantes : dispMes;
+
+  const heroCard = document.getElementById('home-hero-card');
+  const heroVal  = document.getElementById('home-hero-val');
+  const heroSub  = document.getElementById('home-hero-sub');
+
+  if(totRec===0){
+    if(heroVal) heroVal.textContent='—';
+    if(heroSub) heroSub.textContent='Registre uma receita para calcular';
+  } else if(porDia<=0){
+    if(heroVal) heroVal.textContent='-'+fmt2(Math.abs(porDia));
+    if(heroSub) heroSub.textContent=`Orçamento estourado · ${diasRestantes}d restantes`;
+    if(heroCard) heroCard.style.background='linear-gradient(135deg,#b91c1c,#7f1d1d)';
+  } else if(porDia<50){
+    if(heroVal) heroVal.textContent=fmt2(porDia);
+    if(heroSub) heroSub.textContent=`Atenção · ${diasRestantes} dias restantes`;
+    if(heroCard) heroCard.style.background='linear-gradient(135deg,#d97706,#92400e)';
+  } else {
+    if(heroVal) heroVal.textContent=fmt2(porDia);
+    if(heroSub) heroSub.textContent=`por dia · ${diasRestantes} dias restantes no mês`;
+    if(heroCard) heroCard.style.background='linear-gradient(135deg,#1D9E75,#0F6E56)';
+  }
+
+  // atalhos: últimas 4 categorias usadas (deduplica)
+  renderAtalhosHome();
+}
+
+function renderAtalhosHome(){
+  const wrap = document.getElementById('home-atalhos-wrap');
+  const cont = document.getElementById('home-atalhos');
+  if(!cont||!wrap) return;
+
+  // pegar últimas transações e extrair categoria+descrição única
+  const ultimas = [...registros]
+    .sort((a,b)=>new Date(b.data)-new Date(a.data));
+
+  const vistos = new Set();
+  const atalhos = [];
+  for(const r of ultimas){
+    const key = r.categoria.key + '|' + r.descricao.split(' ')[0].toLowerCase();
+    if(!vistos.has(key) && atalhos.length < 4){
+      vistos.add(key);
+      atalhos.push(r);
+    }
+  }
+
+  if(!atalhos.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+
+  const iconesCateg = {
+    alimentacao:'🛒',saude:'💊',transporte:'🚗',moradia:'🏠',
+    lazer:'🎬',educacao:'📚',pets:'🐾',vestuario:'👕',
+    investimento:'📈',salario:'💼',freela:'💻',servicos:'🔧',outros:'📦',
+  };
+
+  cont.innerHTML = atalhos.map(r=>{
+    const ico = iconesCateg[r.categoria.key]||'📦';
+    const desc = r.descricao.split(' ').slice(0,2).join(' ');
+    const val  = r.valor.toLocaleString('pt-BR',{maximumFractionDigits:0});
+    const sinal = r.tipo==='receita'?'+':'-';
+    return `<div class="home-atalho" onclick="preencherAtalho('${r.tipo}','${r.descricao}','${r.categoria.key}',${r.valor})" title="Usar como base">
+      <span class="at-icon">${ico}</span>
+      <span>${desc}</span>
+      <span style="font-size:11px;color:#aaa">${sinal}R$${val}</span>
+    </div>`;
+  }).join('');
+}
+
+function preencherAtalho(tipo,desc,catKey,valor){
+  const frase = (tipo==='gasto'?'gasto ':'recebi ') + valor + ' ' + desc;
+  const inp=document.getElementById('inp');
+  if(inp){ inp.value=frase; inp.dispatchEvent(new Event('input')); inp.focus(); }
+}
+
+// controlar visibilidade da home vs tabs
+function mostrarHome(){
+  const hs=document.getElementById('home-screen');
+  const tabs=['resumo','historico','categorias','metas','recorrentes','objetivos','config'];
+  if(hs) hs.style.display='flex';
+  tabs.forEach(id=>{
+    const el=document.getElementById('tab-'+id);
+    if(el) el.style.display='none';
+  });
+  // bottom nav: nenhum item ativo
+  document.querySelectorAll('.bnav-item').forEach(el=>el.classList.remove('active'));
+  const homeBtn=document.getElementById('bn-home');
+  if(homeBtn) homeBtn.classList.add('active');
+  renderHome();
+}
+
 // ── FILTRO DE MÊS ─────────────────────────────────────────────────────────────
 const MESES_PTBR = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -2476,7 +2747,7 @@ function regsDoMesFiltro(){
 
 // ── BOTTOM NAV ────────────────────────────────────────────────────────────────
 function atualizarBottomNav(tab){
-  const ids = ['resumo','historico','metas','recorrentes','categorias','objetivos','config'];
+  const ids = ['home','resumo','historico','metas','recorrentes','config'];
   ids.forEach(id=>{
     const el = document.getElementById('bn-'+id);
     if(el) el.className = 'bnav-item' + (id===tab?' active':'');
@@ -3327,7 +3598,7 @@ atualizarMesLabel();
 aplicarConfig(carregarConfig());
 objetivos=carregarObjetivos();
 renderAll();
-atualizarBottomNav('resumo');
+mostrarHome(); // começa na home limpa
 setTimeout(verificarVencimentosHoje,1000);
 registrarServiceWorker();
 </script>
