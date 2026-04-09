@@ -633,33 +633,175 @@ body{padding:0;background:#f5f5f3}
 
 /* ── MODO ESCURO ─────────────────────────────────────────────── */
 body.dark{background:#1a1a1a;color:#e8e8e6}
+
+/* Superfícies */
 body.dark .card,body.dark .dash-card,body.dark .dash-card-full,
 body.dark .hint-box,body.dark .meta-card,body.dark .rec-card,
 body.dark .export-bar,body.dark .cfg-row,body.dark .meta-form,
-body.dark .rec-form,body.dark .modal-sheet,body.dark .month-nav{
+body.dark .rec-form,body.dark .modal-sheet,body.dark .month-nav,
+body.dark .obj-card,body.dark .obj-form,body.dark .rec-form{
   background:#242424;border-color:#333}
-body.dark .app-header,body.dark .bottom-nav{background:#1a1a1a;border-color:#333}
-body.dark input,body.dark select,body.dark textarea{background:#2a2a2a;border-color:#444;color:#e8e8e6}
+body.dark .app-header{background:#1a1a1a;border-color:#333}
+body.dark .tabs{border-color:#333}
+
+/* Todos os textos principais — cobrir hardcodes */
+body.dark *{color:inherit}
+body.dark .cfg-row-label,
+body.dark .month-label,
+body.dark .field-val,
+body.dark .hist-val,
+body.dark .rec-val,
+body.dark .obj-nome,
+body.dark .saldo-hero .sh-val,
+body.dark .m-val,body.dark .kv,
+body.dark .rv,body.dark .cs-val,
+body.dark .meta-cat-name,
+body.dark .hint-label,
+body.dark .app-logo{color:#e8e8e6 !important}
+
+body.dark .cfg-row-sub,
+body.dark .hist-cat,
+body.dark .rec-sub,
+body.dark .meta-cat-val,
+body.dark .dash-title,
+body.dark .card-title,
+body.dark .card-title-row .card-title,
+body.dark .field-key,
+body.dark .conf-label,
+body.dark .obj-sub,
+body.dark .saldo-hero .sh-sub,
+body.dark .saldo-hero .sh-label,
+body.dark .m-label,body.dark .kl,body.dark .rl,
+body.dark .cfg-stat .cs-lbl,
+body.dark .storage-info,
+body.dark .app-subtitle,
+body.dark .placeholder-msg,
+body.dark .empty,
+body.dark .rec-resumo-card .rl,
+body.dark .hint-sub,
+body.dark .intent-label,
+body.dark .examples-label,
+body.dark .hint-tip,
+body.dark .meta-form-title,
+body.dark .rec-form-title,
+body.dark .obj-form-title,
+body.dark .cfg-section-title,
+body.dark .export-bar .eb-label,
+body.dark .hist-nota,
+body.dark .bar-lbl,
+body.dark .bar-val{color:#999 !important}
+
+body.dark .hist-desc,
+body.dark .rec-desc,
+body.dark .cfg-user-name,
+body.dark .modal-title,
+body.dark .edit-label,
+body.dark .cfg-row-label{color:#e8e8e6 !important}
+
+/* Inputs e selects */
+body.dark input,body.dark select,body.dark textarea{
+  background:#2a2a2a;border-color:#444;color:#e8e8e6}
+body.dark input::placeholder{color:#666}
+
+/* Itens de lista */
 body.dark .hist-item,body.dark .metric,body.dark .kpi,
-body.dark .rec-resumo-card,body.dark .cfg-stat,
-body.dark .rec-form-grid input,body.dark .rec-form-grid select{background:#2a2a2a}
+body.dark .rec-resumo-card,body.dark .cfg-stat{background:#2a2a2a}
+
+/* Chips e botões */
 body.dark .hf,body.dark .chip,body.dark .qchip,
-body.dark .exp-btn,body.dark .cfg-btn,body.dark .tab{
-  background:#2a2a2a;border-color:#444;color:#aaa}
-body.dark .tab.active{color:#1D9E75;border-bottom-color:#1D9E75}
-body.dark .app-logo,.dark .app-logo{color:#e8e8e6}
-body.dark .hist-desc,body.dark .rec-desc,body.dark .cfg-user-name{color:#e8e8e6}
-body.dark .hist-cat,body.dark .rec-sub,body.dark .meta-cat-val,
-body.dark .dash-title,body.dark .card-title,body.dark .cfg-row-sub{color:#888}
-body.dark .bar-track,body.dark .meta-track,body.dark .conf-bar{background:#333}
-body.dark .modal-overlay{background:rgba(0,0,0,.7)}
+body.dark .exp-btn,body.dark .cfg-btn{
+  background:#2a2a2a;border-color:#444;color:#bbb}
+body.dark .tab{color:#888}
+body.dark .tab.active{color:#1D9E75;border-bottom-color:#1D9E75;background:none}
+body.dark .danger-btn{color:#888;border-color:#444}
+
+/* Barras e tracks */
+body.dark .bar-track,body.dark .meta-track,
+body.dark .conf-bar,body.dark .obj-track{background:#333}
+
+/* Modal */
+body.dark .modal-overlay{background:rgba(0,0,0,.75)}
+body.dark .modal-btn-cancel{border-color:#444;color:#aaa}
+body.dark .modal-btn-cancel:hover{background:#333}
+
+/* Bottom nav */
 body.dark .bottom-nav{background:#1f1f1f;border-color:#333}
-body.dark .bnav-item .bi-label{color:#777}
+body.dark .bnav-item .bi-label{color:#666}
 body.dark .bnav-item.active .bi-label{color:#1D9E75}
+
+/* Toggle */
 body.dark .cfg-toggle-slider{background:#444}
-body.dark .hint-ex{background:#2a2a2a}
-body.dark .hint-ex:hover{background:#1D9E75}
-body.dark .query-chips .qchip:hover{background:#1D9E75;color:#fff}
+
+/* Hints */
+body.dark .hint-ex{background:#2c2c2c}
+body.dark .hint-ex:hover{background:#1a3d2e}
+body.dark .ex-text{color:#e8e8e6}
+body.dark .ex-desc{color:#888}
+body.dark .hint-head{border-color:#333}
+body.dark .examples-section{border-color:#333}
+
+/* Intent buttons */
+body.dark .intent-btn{background:#2a2a2a;border-color:#444;color:#aaa}
+body.dark .intent-btn:hover{border-color:#1D9E75;color:#1D9E75;background:#1a2e26}
+body.dark .intent-btn.sel-receita{background:#1a2e26;border-color:#1D9E75;color:#4eca97}
+body.dark .intent-btn.sel-gasto{background:#2e1a1a;border-color:#E24B4A;color:#f08080}
+
+/* Metas */
+body.dark .meta-alerta.ok{background:#1a2e26;color:#4eca97}
+body.dark .meta-alerta.warn{background:#2e2212;color:#f0b860}
+body.dark .meta-alerta.over{background:#2e1a1a;color:#f08080}
+body.dark .saldo-box{background:#1a2e26}
+body.dark .saldo-box .lbl,body.dark .saldo-box .val{color:#4eca97}
+
+/* Recorrentes */
+body.dark .rec-badge-ok{background:#1a2e26;color:#4eca97}
+body.dark .rec-badge-warn{background:#2e2212;color:#f0b860}
+body.dark .rec-badge-over{background:#2e1a1a;color:#f08080}
+body.dark .rec-badge-receita{background:#1a2e26;color:#4eca97}
+body.dark .rec-reg-btn{border-color:#1D9E75;color:#4eca97}
+body.dark .rec-reg-btn:hover{background:#1D9E75;color:#fff}
+
+/* Objetivos */
+body.dark .obj-badge.on-track{background:#1a2e26;color:#4eca97}
+body.dark .obj-badge.warn{background:#2e2212;color:#f0b860}
+body.dark .obj-badge.done{background:#1a2e26;color:#4eca97}
+body.dark .obj-aport-btn{border-color:#1D9E75;color:#4eca97}
+body.dark .obj-empty,body.dark .rec-empty,body.dark .meta-empty{color:#666}
+
+/* Busca */
+body.dark .hist-search-wrap input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
+body.dark .hist-search-clear{color:#666}
+
+/* IA */
+body.dark .ia-typing{background:#242424;border-color:#333}
+body.dark .cfg-api-input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
+
+/* Numeração */
+body.dark .cat-num{background:#333;color:#aaa}
+
+/* Separadores e bordas */
+body.dark .field-row{border-color:#333}
+body.dark .summary-row{border-color:transparent}
+body.dark .hist-filters .hf{background:#2a2a2a;border-color:#444;color:#888}
+body.dark .hist-filters .hf.active,
+body.dark .hist-filters .hf:hover{border-color:#1D9E75;color:#4eca97;background:#1a2e26}
+
+/* Links */
+body.dark a{color:#4eca97}
+
+/* Chips IA */
+body.dark .ia-chip{background:#1a1f2e;border-color:#2a3a5e;color:#7bb3f0}
+
+/* Export bar select */
+body.dark .exp-sel select{background:#2a2a2a;border-color:#444;color:#bbb}
+
+/* Gráfico linha saldo hero */
+body.dark .gasto-hoje-card.verde{background:linear-gradient(135deg,#0d5c3f,#0a4530)}
+body.dark .gasto-hoje-card.amarelo{background:linear-gradient(135deg,#6b4c00,#4a3400)}
+body.dark .gasto-hoje-card.vermelho{background:linear-gradient(135deg,#6b1a1a,#4a1010)}
+
+/* Query chips hover */
+body.dark .query-chips .qchip:hover{background:#1a2e26;color:#4eca97;border-color:#1D9E75}
 
 /* ── CARD "QUANTO POSSO GASTAR HOJE" ───────────────────────────── */
 .gasto-hoje-card{border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .3s}
@@ -757,6 +899,17 @@ body.dark .cfg-api-input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
 .ia-chip{background:linear-gradient(135deg,#E6F1FB,#EEEDFE);
   border:1px solid #B5D4F4;color:#185FA5}
 body.dark .ia-chip{background:#1a2a3a;border-color:#2a4a6a;color:#7bb3f0}
+
+
+/* catch-all para textos que ainda escapam no dark mode */
+body.dark .cfg-section *:not(input):not(select):not(button):not(.cfg-toggle-slider):not(.cfg-toggle input):not(.badge):not(.cat-num):not(.cfg-btn):not(a){
+  color: inherit;
+}
+body.dark .cfg-section .cfg-row-label { color: #e8e8e6 !important; }
+body.dark .cfg-section .cfg-row-sub   { color: #999 !important; }
+body.dark .rec-form *:not(input):not(select):not(button) { color: inherit; }
+body.dark .meta-form *:not(input):not(select):not(button) { color: inherit; }
+body.dark .obj-form *:not(input):not(select):not(button) { color: inherit; }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -2098,9 +2251,9 @@ function toggleDarkMode(ativo){
 }
 function carregarDarkMode(){
   const saved = localStorage.getItem('finchat_dark');
-  // também respeitar preferência do sistema se não houver salvo
-  const prefersD = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const ativo = saved !== null ? saved==='1' : prefersD;
+  // só ativa dark se o usuário escolheu explicitamente (saved==='1')
+  // NÃO segue preferência do sistema automaticamente para evitar surpresas
+  const ativo = saved === '1';
   toggleDarkMode(ativo);
 }
 
