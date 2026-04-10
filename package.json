@@ -1,0 +1,50 @@
+{
+  "name": "finchat",
+  "version": "1.0.0",
+  "description": "Registre suas finanças como se estivesse mandando mensagem",
+  "main": "electron/main.js",
+  "author": "Ednelson dos Santos",
+  "license": "MIT",
+  "scripts": {
+    "electron": "electron .",
+    "electron:build": "electron-builder --win --x64",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npx cap open android"
+  },
+  "build": {
+    "appId": "com.finchat.app",
+    "productName": "FinChat",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "electron/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "electron/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "electron/icon.png"
+    },
+    "files": [
+      "index.html",
+      "electron/**/*"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/icon.ico",
+      "shortcutName": "FinChat"
+    }
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^7.6.1",
+    "@capacitor/core": "^8.3.0",
+    "electron": "^32.3.3",
+    "electron-builder": "^25.1.8"
+  }
+}

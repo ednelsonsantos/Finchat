@@ -1,0 +1,16 @@
+{
+  "appId": "com.finchat.app",
+  "appName": "FinChat",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#f5f5f3"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#1D9E75"
+    }
+  }
+}

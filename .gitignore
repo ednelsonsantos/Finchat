@@ -1,0 +1,6 @@
+node_modules/
+dist-electron/
+android/
+ios/
+.DS_Store
+*.local

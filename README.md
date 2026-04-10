@@ -301,12 +301,53 @@ python -m http.server 8080
 
 ---
 
+## 🖥️ Electron — app desktop
+
+Roda como aplicativo nativo no Windows, macOS e Linux.
+
+```bash
+npm install
+npm run electron          # abre o app direto
+npm run electron:build    # gera instalador em dist-electron/
+```
+
+O build gera um instalador `.exe` (Windows), `.dmg` (macOS) ou `.AppImage` (Linux).
+
+---
+
+## 📲 Capacitor — APK Android
+
+Transforma o app em APK para instalar diretamente no celular.
+
+**Pré-requisitos:**
+- [Android Studio](https://developer.android.com/studio) instalado
+- JDK 17+ no PATH
+
+```bash
+npm install
+
+# Primeira vez — adiciona a plataforma Android
+npx cap add android
+
+# A cada mudança no index.html
+npx cap sync
+
+# Abre o Android Studio para build/emulador
+npm run cap:android
+```
+
+No Android Studio: **Run ▶** para emulador ou **Build → Build Bundle/APK** para gerar o APK.
+
+> iOS requer macOS + Xcode. No Windows só Android é suportado.
+
+---
+
 ## 🗺️ Roadmap
 
 - [x] Múltiplas carteiras (Nubank, dinheiro, cartão de crédito)
 - [x] Gráfico comparativo dos últimos 6 meses
-- [ ] Capacitor — APK Android / iOS com SQLite nativo
-- [ ] Electron — app desktop com SQLite local
+- [x] Capacitor — APK Android / iOS com SQLite nativo
+- [x] Electron — app desktop com SQLite local
 - [ ] Sincronização Google Drive / Dropbox
 - [x] Importação de extrato OFX/CSV bancário
 - [x] Notificações push nativas

@@ -2468,6 +2468,11 @@ function marcarNotificado(tag){
 }
 
 async function showNativeNotif(title,body,tag){
+  // Electron: usa IPC para notificação nativa do SO
+  if(window.electronAPI){
+    window.electronAPI.showNotification({title,body,tag});
+    return;
+  }
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   const opts={body,icon:NOTIF_ICON,badge:NOTIF_ICON,tag,renotify:false};
   try{
@@ -2479,6 +2484,16 @@ async function showNativeNotif(title,body,tag){
 }
 
 async function solicitarPermissaoNotif(){
+  // No Electron as notificações funcionam diretamente via IPC
+  if(window.electronAPI){
+    const cfg=carregarConfig();
+    cfg.notifAtivas=true;
+    try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch{}
+    renderConfig();
+    mostrarToast('🔔 Notificações ativadas!');
+    await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
+    return;
+  }
   if(!('Notification' in window)){
     alert('Seu navegador não suporta notificações nativas.\nUse Chrome, Edge ou Firefox.');
     return;
