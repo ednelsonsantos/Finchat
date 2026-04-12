@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; font-src 'self' data:"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#1D9E75"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -1165,10 +1166,45 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 }
 @keyframes splash-spin{to{transform:rotate(360deg)}}
 
+/* ── Layout responsivo para foldáveis (Z Fold aberto) e telas ≥600px ─
+   Z Fold 3 aberto portrait  ≈ 707dp → entra neste range
+   Tablets / web (≥768px)   → mantém comportamento atual (max-width:720px)
+   -------------------------------------------------------------------- */
+@media(min-width:600px) and (max-width:767px){
+  body{
+    background:#d6d6d4;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  body.dark{ background:#111 }
+
+  .app{
+    max-width:440px;width:100%;
+    background:#f5f5f3;
+    box-shadow:0 4px 48px rgba(0,0,0,.18);
+    min-height:100svh;
+  }
+  body.dark .app{ background:#141414 }
+
+  /* bottom nav centralizado sob o card */
+  .bottom-nav{
+    left:50%;right:auto;
+    transform:translateX(-50%);
+    width:440px;
+    border-radius:0;
+  }
+
+  /* modais e overlays continuam cobrindo tudo (position:fixed inset:0) */
+}
+
+/* Transição suave ao dobrar/desdobrar */
+.app, .bottom-nav{
+  transition:max-width .3s ease, width .3s ease, transform .3s ease;
+}
+
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 </head>
 <body>
 
@@ -1865,6 +1901,7 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 </div>
 
 <script>
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 const STORAGE_KEY='finchat_v1';
 const PROFISSIONAIS=[
   // ── SAÚDE: sempre gasto ──────────────────────────────────────────────────
@@ -2715,14 +2752,14 @@ function renderCarteirasCfg(){
     const saldo=calcularSaldoCarteira(c.id);
     const isDef=c.id==='geral';
     return`<div class="carteira-item">
-      <div class="carteira-icon-wrap" style="background:${c.cor}20">${c.icon}</div>
+      <div class="carteira-icon-wrap" style="background:${escapeHtml(c.cor)}20">${escapeHtml(c.icon)}</div>
       <div class="carteira-info">
-        <div class="carteira-nome">${c.nome}${isDef?' <span style="font-size:10px;color:#aaa">(padrão)</span>':''}</div>
+        <div class="carteira-nome">${escapeHtml(c.nome)}${isDef?' <span style="font-size:10px;color:#aaa">(padrão)</span>':''}</div>
         <div class="carteira-saldo-label" style="color:${saldo>=0?'#1D9E75':'#E24B4A'}">${fmt(saldo)}</div>
       </div>
       <div class="carteira-btns">
-        <button class="btn-carteira-edit" onclick="abrirModalCarteira('${c.id}')">✏️</button>
-        ${isDef?'':`<button class="btn-carteira-del" onclick="deletarCarteira('${c.id}')">🗑️</button>`}
+        <button class="btn-carteira-edit" onclick="abrirModalCarteira('${escapeHtml(c.id)}')">✏️</button>
+        ${isDef?'':`<button class="btn-carteira-del" onclick="deletarCarteira('${escapeHtml(c.id)}')">🗑️</button>`}
       </div>
     </div>`;
   }).join('');
@@ -2831,8 +2868,8 @@ function abrirModalExtrato(itens){
     <label class="extrato-item${it.dup?' extrato-dup':''}" for="ext-chk-${idx}">
       <input type="checkbox" id="ext-chk-${idx}" ${it.dup?'':'checked'} onchange="atualizarBtnExtrato()"/>
       <div class="extrato-item-info">
-        <div class="extrato-item-desc">${it.descricao}${it.dup?'<span class="extrato-dup-badge">duplicata?</span>':''}</div>
-        <div class="extrato-item-sub">${fmtD(it.data)} · ${it.categoria.label}</div>
+        <div class="extrato-item-desc">${escapeHtml(it.descricao)}${it.dup?'<span class="extrato-dup-badge">duplicata?</span>':''}</div>
+        <div class="extrato-item-sub">${fmtD(it.data)} · ${escapeHtml(it.categoria.label)}</div>
       </div>
       <div class="extrato-item-val" style="color:${it.tipo==='receita'?'#1D9E75':'#E24B4A'}">${it.tipo==='receita'?'+':'−'} ${fmt(it.valor)}</div>
     </label>`).join('');
@@ -4341,7 +4378,7 @@ function adicionarMsgChat(texto, tipo){
   const log=document.getElementById('chat-log');
   const div=document.createElement('div');
   div.className=tipo==='user'?'msg-user':'msg-bot';
-  div.innerHTML=texto;
+  if(tipo==='user'){div.textContent=texto;}else{div.innerHTML=texto;}
   log.appendChild(div);
   log.scrollTop=log.scrollHeight;
 }
