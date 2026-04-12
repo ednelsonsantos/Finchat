@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="description" content="Registre suas finanças como se estivesse mandando mensagem"/>
 <link rel="manifest" href="finchat.webmanifest"/>
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231D9E75'/><text y='.9em' font-size='75' x='12'>💬</text></svg>"/>
+<link rel="apple-touch-icon" href="icon.png"/>
 <title>FinChat — Finanças por mensagem</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1141,12 +1141,47 @@ body.dark .bg-pink{background:#200d14 !important;color:#f090c0 !important}
 /* cat-num no dark */
 body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 
+/* ── Splash Screen ─────────────────────────────────────────────── */
+#splash-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:#0a1628;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  transition:opacity .5s ease;
+}
+#splash-screen.fade-out{opacity:0;pointer-events:none}
+.splash-logo{
+  width:min(260px,68vw);
+  filter:drop-shadow(0 8px 32px rgba(29,158,117,.35));
+  animation:splash-pulse 2s ease-in-out infinite;
+}
+@keyframes splash-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.splash-text{display:flex;flex-direction:column;align-items:center;gap:14px}
+.splash-tagline{color:rgba(255,255,255,.65);font-size:13px;letter-spacing:.4px}
+.splash-spinner{
+  width:30px;height:30px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.15);
+  border-top-color:#1D9E75;
+  animation:splash-spin .75s linear infinite;
+}
+@keyframes splash-spin{to{transform:rotate(360deg)}}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+
+<!-- ══ SPLASH SCREEN ══════════════════════════════════════════════ -->
+<div id="splash-screen">
+  <img src="logotipo/logotipofinchat.png" alt="FinChat" class="splash-logo"
+       onerror="this.style.display='none'">
+  <div class="splash-text">
+    <span class="splash-tagline">Registre suas finanças por mensagem</span>
+    <div class="splash-spinner"></div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- Toast global -->
@@ -4405,6 +4440,20 @@ mostrarHome(); // começa na home limpa
 setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 registrarServiceWorker();
+
+// ── Esconde a splash screen após o app inicializar ────────────────
+(function() {
+  const splash = document.getElementById('splash-screen');
+  if (!splash) return;
+  // Mínimo de 1.2s para a logo aparecer mesmo em dispositivos rápidos
+  const MIN_SHOW = 1200;
+  const elapsed = performance.now();
+  const delay = Math.max(0, MIN_SHOW - elapsed);
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    setTimeout(() => splash.remove(), 550);
+  }, delay);
+})();
 </script>
 </body>
 </html>
