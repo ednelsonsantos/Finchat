@@ -1201,12 +1201,95 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
   transition:max-width .3s ease, width .3s ease, transform .3s ease;
 }
 
+/* ── Onboarding (primeira abertura — coleta nome do usuário) ───── */
+#onboarding-screen{
+  position:fixed;inset:0;z-index:9998;
+  background:#0a1628;
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 24px calc(32px + var(--safe-bottom));
+  opacity:0;pointer-events:none;
+  transition:opacity .45s ease;
+}
+#onboarding-screen.visible{opacity:1;pointer-events:auto}
+#onboarding-screen.fade-out{opacity:0;pointer-events:none}
+.onboarding-card{
+  width:100%;max-width:360px;
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  text-align:center;
+}
+.onboarding-logo{
+  width:min(180px,52vw);margin-bottom:28px;
+  filter:drop-shadow(0 6px 24px rgba(29,158,117,.3));
+}
+.onboarding-title{
+  font-size:22px;font-weight:700;color:#fff;
+  margin-bottom:8px;line-height:1.25;
+}
+.onboarding-subtitle{
+  font-size:14px;color:rgba(255,255,255,.55);
+  line-height:1.6;margin-bottom:36px;
+}
+.onboarding-label{
+  display:block;font-size:11px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:rgba(255,255,255,.45);
+  margin-bottom:10px;align-self:flex-start;width:100%;
+}
+.onboarding-input{
+  width:100%;padding:14px 18px;border-radius:14px;
+  border:1.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.07);
+  color:#fff;font-size:16px;outline:none;
+  transition:border-color .2s;margin-bottom:14px;
+  -webkit-appearance:none;appearance:none;
+}
+.onboarding-input::placeholder{color:rgba(255,255,255,.3)}
+.onboarding-input:focus{border-color:#1D9E75}
+.onboarding-btn{
+  width:100%;padding:15px;border-radius:14px;
+  background:#1D9E75;color:#fff;border:none;
+  font-size:16px;font-weight:600;cursor:pointer;
+  transition:background .2s,transform .1s;letter-spacing:.02em;
+}
+.onboarding-btn:active{transform:scale(.98)}
+.onboarding-btn:hover{background:#19b882}
+.onboarding-skip{
+  margin-top:16px;font-size:12px;color:rgba(255,255,255,.3);
+  cursor:pointer;background:none;border:none;padding:4px;
+}
+.onboarding-skip:hover{color:rgba(255,255,255,.5)}
+@keyframes onboarding-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.onboarding-input-shake{border-color:#e05252!important;animation:onboarding-shake .35s ease}
+/* Greeting no header da home */
+.home-greeting{
+  font-size:12px;font-weight:500;color:#888;
+  margin-left:6px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:130px;
+}
+body.dark .home-greeting{color:#666}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 </head>
 <body>
+
+<!-- ══ ONBOARDING (primeira abertura) ═════════════════════════════ -->
+<div id="onboarding-screen">
+  <div class="onboarding-card">
+    <img src="logotipo/logotipofinchat.png" alt="FinChat" class="onboarding-logo"
+         onerror="this.style.display='none'">
+    <h2 class="onboarding-title">Bem-vindo ao FinChat!</h2>
+    <p class="onboarding-subtitle">Registre seus gastos e receitas como se estivesse mandando uma mensagem. Rápido, simples e sem complicação.</p>
+    <label class="onboarding-label" for="onboarding-nome">Como quer ser chamado?</label>
+    <input id="onboarding-nome" class="onboarding-input" type="text"
+           placeholder="Seu nome ou apelido" maxlength="30"
+           autocomplete="off" autocorrect="off" spellcheck="false"
+           onkeydown="if(event.key==='Enter')finalizarOnboarding()">
+    <button class="onboarding-btn" onclick="finalizarOnboarding()">Começar →</button>
+    <button class="onboarding-skip" onclick="finalizarOnboarding(true)">Pular por enquanto</button>
+  </div>
+</div>
 
 <!-- ══ SPLASH SCREEN ══════════════════════════════════════════════ -->
 <div id="splash-screen">
@@ -1229,7 +1312,7 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 
     <!-- Topbar -->
     <div class="home-topbar">
-      <div class="home-logo"><div class="home-logo-dot"></div> FinChat</div>
+      <div class="home-logo"><div class="home-logo-dot"></div> FinChat<span id="app-greeting" class="home-greeting"></span></div>
       <div class="home-saldo-pill" onclick="setTab('resumo')" title="Ver dashboard">
         <span class="saldo-eye">💰</span>
         <span id="home-saldo-pill-val">R$ 0</span>
@@ -4523,17 +4606,50 @@ window.addEventListener('resize', function () {
   if (h > 0) document.documentElement.style.setProperty('--safe-bottom', h + 'px');
 });
 
+// ── Onboarding: coleta nome do usuário na primeira abertura ──────
+function verificarOnboarding() {
+  const cfg = carregarConfig();
+  if (cfg.nome && cfg.nome.trim()) return; // já configurado
+  const screen = document.getElementById('onboarding-screen');
+  if (!screen) return;
+  screen.classList.add('visible');
+  setTimeout(() => document.getElementById('onboarding-nome')?.focus(), 350);
+}
+
+function finalizarOnboarding(pular) {
+  const input = document.getElementById('onboarding-nome');
+  const nome  = (input?.value || '').trim();
+  if (!pular && !nome) { input?.focus(); input?.classList.add('onboarding-input-shake'); setTimeout(()=>input?.classList.remove('onboarding-input-shake'),400); return; }
+
+  if (nome) {
+    const cfg = carregarConfig();
+    cfg.nome = nome;
+    localStorage.setItem('finchat_config_v1', JSON.stringify(cfg));
+    aplicarConfig(cfg);
+    renderAll();
+  }
+
+  const screen = document.getElementById('onboarding-screen');
+  if (screen) {
+    screen.classList.remove('visible');
+    screen.classList.add('fade-out');
+    setTimeout(() => screen.remove(), 500);
+  }
+}
+
 // ── Esconde a splash screen após o app inicializar ────────────────
 (function() {
   const splash = document.getElementById('splash-screen');
   if (!splash) return;
-  // Mínimo de 1.2s para a logo aparecer mesmo em dispositivos rápidos
   const MIN_SHOW = 2800;
   const elapsed = performance.now();
   const delay = Math.max(0, MIN_SHOW - elapsed);
   setTimeout(() => {
     splash.classList.add('fade-out');
-    setTimeout(() => splash.remove(), 550);
+    setTimeout(() => {
+      splash.remove();
+      verificarOnboarding(); // mostra onboarding após a splash
+    }, 550);
   }, delay);
 })();
 </script>
