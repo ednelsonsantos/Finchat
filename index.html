@@ -4446,7 +4446,7 @@ registrarServiceWorker();
   const splash = document.getElementById('splash-screen');
   if (!splash) return;
   // Mínimo de 1.2s para a logo aparecer mesmo em dispositivos rápidos
-  const MIN_SHOW = 1200;
+  const MIN_SHOW = 2800;
   const elapsed = performance.now();
   const delay = Math.max(0, MIN_SHOW - elapsed);
   setTimeout(() => {
