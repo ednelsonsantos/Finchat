@@ -4478,6 +4478,51 @@ setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 registrarServiceWorker();
 
+// ── Safe area: fallback JS para Android edge-to-edge (API 35+) ───────
+// O valor correto é injetado pelo MainActivity.java via evaluateJavascript.
+// Este fallback cobre a primeira renderização antes do listener nativo disparar.
+(function applySafeAreaFallback() {
+  // Só aplica se o nativo ainda não injetou um valor real
+  const current = parseInt(
+    getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')
+  ) || 0;
+  if (current > 0) return; // nativo já injetou, não sobrescreve
+
+  // Tenta ler via CSS env() em um elemento temporário
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;visibility:hidden;pointer-events:none;' +
+    'height:env(safe-area-inset-bottom,0px);bottom:0;left:0';
+  document.body.appendChild(probe);
+  const envBottom = probe.offsetHeight;
+  document.body.removeChild(probe);
+
+  if (envBottom > 0) {
+    document.documentElement.style.setProperty('--safe-bottom', envBottom + 'px');
+    return;
+  }
+
+  // Último recurso: estimar pela diferença de viewport (Android gesture nav ~32dp)
+  if (/Android/i.test(navigator.userAgent) && window.visualViewport) {
+    const gap = window.innerHeight - window.visualViewport.height;
+    if (gap > 10) {
+      document.documentElement.style.setProperty('--safe-bottom', Math.round(gap) + 'px');
+    }
+  }
+})();
+
+// Reaplicar ao redimensionar (dobrar/desdobrar, rotação, teclado)
+window.addEventListener('resize', function () {
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;visibility:hidden;pointer-events:none;' +
+    'height:env(safe-area-inset-bottom,0px);bottom:0;left:0';
+  document.body.appendChild(probe);
+  const h = probe.offsetHeight;
+  document.body.removeChild(probe);
+  if (h > 0) document.documentElement.style.setProperty('--safe-bottom', h + 'px');
+});
+
 // ── Esconde a splash screen após o app inicializar ────────────────
 (function() {
   const splash = document.getElementById('splash-screen');
