@@ -8,8 +8,9 @@
   "scripts": {
     "electron": "electron .",
     "electron:build": "electron-builder --win --x64",
-    "cap:sync": "npx cap sync",
-    "cap:android": "npx cap open android"
+    "cap:copy": "node -e \"require('fs').copyFileSync('index.html','www/index.html')\"",
+    "cap:sync": "npm run cap:copy && npx cap sync",
+    "cap:android": "npm run cap:sync && npx cap open android"
   },
   "build": {
     "appId": "com.finchat.app",
@@ -46,5 +47,8 @@
     "@capacitor/core": "^8.3.0",
     "electron": "^32.3.3",
     "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "astral-regex": "^2.0.0"
   }
 }
