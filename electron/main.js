@@ -26,7 +26,9 @@ function createWindow() {
 
   // Abre links externos no navegador do sistema (não dentro do Electron)
   win.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+      shell.openExternal(url);
+    }
     return { action: 'deny' };
   });
 
