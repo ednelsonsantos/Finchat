@@ -1,0 +1,10 @@
+Versão inicial do FinChat.
+
+• Chat em linguagem natural para registro de gastos e receitas
+• Dashboard com KPIs, gráficos e card "posso gastar hoje"
+• Metas por categoria com alertas de 80% e 100%
+• Gastos fixos e objetivos de poupança
+• Múltiplas carteiras com transferência entre contas
+• Exportação PDF e CSV
+• Dark mode e suporte a temas
+• 100% offline, sem coleta de dados

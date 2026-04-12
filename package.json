@@ -49,6 +49,8 @@
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
+    "@capacitor-community/sqlite": "^8.1.0",
     "astral-regex": "^2.0.0"
   }
 }

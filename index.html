@@ -1,3 +1,7 @@
+<!--
+  SPDX-FileCopyrightText: 2026 Ednelson Santos <https://github.com/ednelsonsantos>
+  SPDX-License-Identifier: MIT
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1259,6 +1263,38 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 .onboarding-skip:hover{color:rgba(255,255,255,.5)}
 @keyframes onboarding-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .onboarding-input-shake{border-color:#e05252!important;animation:onboarding-shake .35s ease}
+/* ── PIN / Biometria ── */
+#lock-screen{
+  position:fixed;inset:0;z-index:9997;background:#0a1628;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;padding:24px 24px calc(24px + var(--safe-bottom));
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+}
+#lock-screen.visible{opacity:1;pointer-events:auto}
+.lock-logo{width:min(100px,30vw);margin-bottom:24px;opacity:.9}
+.lock-title{color:#fff;font-size:18px;font-weight:700;margin-bottom:6px}
+.lock-sub{color:rgba(255,255,255,.5);font-size:13px;margin-bottom:28px;text-align:center}
+.pin-dots{display:flex;gap:14px;margin-bottom:28px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);transition:background .15s,border-color .15s}
+.pin-dot.filled{background:#1D9E75;border-color:#1D9E75}
+.pin-dot.error{background:#e05252;border-color:#e05252}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(280px,80vw)}
+.pin-key{
+  aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.08);
+  border:none;color:#fff;font-size:20px;font-weight:600;cursor:pointer;
+  transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;
+}
+.pin-key:active{background:rgba(255,255,255,.2);transform:scale(.93)}
+.pin-key.pin-del{font-size:18px}
+.pin-key.pin-empty{visibility:hidden}
+.pin-bio-btn{
+  margin-top:20px;background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:13px;cursor:pointer;padding:8px;
+}
+.pin-bio-btn:hover{color:#fff}
+@keyframes lock-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-dots.shake{animation:lock-shake .4s ease}
+
 /* Greeting no header da home */
 .home-greeting{
   font-size:12px;font-weight:500;color:#888;
@@ -1289,6 +1325,39 @@ body.dark .home-greeting{color:#666}
     <button class="onboarding-btn" onclick="finalizarOnboarding()">Começar →</button>
     <button class="onboarding-skip" onclick="finalizarOnboarding(true)">Pular por enquanto</button>
   </div>
+</div>
+
+<!-- ══ LOCK SCREEN (PIN / Biometria) ══════════════════════════════ -->
+<div id="lock-screen">
+  <img src="logotipo/logotipofinchat.png" alt="FinChat" class="lock-logo" onerror="this.style.display='none'">
+  <div class="lock-title" id="lock-title">FinChat</div>
+  <div class="lock-sub"  id="lock-sub">Digite seu PIN para continuar</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinKey(1)">1</button>
+    <button class="pin-key" onclick="pinKey(2)">2</button>
+    <button class="pin-key" onclick="pinKey(3)">3</button>
+    <button class="pin-key" onclick="pinKey(4)">4</button>
+    <button class="pin-key" onclick="pinKey(5)">5</button>
+    <button class="pin-key" onclick="pinKey(6)">6</button>
+    <button class="pin-key" onclick="pinKey(7)">7</button>
+    <button class="pin-key" onclick="pinKey(8)">8</button>
+    <button class="pin-key" onclick="pinKey(9)">9</button>
+    <button class="pin-key pin-empty" disabled></button>
+    <button class="pin-key" onclick="pinKey(0)">0</button>
+    <button class="pin-key pin-del" onclick="pinDel()">⌫</button>
+  </div>
+  <button class="pin-bio-btn" id="pin-bio-btn" onclick="lockBioAuth()" style="display:none">
+    🪪 Usar biometria
+  </button>
+  <button class="pin-bio-btn" id="pin-skip-btn" onclick="lockDismiss()" style="display:none">
+    Continuar sem PIN
+  </button>
 </div>
 
 <!-- ══ SPLASH SCREEN ══════════════════════════════════════════════ -->
@@ -1415,6 +1484,7 @@ body.dark .home-greeting{color:#666}
         </select>
         <button onclick="exportarPDF()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a">📄 PDF</button>
         <button onclick="exportarCSV()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a">📊 CSV</button>
+        <button onclick="compartilharRelatorio()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a" title="Compartilhar resumo">📤 Share</button>
       </div>
     </div>
     <!-- KPIs -->
@@ -1539,7 +1609,7 @@ body.dark .home-greeting{color:#666}
           <option value="servicos">🔧 Serviços</option>
           <option value="outros">📦 Outros</option>
         </select>
-        <input type="number" id="meta-val" placeholder="Limite R$" min="1" step="1"/>
+        <input type="number" id="meta-val" placeholder="Limite R$" min="1" step="1" inputmode="decimal"/>
         <button class="meta-add-btn" onclick="adicionarMeta()">Definir meta</button>
       </div>
     </div>
@@ -1561,7 +1631,7 @@ body.dark .home-greeting{color:#666}
       <div class="rec-form-title">Novo lançamento fixo</div>
       <div class="rec-form-grid">
         <input id="rec-desc" type="text" placeholder="Descrição (ex: Aluguel, Netflix...)"/>
-        <input id="rec-val" type="number" placeholder="Valor R$" min="1" step="0.01"/>
+        <input id="rec-val" type="number" placeholder="Valor R$" min="1" step="0.01" inputmode="decimal"/>
         <select id="rec-tipo">
           <option value="gasto">💸 Gasto fixo</option>
           <option value="receita">💰 Receita fixa</option>
@@ -1581,7 +1651,7 @@ body.dark .home-greeting{color:#666}
           <option value="servicos">🔧 Serviços</option>
           <option value="outros">📦 Outros</option>
         </select>
-        <input id="rec-dia" type="number" placeholder="Dia do vencimento (1-31)" min="1" max="31"/>
+        <input id="rec-dia" type="number" placeholder="Dia do vencimento (1-31)" min="1" max="31" inputmode="numeric"/>
         <select id="rec-freq">
           <option value="mensal">Mensal</option>
           <option value="semanal">Semanal</option>
@@ -1604,8 +1674,8 @@ body.dark .home-greeting{color:#666}
       <div class="obj-form-title">Novo objetivo de poupança</div>
       <div class="obj-form-grid">
         <input id="obj-nome" type="text" placeholder="Nome do objetivo (ex: Viagem, Carro...)"/>
-        <input id="obj-meta" type="number" placeholder="Valor total R$" min="1" step="1"/>
-        <input id="obj-inicial" type="number" placeholder="Já tenho R$ (opcional)" min="0" step="0.01"/>
+        <input id="obj-meta" type="number" placeholder="Valor total R$" min="1" step="1" inputmode="decimal"/>
+        <input id="obj-inicial" type="number" placeholder="Já tenho R$ (opcional)" min="0" step="0.01" inputmode="decimal"/>
         <input id="obj-prazo" type="month" title="Prazo para atingir"/>
         <input id="obj-icon-inp" type="text" placeholder="Emoji (ex: ✈️ 🏠 🚗)" maxlength="4"/>
         <select id="obj-cor">
@@ -1666,7 +1736,7 @@ body.dark .home-greeting{color:#666}
           <div class="cfg-row-label">Dia de início do mês</div>
           <div class="cfg-row-sub">Para relatórios e metas</div>
         </div>
-        <input class="cfg-input" id="cfg-dia-inicio" type="number" min="1" max="28" value="1" style="width:70px" onchange="salvarConfig()"/>
+        <input class="cfg-input" id="cfg-dia-inicio" type="number" min="1" max="28" value="1" style="width:70px" onchange="salvarConfig()" inputmode="numeric"/>
       </div>
       <div class="cfg-row">
         <div>
@@ -1802,6 +1872,32 @@ body.dark .home-greeting{color:#666}
         <button class="cfg-btn" onclick="document.getElementById('cfg-import-file').click()">📂 Importar</button>
         <input type="file" id="cfg-import-file" accept=".json" style="display:none" onchange="importarJSON(event)"/>
       </div>
+      <!-- Google Drive Backup -->
+      <div class="cfg-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;width:100%">
+          <div style="flex:1">
+            <div class="cfg-row-label">☁️ Google Drive</div>
+            <div class="cfg-row-sub" id="drive-status-txt">Backup automático na nuvem</div>
+          </div>
+          <button class="cfg-btn" id="drive-auth-btn" onclick="driveAuth()">🔑 Conectar</button>
+        </div>
+        <div id="drive-actions" style="display:none;gap:6px;flex-wrap:wrap">
+          <button class="cfg-btn" onclick="driveBackup()" style="background:#1D9E75;color:#fff;border-color:#1D9E75">⬆️ Fazer backup</button>
+          <button class="cfg-btn" onclick="driveRestore()">⬇️ Restaurar</button>
+          <button class="cfg-btn cfg-btn-danger" onclick="driveLogout()">Desconectar</button>
+        </div>
+        <!-- Client ID — avançado, expansível -->
+        <details style="width:100%;font-size:12px">
+          <summary style="color:#888;cursor:pointer">Configuração avançada (Client ID)</summary>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <input id="cfg-drive-client-id" class="cfg-input" type="text" placeholder="OAuth 2.0 Client ID do Google Cloud Console" style="flex:1;font-size:11px" oninput="driveSaveClientId()"/>
+          </div>
+          <div style="color:#aaa;font-size:11px;margin-top:4px">
+            Crie em <em>console.cloud.google.com → APIs → Credenciais → OAuth 2.0</em>.<br>
+            Adicione <code>http://localhost</code> e <code>capacitor://localhost</code> como origens autorizadas.
+          </div>
+        </details>
+      </div>
       <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
         <div>
           <div class="cfg-row-label">Importar extrato bancário</div>
@@ -1816,6 +1912,25 @@ body.dark .home-greeting{color:#666}
           <div class="cfg-row-sub">Remove histórico permanentemente</div>
         </div>
         <button class="cfg-btn cfg-btn-danger" onclick="limparTudo()">🗑️ Limpar dados</button>
+      </div>
+    </div>
+
+    <!-- Segurança: PIN + Biometria -->
+    <div class="cfg-section">
+      <div class="cfg-section-title">Segurança</div>
+      <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="cfg-row-label">🔒 PIN de acesso</div>
+          <div class="cfg-row-sub" id="cfg-pin-sub">Proteja o app com um PIN de 4 dígitos</div>
+        </div>
+        <button class="cfg-btn" id="cfg-pin-btn" onclick="cfgTogglePin()">Configurar PIN</button>
+      </div>
+      <div class="cfg-row" style="flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="cfg-row-label">🪪 Biometria</div>
+          <div class="cfg-row-sub" id="cfg-bio-sub">Impressão digital ou Face ID</div>
+        </div>
+        <button class="cfg-btn" id="cfg-bio-btn" onclick="cfgToggleBio()">Ativar biometria</button>
       </div>
     </div>
 
@@ -1838,7 +1953,7 @@ body.dark .home-greeting{color:#666}
     <div class="edit-row">
       <div class="edit-field">
         <div class="edit-label">Valor (R$)</div>
-        <input class="edit-input" id="edit-valor" type="number" min="0.01" step="0.01"/>
+        <input class="edit-input" id="edit-valor" type="number" min="0.01" step="0.01" inputmode="decimal"/>
       </div>
       <div class="edit-field">
         <div class="edit-label">Data</div>
@@ -1915,7 +2030,7 @@ body.dark .home-greeting{color:#666}
     <div class="edit-row">
       <div class="edit-field">
         <div class="edit-label">Valor (R$)</div>
-        <input class="edit-input" id="transfer-valor" type="number" min="0.01" step="0.01" placeholder="0,00"/>
+        <input class="edit-input" id="transfer-valor" type="number" min="0.01" step="0.01" placeholder="0,00" inputmode="decimal"/>
       </div>
       <div class="edit-field">
         <div class="edit-label">Data</div>
@@ -1984,6 +2099,64 @@ body.dark .home-greeting{color:#666}
 </div>
 
 <script>
+// ─── FinStorage: abstração SQLite (Capacitor) / localStorage (web/Electron) ──
+// • Leituras síncronas do cache em memória (app nunca trava)
+// • Escrita assíncrona no SQLite quando disponível
+// • Na primeira execução após upgrade, migra automaticamente do localStorage
+const FinStorage = (() => {
+  const _KEYS = [
+    'finchat_v1','finchat_config_v1','finchat_carteiras_v1',
+    'finchat_objetivos_v1','finchat_metas_v1','finchat_recorrentes_v1',
+    'finchat_notif_log','finchat_gemini_key','finchat_dark'
+  ];
+  const DB = 'finchat_db';
+  const _cache = Object.create(null);
+  let _sql = false; // true quando SQLite estiver pronto
+
+  async function _trySQL() {
+    try {
+      const S = window.Capacitor?.Plugins?.CapacitorSQLite;
+      if (!S) return false;
+      const { result } = await S.isAvailable();
+      if (!result) return false;
+      await S.createConnection({ database: DB, version: 1, encrypted: false, mode: 'no-encryption', readonly: false });
+      await S.open({ database: DB });
+      await S.execute({ database: DB, statements: 'CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL);' });
+      const res = await S.query({ database: DB, statement: 'SELECT k, v FROM kv;', values: [] });
+      let hasData = false;
+      for (const row of (res.values || [])) { _cache[row.k] = row.v; hasData = true; }
+      if (!hasData) {
+        // Primeira execução: migrar localStorage → SQLite
+        for (const k of _KEYS) {
+          const v = localStorage.getItem(k);
+          if (v !== null) { _cache[k] = v; await _set(k, v); }
+        }
+      }
+      return true;
+    } catch (e) { console.warn('[FinStorage] SQLite:', e); return false; }
+  }
+
+  async function _set(k, v) {
+    try { const S = window.Capacitor?.Plugins?.CapacitorSQLite; await S.run({ database: DB, statement: 'INSERT OR REPLACE INTO kv (k,v) VALUES (?,?);', values: [k, v] }); }
+    catch (e) { console.warn('[FinStorage] write:', k, e); }
+  }
+  async function _del(k) {
+    try { const S = window.Capacitor?.Plugins?.CapacitorSQLite; await S.run({ database: DB, statement: 'DELETE FROM kv WHERE k=?;', values: [k] }); }
+    catch (e) { console.warn('[FinStorage] del:', k, e); }
+  }
+
+  // Pré-carrega localStorage no cache (síncrono, app disponível imediatamente)
+  for (const k of _KEYS) { const v = localStorage.getItem(k); if (v !== null) _cache[k] = v; }
+  // Inicializa SQLite em background (não bloqueia o app)
+  _trySQL().then(ok => { _sql = ok; console.log('[FinStorage]', ok ? 'SQLite ativo' : 'localStorage'); });
+
+  return {
+    getItem(k)    { return Object.hasOwn(_cache, k) ? _cache[k] : localStorage.getItem(k); },
+    setItem(k, v) { const s = String(v); _cache[k] = s; if (_sql) _set(k, s); else { try { localStorage.setItem(k, s); } catch {} } },
+    removeItem(k) { delete _cache[k]; if (_sql) _del(k); else localStorage.removeItem(k); }
+  };
+})();
+
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 const STORAGE_KEY='finchat_v1';
 const PROFISSIONAIS=[
@@ -2142,9 +2315,9 @@ function extrairDesc(t){let d=t;d=d.replace(/r\$\s*[\d.,]+/ig,'');d=d.replace(/[
 const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmtD=iso=>{try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch{return'--';}};
 
-// STORAGE — localStorage
-function salvar(regs){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);}catch(e){alert('Erro ao salvar: '+e.message);}}
-function carregar(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);atualizarLabel(d.length);return d;}}catch{}atualizarLabel(0);return[];}
+// STORAGE — FinStorage (SQLite + localStorage fallback)
+function salvar(regs){try{FinStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);}catch(e){alert('Erro ao salvar: '+e.message);}}
+function carregar(){try{const r=FinStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);atualizarLabel(d.length);return d;}}catch{}atualizarLabel(0);return[];}
 function atualizarLabel(n){
   const msg = n===0
     ? 'Nenhum registro ainda'
@@ -2458,7 +2631,7 @@ const CFG_KEY = 'finchat_config_v1';
 
 function carregarConfig(){
   try{
-    const r = localStorage.getItem(CFG_KEY);
+    const r = FinStorage.getItem(CFG_KEY);
     if(r) return JSON.parse(r);
   }catch{}
   return {nome:'', moeda:'BRL', diaInicio:1, alertas:true, confirmarDel:true, desde: new Date().toISOString()};
@@ -2480,7 +2653,7 @@ function salvarConfig(){
     notifLembrete:    document.getElementById('cfg-notif-lembrete')?.checked||false,
     desde:            carregarConfig().desde || new Date().toISOString(),
   };
-  try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch{}
+  FinStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   aplicarConfig(cfg);
 }
 
@@ -2587,7 +2760,7 @@ function importarJSON(event){
       salvarMetas();
       salvarRecorrentes();
       if(data.config){
-        try{localStorage.setItem(CFG_KEY,JSON.stringify(data.config));}catch{}
+        FinStorage.setItem(CFG_KEY,JSON.stringify(data.config));
       }
       renderAll();
       renderConfig();
@@ -2607,18 +2780,18 @@ const NOTIF_ICON = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' v
 
 function jaNotificouHoje(tag){
   try{
-    const log=JSON.parse(localStorage.getItem(NOTIF_LOG_KEY)||'{}');
+    const log=JSON.parse(FinStorage.getItem(NOTIF_LOG_KEY)||'{}');
     return log[tag]===new Date().toISOString().slice(0,10);
   }catch{return false;}
 }
 function marcarNotificado(tag){
   try{
-    const log=JSON.parse(localStorage.getItem(NOTIF_LOG_KEY)||'{}');
+    const log=JSON.parse(FinStorage.getItem(NOTIF_LOG_KEY)||'{}');
     const hoje=new Date().toISOString().slice(0,10);
     log[tag]=hoje;
     // limpar entradas > 30 dias
     for(const k of Object.keys(log)){if(new Date()-new Date(log[k])>30*864e5)delete log[k];}
-    localStorage.setItem(NOTIF_LOG_KEY,JSON.stringify(log));
+    FinStorage.setItem(NOTIF_LOG_KEY,JSON.stringify(log));
   }catch{}
 }
 
@@ -2643,7 +2816,7 @@ async function solicitarPermissaoNotif(){
   if(window.electronAPI){
     const cfg=carregarConfig();
     cfg.notifAtivas=true;
-    try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch{}
+    FinStorage.setItem(CFG_KEY,JSON.stringify(cfg));
     renderConfig();
     mostrarToast('🔔 Notificações ativadas!');
     await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
@@ -2661,7 +2834,7 @@ async function solicitarPermissaoNotif(){
   if(perm==='granted'){
     const cfg=carregarConfig();
     cfg.notifAtivas=true;
-    try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch{}
+    FinStorage.setItem(CFG_KEY,JSON.stringify(cfg));
     renderConfig();
     mostrarToast('🔔 Notificações ativadas!');
     await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
@@ -2711,10 +2884,10 @@ let carteiraFiltro = 'todas';
 let carteiraAtiva  = 'geral';
 
 function carregarCarteiras(){
-  try{const d=localStorage.getItem(CARTEIRAS_KEY);if(d){const a=JSON.parse(d);if(a&&a.length)return a;}}catch{}
+  try{const d=FinStorage.getItem(CARTEIRAS_KEY);if(d){const a=JSON.parse(d);if(a&&a.length)return a;}}catch{}
   return[{...CARTEIRA_PADRAO}];
 }
-function salvarCarteiras(arr){carteiras=arr;localStorage.setItem(CARTEIRAS_KEY,JSON.stringify(arr));}
+function salvarCarteiras(arr){carteiras=arr;FinStorage.setItem(CARTEIRAS_KEY,JSON.stringify(arr));}
 function carteiraById(id){return carteiras.find(c=>c.id===id)||CARTEIRA_PADRAO;}
 
 function regsForCalc(regs){
@@ -2995,17 +3168,17 @@ function confirmarImportExtrato(){
 const GEMINI_KEY_STORAGE = 'finchat_gemini_key';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-function getGeminiKey(){ return localStorage.getItem(GEMINI_KEY_STORAGE)||''; }
+function getGeminiKey(){ return FinStorage.getItem(GEMINI_KEY_STORAGE)||''; }
 
 function salvarGeminiKey(){
   const key = document.getElementById('cfg-gemini-key')?.value?.trim()||'';
-  if(key) localStorage.setItem(GEMINI_KEY_STORAGE, key);
-  else     localStorage.removeItem(GEMINI_KEY_STORAGE);
+  if(key) FinStorage.setItem(GEMINI_KEY_STORAGE, key);
+  else     FinStorage.removeItem(GEMINI_KEY_STORAGE);
   atualizarStatusIA(key ? 'ok' : 'off', key ? 'Chave configurada' : 'Sem chave configurada — IA desativada');
 }
 
 function limparGeminiKey(){
-  localStorage.removeItem(GEMINI_KEY_STORAGE);
+  FinStorage.removeItem(GEMINI_KEY_STORAGE);
   const el = document.getElementById('cfg-gemini-key');
   if(el) el.value='';
   atualizarStatusIA('off','Sem chave configurada — IA desativada');
@@ -3180,7 +3353,7 @@ async function atualizarParserComIA(texto){
   }catch(e){ console.warn('IA fallback error:', e); }
 }
 
-// ── ATUALIZAR renderConfig PARA IA ────────────────────────────────────────────
+// ── ATUALIZAR renderConfig PARA IA + DRIVE ────────────────────────────────────
 const _renderConfigOrig = typeof renderConfig==='function' ? renderConfig : null;
 function renderConfig(){
   if(_renderConfigOrig) _renderConfigOrig();
@@ -3192,6 +3365,16 @@ function renderConfig(){
   if(fbEl)  fbEl.checked  = carregarConfig().iaFallback!==false;
   if(chatEl)chatEl.checked = carregarConfig().iaChat!==false;
   atualizarStatusIA(key?'ok':'off', key?'Chave configurada — IA ativa':'Sem chave configurada — IA desativada');
+  driveUpdateUI();
+  // PIN / Bio status
+  const pinBtn  = document.getElementById('cfg-pin-btn');
+  const pinSub  = document.getElementById('cfg-pin-sub');
+  const bioBtn  = document.getElementById('cfg-bio-btn');
+  const bioSub  = document.getElementById('cfg-bio-sub');
+  if(pinBtn){ pinBtn.textContent = pinIsSet() ? '🗑️ Remover PIN' : 'Configurar PIN'; }
+  if(pinSub){ pinSub.textContent = pinIsSet() ? '✅ PIN ativo — app protegido' : 'Proteja o app com um PIN de 4 dígitos'; }
+  if(bioBtn){ bioBtn.textContent = bioEnabled() ? 'Desativar biometria' : 'Ativar biometria'; }
+  if(bioSub){ bioSub.textContent = bioEnabled() ? '✅ Biometria ativa' : 'Impressão digital ou Face ID'; }
 }
 
 // ── SERVICE WORKER + PWA ──────────────────────────────────────────────────────
@@ -3286,14 +3469,14 @@ function mostrarToast(msg, duracao){
 // ── MODO ESCURO ───────────────────────────────────────────────────────────────
 function toggleDarkMode(ativo){
   document.body.classList.toggle('dark', ativo);
-  localStorage.setItem('finchat_dark', ativo?'1':'0');
+  FinStorage.setItem('finchat_dark', ativo?'1':'0');
   const el = document.getElementById('cfg-dark-mode');
   if(el) el.checked = ativo;
   // recriar gráficos com cores adaptadas
   if(typeof renderDashboard==='function') renderDashboard();
 }
 function carregarDarkMode(){
-  const saved = localStorage.getItem('finchat_dark');
+  const saved = FinStorage.getItem('finchat_dark');
   // só ativa dark se o usuário escolheu explicitamente (saved==='1')
   // NÃO segue preferência do sistema automaticamente para evitar surpresas
   const ativo = saved === '1';
@@ -3391,11 +3574,11 @@ const OBJ_CORES = {
 let objetivos = [];
 
 function carregarObjetivos(){
-  try{ const r=localStorage.getItem(OBJ_KEY); if(r) return JSON.parse(r); }catch{}
+  try{ const r=FinStorage.getItem(OBJ_KEY); if(r) return JSON.parse(r); }catch{}
   return [];
 }
 function salvarObjetivos(){
-  try{ localStorage.setItem(OBJ_KEY, JSON.stringify(objetivos)); }catch{}
+  FinStorage.setItem(OBJ_KEY, JSON.stringify(objetivos));
 }
 
 function adicionarObjetivo(){
@@ -3910,11 +4093,11 @@ const CAT_META_INFO = {
 let metas = {};
 
 function carregarMetas(){
-  try{const r=localStorage.getItem(METAS_KEY);if(r)return JSON.parse(r);}catch{}
+  try{const r=FinStorage.getItem(METAS_KEY);if(r)return JSON.parse(r);}catch{}
   return {};
 }
 function salvarMetas(){
-  try{localStorage.setItem(METAS_KEY,JSON.stringify(metas));}catch{}
+  FinStorage.setItem(METAS_KEY,JSON.stringify(metas));
 }
 
 function gastoMesCategoria(catKey){
@@ -4044,11 +4227,11 @@ const CAT_REC_INFO = {
 let recorrentes = [];
 
 function carregarRecorrentes(){
-  try{ const r=localStorage.getItem(REC_KEY); if(r) return JSON.parse(r); }catch{}
+  try{ const r=FinStorage.getItem(REC_KEY); if(r) return JSON.parse(r); }catch{}
   return [];
 }
 function salvarRecorrentes(){
-  try{ localStorage.setItem(REC_KEY, JSON.stringify(recorrentes)); }catch{}
+  FinStorage.setItem(REC_KEY, JSON.stringify(recorrentes));
 }
 
 function statusRecorrente(rec){
@@ -4381,6 +4564,371 @@ function exportarPDF(){
   doc.save(`finchat_${periodoLabel()}.pdf`);
 }
 
+async function compartilharRelatorio(){
+  const regs = getFiltradosPorPeriodo();
+  if(!regs.length){ mostrarToast('Nenhum registro no período'); return; }
+  const fmtV = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const totRec = regs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
+  const totGas = regs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
+  const saldo  = totRec - totGas;
+  const periodoTexto = {mes:'este mês',semana:'esta semana',todos:'todos os períodos'}[document.getElementById('exp-periodo').value] || 'este mês';
+
+  // top 3 categorias de gastos
+  const gc={};
+  regs.filter(r=>r.tipo==='gasto').forEach(r=>{const k=r.categoria.label;gc[k]=(gc[k]||0)+r.valor;});
+  const top3 = Object.entries(gc).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([k,v])=>`  • ${k}: ${fmtV(v)}`).join('\n');
+
+  const texto =
+`📊 Relatório FinChat — ${periodoTexto}
+
+💰 Receitas:  ${fmtV(totRec)}
+💸 Gastos:    ${fmtV(totGas)}
+📈 Saldo:     ${fmtV(saldo)}
+
+🏷️ Maiores gastos:
+${top3||'  • —'}
+
+Gerado em ${new Date().toLocaleDateString('pt-BR')} pelo FinChat`;
+
+  if(navigator.share){
+    try{
+      await navigator.share({ title:'Relatório FinChat', text:texto });
+      return;
+    }catch(e){ if(e.name==='AbortError') return; }
+  }
+  // fallback: copiar para área de transferência
+  try{
+    await navigator.clipboard.writeText(texto);
+    mostrarToast('Resumo copiado! Cole onde quiser 📋');
+  }catch{
+    // último recurso: abrir WhatsApp com o texto
+    const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+    window.open(url,'_blank');
+  }
+}
+
+// ── BIOMETRIA / PIN ──────────────────────────────────────────────────────────
+const PIN_KEY      = 'finchat_pin_hash';
+const BIO_KEY      = 'finchat_bio_enabled';
+const LOCK_TIMEOUT = 3 * 60 * 1000; // 3 minutos em background = pede PIN
+let _pinBuffer     = '';
+let _pinMode       = 'verify'; // 'verify' | 'set' | 'confirm'
+let _pinTemp       = '';
+let _lockTimestamp = 0;
+let _appUnlocked   = false;
+
+// Hash simples (não criptográfico, mas evita armazenar o PIN em claro)
+async function _hashPin(pin){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('finchat:' + pin));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function pinGetHash(){ return FinStorage.getItem(PIN_KEY)||''; }
+function pinIsSet()  { return !!pinGetHash(); }
+function bioEnabled(){ return FinStorage.getItem(BIO_KEY)==='1'; }
+
+function pinKey(n){
+  if(_pinBuffer.length >= 4) return;
+  _pinBuffer += n;
+  _updatePinDots();
+  if(_pinBuffer.length === 4) setTimeout(_pinSubmit, 120);
+}
+function pinDel(){
+  _pinBuffer = _pinBuffer.slice(0,-1);
+  _updatePinDots();
+}
+function _updatePinDots(err){
+  for(let i=0;i<4;i++){
+    const d = document.getElementById('pd'+i);
+    if(!d) continue;
+    d.classList.toggle('filled', i < _pinBuffer.length);
+    d.classList.toggle('error', !!err);
+  }
+}
+function _pinShake(){
+  const dots = document.getElementById('pin-dots');
+  if(!dots) return;
+  dots.classList.add('shake');
+  setTimeout(()=>dots.classList.remove('shake'),450);
+}
+
+async function _pinSubmit(){
+  const hash = await _hashPin(_pinBuffer);
+  if(_pinMode === 'verify'){
+    if(hash === pinGetHash()){ lockDismiss(); }
+    else { _pinBuffer=''; _updatePinDots(true); _pinShake(); mostrarToast('PIN incorreto'); }
+  } else if(_pinMode === 'set'){
+    _pinTemp  = _pinBuffer;
+    _pinBuffer = '';
+    _pinMode  = 'confirm';
+    _updatePinDots();
+    document.getElementById('lock-sub').textContent = 'Repita o PIN para confirmar';
+  } else if(_pinMode === 'confirm'){
+    if(_pinBuffer === _pinTemp){
+      FinStorage.setItem(PIN_KEY, hash);
+      _pinBuffer=''; _pinTemp=''; _pinMode='verify';
+      lockDismiss();
+      mostrarToast('✅ PIN configurado!');
+      setTimeout(renderConfig, 100);
+    } else {
+      _pinBuffer=''; _pinTemp=''; _pinMode='set';
+      _updatePinDots(true); _pinShake();
+      document.getElementById('lock-sub').textContent = 'PINs diferentes. Tente novamente';
+    }
+  }
+}
+
+async function lockBioAuth(){
+  try{
+    const Bio = window.Capacitor?.Plugins?.BiometricAuth;
+    if(!Bio) return;
+    await Bio.authenticate({ reason:'Entrar no FinChat', cancelTitle:'Usar PIN' });
+    lockDismiss();
+  }catch(e){
+    if(e?.code !== 'biometryNotAvailable' && e?.code !== 'userCancel')
+      mostrarToast('Biometria falhou. Use o PIN.');
+  }
+}
+
+function lockDismiss(){
+  _appUnlocked = true;
+  _lockTimestamp = Date.now();
+  _pinBuffer = '';
+  const s = document.getElementById('lock-screen');
+  if(s){ s.classList.remove('visible'); setTimeout(()=>{ if(!s.classList.contains('visible')) s.style.display='none'; }, 400); }
+}
+
+function lockShow(mode='verify'){
+  _pinMode   = mode;
+  _pinBuffer = '';
+  _pinTemp   = '';
+  _updatePinDots();
+  const s = document.getElementById('lock-screen');
+  if(!s) return;
+  s.style.display='flex';
+  requestAnimationFrame(()=>s.classList.add('visible'));
+  const subEl    = document.getElementById('lock-sub');
+  const bioBtn   = document.getElementById('pin-bio-btn');
+  const skipBtn  = document.getElementById('pin-skip-btn');
+  const titleEl  = document.getElementById('lock-title');
+  if(mode === 'set'){
+    if(titleEl) titleEl.textContent='Criar PIN';
+    if(subEl)   subEl.textContent='Escolha um PIN de 4 dígitos';
+    if(skipBtn) skipBtn.style.display='';
+    if(bioBtn)  bioBtn.style.display='none';
+  } else {
+    if(titleEl) titleEl.textContent='FinChat';
+    if(subEl)   subEl.textContent='Digite seu PIN para continuar';
+    if(skipBtn) skipBtn.style.display='none';
+    if(bioBtn)  bioBtn.style.display = bioEnabled() ? '' : 'none';
+  }
+  // Tentar biometria automaticamente
+  if(mode==='verify' && bioEnabled()) setTimeout(lockBioAuth, 400);
+}
+
+function lockCheckOnResume(){
+  if(!pinIsSet()) return;
+  if(_appUnlocked && Date.now() - _lockTimestamp < LOCK_TIMEOUT) return;
+  lockShow('verify');
+}
+
+// Escutar quando o app volta ao foreground (Capacitor + visibilitychange)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible') lockCheckOnResume();
+  else _lockTimestamp = Date.now();
+});
+
+// ── Configurações de PIN na tela de Config ──
+function pinSetupUI(){
+  const set   = pinIsSet();
+  const bioEl = document.getElementById('cfg-bio-available');
+  return { set };
+}
+async function cfgTogglePin(){
+  if(pinIsSet()){
+    if(confirm('Remover o PIN de proteção?')){ FinStorage.removeItem(PIN_KEY); FinStorage.removeItem(BIO_KEY); renderConfig(); mostrarToast('PIN removido'); }
+  } else {
+    lockShow('set');
+  }
+}
+async function cfgToggleBio(){
+  const Bio = window.Capacitor?.Plugins?.BiometricAuth;
+  if(!Bio){ alert('Biometria não disponível neste dispositivo.'); return; }
+  if(bioEnabled()){
+    FinStorage.removeItem(BIO_KEY);
+    mostrarToast('Biometria desativada');
+  } else {
+    if(!pinIsSet()){ alert('Configure um PIN antes de ativar a biometria.'); return; }
+    try{
+      await Bio.authenticate({ reason:'Ativar biometria no FinChat', cancelTitle:'Cancelar' });
+      FinStorage.setItem(BIO_KEY,'1');
+      mostrarToast('✅ Biometria ativada!');
+    }catch{ mostrarToast('Biometria não autorizada'); }
+  }
+  renderConfig();
+}
+
+// ── GOOGLE DRIVE BACKUP ──────────────────────────────────────────────────────
+const DRIVE_FILE_NAME   = 'finchat_backup.json';
+const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_CLIENT_KEY  = 'finchat_drive_client_id';
+const DRIVE_TOKEN_KEY   = 'finchat_drive_token';
+const DRIVE_EXPIRY_KEY  = 'finchat_drive_expiry';
+
+function driveGetClientId(){ return FinStorage.getItem(DRIVE_CLIENT_KEY)||''; }
+function driveSaveClientId(){
+  const v = document.getElementById('cfg-drive-client-id')?.value?.trim()||'';
+  if(v) FinStorage.setItem(DRIVE_CLIENT_KEY, v);
+  else FinStorage.removeItem(DRIVE_CLIENT_KEY);
+}
+function driveGetToken(){ return FinStorage.getItem(DRIVE_TOKEN_KEY)||''; }
+function driveIsConnected(){
+  const tok = driveGetToken();
+  const exp = parseInt(FinStorage.getItem(DRIVE_EXPIRY_KEY)||'0');
+  return tok && Date.now() < exp;
+}
+
+function driveUpdateUI(){
+  const connected = driveIsConnected();
+  const authBtn = document.getElementById('drive-auth-btn');
+  const actions  = document.getElementById('drive-actions');
+  const status   = document.getElementById('drive-status-txt');
+  if(!authBtn) return;
+  if(connected){
+    authBtn.style.display='none';
+    if(actions) actions.style.display='flex';
+    if(status)  status.textContent='✅ Conectado ao Google Drive';
+  } else {
+    authBtn.style.display='';
+    if(actions) actions.style.display='none';
+    if(status)  status.textContent='Backup automático na nuvem';
+  }
+  const clientInput = document.getElementById('cfg-drive-client-id');
+  if(clientInput) clientInput.value = driveGetClientId();
+}
+
+function driveAuth(){
+  const clientId = driveGetClientId();
+  if(!clientId){
+    alert('Configure o Client ID do Google Cloud Console antes de conectar.\nExpanda "Configuração avançada" abaixo e cole o ID.');
+    return;
+  }
+  const redirect = location.origin + location.pathname;
+  const url = 'https://accounts.google.com/o/oauth2/v2/auth'
+    + '?client_id=' + encodeURIComponent(clientId)
+    + '&redirect_uri=' + encodeURIComponent(redirect)
+    + '&response_type=token'
+    + '&scope=' + encodeURIComponent(DRIVE_SCOPE)
+    + '&prompt=select_account';
+  FinStorage.setItem('finchat_drive_redirect_pending','1');
+  location.href = url;
+}
+
+function driveHandleRedirect(){
+  const hash = location.hash;
+  if(!hash.includes('access_token=')) return;
+  const params = new URLSearchParams(hash.slice(1));
+  const token  = params.get('access_token');
+  const expiresIn = parseInt(params.get('expires_in')||'3600');
+  if(token){
+    FinStorage.setItem(DRIVE_TOKEN_KEY, token);
+    FinStorage.setItem(DRIVE_EXPIRY_KEY, String(Date.now() + expiresIn * 1000 - 30000));
+    FinStorage.removeItem('finchat_drive_redirect_pending');
+    history.replaceState(null,'',location.pathname); // limpa o hash da URL
+    mostrarToast('✅ Google Drive conectado!');
+    driveUpdateUI();
+  }
+}
+
+function driveLogout(){
+  FinStorage.removeItem(DRIVE_TOKEN_KEY);
+  FinStorage.removeItem(DRIVE_EXPIRY_KEY);
+  mostrarToast('Google Drive desconectado');
+  driveUpdateUI();
+}
+
+async function driveRequest(method, url, body, contentType){
+  const token = driveGetToken();
+  if(!token){ alert('Conecte-se ao Google Drive primeiro.'); return null; }
+  const headers = { 'Authorization': 'Bearer ' + token };
+  if(contentType) headers['Content-Type'] = contentType;
+  try{
+    const res = await fetch(url, { method, headers, body });
+    if(res.status === 401){ driveLogout(); alert('Sessão expirada. Conecte-se novamente.'); return null; }
+    return res;
+  }catch(e){ alert('Erro de rede: ' + e.message); return null; }
+}
+
+async function driveBackup(){
+  mostrarToast('Fazendo backup…');
+  const backup = JSON.stringify({
+    versao:'1.0', exportadoEm: new Date().toISOString(),
+    registros, metas, recorrentes, objetivos, carteiras, config: carregarConfig()
+  });
+
+  // Verificar se arquivo já existe no appDataFolder
+  const listRes = await driveRequest('GET',
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + DRIVE_FILE_NAME + '%27&fields=files(id)');
+  if(!listRes) return;
+  const listData = await listRes.json();
+  const existingId = listData.files?.[0]?.id;
+
+  let uploadUrl, uploadMethod;
+  if(existingId){
+    uploadUrl    = 'https://www.googleapis.com/upload/drive/v3/files/' + existingId + '?uploadType=media';
+    uploadMethod = 'PATCH';
+  } else {
+    // Criar novo com metadata
+    const meta = JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'] });
+    const boundary = 'finchat_boundary';
+    const multipart =
+      '--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + meta +
+      '\r\n--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + backup +
+      '\r\n--' + boundary + '--';
+    const createRes = await driveRequest('POST',
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+      multipart, 'multipart/related; boundary=' + boundary);
+    if(!createRes){ return; }
+    if(createRes.ok){ mostrarToast('✅ Backup salvo no Google Drive!'); return; }
+    alert('Erro ao criar arquivo: ' + createRes.status);
+    return;
+  }
+
+  const upRes = await driveRequest(uploadMethod, uploadUrl, backup, 'application/json');
+  if(!upRes) return;
+  if(upRes.ok) mostrarToast('✅ Backup atualizado no Google Drive!');
+  else alert('Erro no upload: ' + upRes.status);
+}
+
+async function driveRestore(){
+  if(!confirm('Restaurar dados do Google Drive? Os dados locais serão substituídos.')) return;
+  mostrarToast('Buscando backup…');
+  const listRes = await driveRequest('GET',
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + DRIVE_FILE_NAME + '%27&fields=files(id,modifiedTime)');
+  if(!listRes) return;
+  const listData = await listRes.json();
+  const file = listData.files?.[0];
+  if(!file){ alert('Nenhum backup encontrado no Google Drive.'); return; }
+
+  const dlRes = await driveRequest('GET',
+    'https://www.googleapis.com/drive/v3/files/' + file.id + '?alt=media');
+  if(!dlRes) return;
+  try{
+    const data = await dlRes.json();
+    if(!data.registros) throw new Error('Formato de backup inválido');
+    registros   = data.registros||[];
+    metas       = data.metas||{};
+    recorrentes = data.recorrentes||[];
+    objetivos   = data.objetivos||[];
+    if(data.carteiras?.length) salvarCarteiras(data.carteiras);
+    if(data.config) FinStorage.setItem(CFG_KEY, JSON.stringify(data.config));
+    salvar(registros); salvarMetas(); salvarRecorrentes(); salvarObjetivos();
+    renderAll(); renderConfig();
+    mostrarToast('✅ Dados restaurados do Google Drive!');
+  }catch(e){ alert('Erro ao restaurar: ' + e.message); }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // MOTOR DE CONSULTAS
 const HOJE = ()=>{ const d=new Date(); d.setHours(0,0,0,0); return d; };
@@ -4560,6 +5108,9 @@ mostrarHome(); // começa na home limpa
 setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 registrarServiceWorker();
+driveHandleRedirect(); // processa token do OAuth2 redirect (se houver)
+driveUpdateUI();       // atualiza estado do Drive na tela de Config
+lockCheckOnResume();   // exibe PIN/bio se app foi desbloqueado
 
 // ── Safe area: fallback JS para Android edge-to-edge (API 35+) ───────
 // O valor correto é injetado pelo MainActivity.java via evaluateJavascript.
@@ -4624,7 +5175,7 @@ function finalizarOnboarding(pular) {
   if (nome) {
     const cfg = carregarConfig();
     cfg.nome = nome;
-    localStorage.setItem('finchat_config_v1', JSON.stringify(cfg));
+    FinStorage.setItem('finchat_config_v1', JSON.stringify(cfg));
     aplicarConfig(cfg);
     renderAll();
   }

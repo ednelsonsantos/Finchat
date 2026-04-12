@@ -1,0 +1,22 @@
+FinChat is a personal finance app with a natural language chat interface. Instead of filling out forms, you simply type a sentence like "spent 80 pharmacy" or "received 4000 salary" — the app parses, categorizes, and saves the entry automatically.
+
+MAIN FEATURES
+
+• Natural language chat — record any expense or income like sending a message
+• Dashboard with KPIs — balance, income, expenses, and how much you can spend today
+• Category budgets — set monthly limits with 80% and 100% alerts
+• Recurring expenses — manage fixed bills with due dates
+• Savings goals — plan targets with automatic monthly contribution calculation
+• Full history — search and filter by month, week, or period
+• Multiple wallets — organize by account (checking, cash, savings…)
+• PDF and CSV export — ready-to-share reports
+• Dark mode — adapted interface for night use
+• 100% offline — your data stays only on your device
+
+PRIVACY
+
+FinChat requires no account, collects no data, and sends nothing to the internet. All records are stored locally on your device. The AI (Gemini) feature is optional and requires your own API key.
+
+OPEN SOURCE
+
+FinChat is open source, licensed under MIT. Source code available at https://github.com/ednelsonsantos/finchat

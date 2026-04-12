@@ -1,0 +1,22 @@
+FinChat é um aplicativo de finanças pessoais com interface de chat em linguagem natural. Em vez de preencher formulários, você simplesmente digita uma frase como "gasto 80 farmácia" ou "recebi 4000 salário" — o app interpreta, categoriza e registra automaticamente.
+
+FUNCIONALIDADES PRINCIPAIS
+
+• Chat em linguagem natural — registre qualquer gasto ou receita como se estivesse mandando uma mensagem
+• Dashboard com KPIs — saldo, receitas, gastos e quanto você pode gastar hoje
+• Metas por categoria — defina limites mensais com alertas em 80% e 100%
+• Gastos fixos/recorrentes — cadastre contas periódicas com vencimento
+• Objetivos de poupança — planeje metas com cálculo automático de aporte
+• Histórico completo — busca e filtros por mês, semana ou período
+• Múltiplas carteiras — organize por conta (Nubank, Dinheiro, Poupança…)
+• Exportação PDF e CSV — relatórios prontos para compartilhar
+• Dark mode — interface adaptada para uso noturno
+• 100% offline — seus dados ficam só no seu dispositivo
+
+PRIVACIDADE
+
+O FinChat não requer conta, não coleta dados e não envia nada para a internet. Todos os registros ficam armazenados localmente no seu dispositivo. A funcionalidade de IA com Gemini é opcional e requer chave de API própria.
+
+SOFTWARE LIVRE
+
+O FinChat é código aberto, licenciado sob MIT. Código disponível em https://github.com/ednelsonsantos/finchat

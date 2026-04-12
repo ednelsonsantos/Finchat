@@ -1,0 +1,20 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: FinChat
+Upstream-Contact: Ednelson Santos <https://github.com/ednelsonsantos>
+Source: https://github.com/ednelsonsantos/finchat
+
+Files: icone/* logotipo/* icon.png logofinchat.png iconefinchat.png
+Copyright: 2026 Ednelson Santos
+License: MIT
+
+Files: android/app/src/main/res/drawable*/*
+Copyright: 2026 Ednelson Santos
+License: MIT
+
+Files: android/app/src/main/res/mipmap*/*
+Copyright: 2026 Ednelson Santos
+License: MIT
+
+Files: resize-icons.ps1 resize-splash.ps1
+Copyright: 2026 Ednelson Santos
+License: MIT
