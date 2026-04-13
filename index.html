@@ -3410,31 +3410,7 @@ function renderConfig(){
 function registrarServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
 
-  // Preferir sw.js externo (mesmo diretório) — mais confiável que blob URL.
-  // Blob URL SWs têm restrições de escopo e podem não funcionar para notificações.
-  const swCandidates = ['./sw.js', location.pathname.replace(/[^/]+$/, 'sw.js')];
-
-  async function tryRegister(url){
-    try{
-      const reg = await navigator.serviceWorker.register(url, {scope:'./'});
-      console.log('[FinChat SW] registrado:', url, reg.scope);
-      return true;
-    }catch(e){
-      console.warn('[FinChat SW] falhou:', url, e.message);
-      return false;
-    }
-  }
-
-  // Tenta sw.js externo primeiro; se falhar (file://, cors, etc.) usa blob
-  let ok = false;
-  for(const url of swCandidates){
-    ok = await tryRegister(url);
-    if(ok) break;
-  }
-
-  if(!ok){
-    // Fallback blob — funciona em localhost e file:// com limitações
-    const swCode = `
+  const blobCode = `
 const CACHE='finchat-v2';
 self.addEventListener('install',e=>{self.skipWaiting();});
 self.addEventListener('activate',e=>{self.clients.claim();});
@@ -3453,11 +3429,17 @@ self.addEventListener('notificationclick',e=>{
     return self.clients.openWindow('./');
   }));
 });`;
-    const blob = new Blob([swCode], {type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(blob), {scope:'./'})
-      .then(()=>console.log('[FinChat SW] blob registrado'))
-      .catch(e=>console.warn('[FinChat SW] blob falhou:', e.message));
-  }
+
+  // Tenta sw.js externo (mesmo diretório) — mais confiável que blob URL.
+  // Se falhar (file://, cors, etc.) usa blob como fallback.
+  navigator.serviceWorker.register('./sw.js', {scope:'./'})
+    .then(r=>console.log('[FinChat SW] sw.js registrado', r.scope))
+    .catch(()=>{
+      const blob = new Blob([blobCode], {type:'application/javascript'});
+      navigator.serviceWorker.register(URL.createObjectURL(blob), {scope:'./'})
+        .then(()=>console.log('[FinChat SW] blob registrado'))
+        .catch(e=>console.warn('[FinChat SW] falhou:', e.message));
+    });
 }
 
 // Gerar manifest.webmanifest dinamicamente
