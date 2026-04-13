@@ -995,7 +995,7 @@ body.dark .btn-carteira-edit{border-color:#444;color:#aaa;background:#2a2a2a}
 .home-mini-item .mi-val{font-size:14px;font-weight:600}
 
 /* Atalhos recentes */
-.home-atalhos-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.home-atalhos-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px} /* kept for compat */
 .home-atalhos{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
 .home-atalho{
   display:flex;align-items:center;gap:5px;
@@ -1054,6 +1054,28 @@ body.dark .home-hint .hint-head{border-color:#333}
 body.dark .home-result{background:#242424;border-color:#333}
 .home-mode-ind{font-size:12px;margin:6px 0 4px;min-height:18px}
 
+/* Saldo no chip de carteira */
+.chip-bal{font-size:10px;font-weight:500;opacity:.75;margin-left:3px;letter-spacing:0}
+.wallet-chip.active .chip-bal{opacity:.9;color:rgba(255,255,255,.9)}
+
+/* Seção de rótulo genérico na home */
+.home-section-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+
+/* Grid top categorias */
+.home-cats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.home-cat-card{display:flex;align-items:center;gap:10px;padding:11px 13px;
+  background:#fff;border-radius:14px;border:1px solid #f0f0f0;
+  cursor:pointer;transition:all .15s;overflow:hidden}
+.home-cat-card:active{transform:scale(.97)}
+.home-cat-ico{font-size:22px;flex-shrink:0}
+.home-cat-info{min-width:0;flex:1}
+.home-cat-name{font-size:11px;color:#888;margin-bottom:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-cat-val{font-size:15px;font-weight:700;color:#E24B4A}
+body.dark .home-cat-card{background:#242424;border-color:#333}
+body.dark .home-cat-name{color:#666}
+body.dark .home-cat-val{color:#f08080}
+
 /* Toast na home */
 /* home-toast removido — usar .global-toast */
 
@@ -1094,45 +1116,28 @@ body.dark .aba-header-title{color:#e8e8e6}
 body.dark .global-toast{background:#0d5c3f;box-shadow:0 4px 16px rgba(13,92,63,.5)}
 
 
-/* ── HINT DARK MODE — preto e branco puro ───────────────────── */
+/* ── HINT DARK MODE ─────────────────────────────────────────── */
 body.dark .hint-box,
-body.dark .home-hint{
-  background:#000;border-color:#333}
-
-body.dark .hint-head{
-  background:#000;border-color:#222}
-
-body.dark .hint-label{color:#fff !important}
-body.dark .hint-sub{color:#aaa !important}
-
-body.dark .hint-tip{
-  background:#0a0a0a;border-color:#222;color:#aaa}
-
-body.dark .examples-section{background:#000}
+body.dark .home-hint{background:#1e1e1e;border-color:#333}
+body.dark .hint-head,
+body.dark .home-hint .hint-head{background:#1e1e1e;border-color:#2a2a2a}
+body.dark .hint-label{color:#f0f0f0 !important}
+body.dark .hint-sub{color:#888 !important}
+body.dark .hint-tip{background:#161616;border-color:#2a2a2a;color:#888}
+body.dark .examples-section{background:#1e1e1e}
 body.dark .examples-label{color:#666 !important}
-
-body.dark .hint-ex{
-  background:#111;border:1px solid #222}
-body.dark .hint-ex:hover{
-  background:#1a1a1a;border-color:#1D9E75}
-body.dark .ex-text{color:#fff}
-body.dark .ex-desc{color:#888}
+body.dark .hint-ex{background:#2a2a2a !important;border:1px solid #383838 !important}
+body.dark .hint-ex:hover{background:#1a3d2e !important;border-color:#1D9E75 !important}
+body.dark .ex-text{color:#f0f0f0 !important}
+body.dark .ex-desc{color:#777 !important}
 body.dark .ex-arrow{color:#1D9E75}
-
-body.dark .hint-icon{
-  background:#111;border:1px solid #222}
-
-body.dark .intent-section{
-  background:#0a0a0a;border-color:#222}
+body.dark .hint-icon{background:#2a2a2a;border:1px solid #383838}
+body.dark .intent-section{background:#161616;border-color:#2a2a2a}
 body.dark .intent-label{color:#666 !important}
-body.dark .intent-btn{
-  background:#111;border-color:#333;color:#ccc}
-body.dark .intent-btn:hover{
-  border-color:#1D9E75;color:#fff;background:#0d2018}
-body.dark .intent-btn.sel-receita{
-  background:#0d2018;border-color:#1D9E75;color:#fff}
-body.dark .intent-btn.sel-gasto{
-  background:#200d0d;border-color:#E24B4A;color:#fff}
+body.dark .intent-btn{background:#2a2a2a;border-color:#444;color:#ccc}
+body.dark .intent-btn:hover{border-color:#1D9E75;color:#fff;background:#0d2018}
+body.dark .intent-btn.sel-receita{background:#0d2018;border-color:#1D9E75;color:#fff}
+body.dark .intent-btn.sel-gasto{background:#200d0d;border-color:#E24B4A;color:#fff}
 
 /* badges — alto contraste no dark (com !important para sobrescrever herança) */
 body.dark .bg-green{background:#0d2018 !important;color:#4eca97 !important}
@@ -1412,9 +1417,15 @@ body.dark .home-greeting{color:#666}
       </div>
     </div>
 
+    <!-- Top categorias do mês -->
+    <div id="home-cats-wrap" style="display:none">
+      <div class="home-section-label">Maiores gastos do mês</div>
+      <div class="home-cats-grid" id="home-cats-grid"></div>
+    </div>
+
     <!-- Atalhos rápidos (últimas categorias usadas) -->
     <div id="home-atalhos-wrap" style="display:none">
-      <div class="home-atalhos-label">Registrar rápido</div>
+      <div class="home-section-label">Registrar rápido</div>
       <div class="home-atalhos" id="home-atalhos"></div>
     </div>
 
@@ -3015,11 +3026,23 @@ function regsForCalc(regs){
 function renderWalletChips(){
   const el=document.getElementById('wallet-chips');
   if(!el)return;
+  const fmt0=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+  // saldo mensal por carteira
+  const agora=new Date(), ano=agora.getFullYear(), mes=agora.getMonth();
+  function saldoMes(id){
+    return registros
+      .filter(r=>!r.isTransferencia&&(id==='todas'||r.carteiraId===id)
+        &&new Date(r.data).getFullYear()===ano&&new Date(r.data).getMonth()===mes)
+      .reduce((a,r)=>a+(r.tipo==='receita'?r.valor:-r.valor),0);
+  }
   const chips=[
     `<div class="wallet-chip${carteiraFiltro==='todas'?' active':''}" onclick="setCarteiraFiltro('todas')">Todas</div>`,
     ...carteiras.map(c=>{
       const ativo=carteiraFiltro===c.id;
-      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${ativo?'background:'+c.cor+';border-color:'+c.cor+';color:#fff':''}">${c.icon} ${c.nome}</div>`;
+      const sal=saldoMes(c.id);
+      const salStr=`<span class="chip-bal">${fmt0(sal)}</span>`;
+      const style=ativo?'background:'+c.cor+';border-color:'+c.cor+';color:#fff':'';
+      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${style}">${c.icon} ${c.nome}${salStr}</div>`;
     }),
     `<div class="wallet-chip chip-add" onclick="abrirModalCarteira()" title="Nova carteira">+ Nova</div>`,
   ];
@@ -3842,6 +3865,9 @@ function renderHome(){
     if(heroCard) heroCard.style.background='linear-gradient(135deg,#1D9E75,#0F6E56)';
   }
 
+  // top categorias do mês
+  renderTopCatsHome(mesRegs, fmt2);
+
   // atalhos: últimas 4 categorias usadas (deduplica)
   renderAtalhosHome();
 }
@@ -3885,6 +3911,31 @@ function renderAtalhosHome(){
       <span style="font-size:11px;color:#aaa">${sinal}R$${val}</span>
     </div>`;
   }).join('');
+}
+
+function renderTopCatsHome(mesRegs, fmt2){
+  const wrap=document.getElementById('home-cats-wrap');
+  const grid=document.getElementById('home-cats-grid');
+  if(!wrap||!grid)return;
+  const ICOS={alimentacao:'🛒',saude:'💊',transporte:'🚗',moradia:'🏠',
+    lazer:'🎬',educacao:'📚',pets:'🐾',vestuario:'👕',
+    investimento:'📈',salario:'💼',freela:'💻',servicos:'🔧',outros:'📦'};
+  const gc={};
+  mesRegs.filter(r=>r.tipo==='gasto').forEach(r=>{
+    const k=r.categoria.key;
+    gc[k]={val:(gc[k]?.val||0)+r.valor,label:r.categoria.label};
+  });
+  const top=Object.entries(gc).sort((a,b)=>b[1].val-a[1].val).slice(0,4);
+  if(!top.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  grid.innerHTML=top.map(([k,{val,label}])=>`
+    <div class="home-cat-card" onclick="consultaRapida('quanto gastei em ${label} esse mês')">
+      <span class="home-cat-ico">${ICOS[k]||'📦'}</span>
+      <div class="home-cat-info">
+        <div class="home-cat-name">${label}</div>
+        <div class="home-cat-val">${fmt2(val)}</div>
+      </div>
+    </div>`).join('');
 }
 
 function preencherAtalho(tipo,desc,catKey,valor){
