@@ -1773,12 +1773,15 @@ body.dark .home-greeting{color:#666}
     <!-- Notificações -->
     <div class="cfg-section">
       <div class="cfg-section-title">Notificações</div>
-      <div class="cfg-row" style="flex-wrap:wrap;gap:8px" id="cfg-notif-status-row">
+      <div class="cfg-row" id="cfg-notif-status-row">
         <div>
           <div class="cfg-row-label">Notificações nativas</div>
           <div class="cfg-row-sub" id="cfg-notif-sub">Desativadas — clique para ativar</div>
         </div>
-        <button class="cfg-btn" id="cfg-notif-btn" onclick="solicitarPermissaoNotif()">🔔 Ativar</button>
+        <label class="cfg-toggle">
+          <input type="checkbox" id="cfg-notif-input" onchange="toggleNotif(this.checked)"/>
+          <span class="cfg-toggle-slider"></span>
+        </label>
       </div>
       <div id="cfg-notif-toggles" style="display:none">
         <div class="cfg-row">
@@ -2707,16 +2710,16 @@ function renderConfig(){
   const perm=('Notification' in window)?Notification.permission:'unsupported';
   const notifAtivas=cfg.notifAtivas&&perm==='granted';
   const subEl=document.getElementById('cfg-notif-sub');
-  const btnEl=document.getElementById('cfg-notif-btn');
+  const notifInput=document.getElementById('cfg-notif-input');
   const togglesEl=document.getElementById('cfg-notif-toggles');
   if(subEl){
     if(perm==='unsupported')            subEl.textContent='Não suportado neste navegador';
     else if(!window.isSecureContext)    subEl.textContent='Requer HTTPS ou PWA instalado (file:// não suporta)';
     else if(perm==='denied')            subEl.textContent='Bloqueadas — ative nas configurações do navegador';
     else if(notifAtivas)                subEl.textContent='Ativas ✓';
-    else                                subEl.textContent='Desativadas — clique para ativar';
+    else                                subEl.textContent='Desativadas — toque para ativar';
   }
-  if(btnEl) btnEl.style.display=notifAtivas?'none':'';
+  if(notifInput) notifInput.checked=notifAtivas;
   if(togglesEl) togglesEl.style.display=notifAtivas?'':'none';
   const nv=document.getElementById('cfg-notif-vencimentos');
   const nl=document.getElementById('cfg-notif-lembrete');
@@ -2823,6 +2826,17 @@ async function showNativeNotif(title,body,tag){
   try{ new Notification(title, opts); }catch{}
 }
 
+async function toggleNotif(on){
+  if(on){
+    await solicitarPermissaoNotif();
+  } else {
+    const cfg=carregarConfig();
+    cfg.notifAtivas=false;
+    salvarConfig(cfg);
+    renderConfig();
+  }
+}
+
 async function solicitarPermissaoNotif(){
   // Electron: notificações nativas via IPC
   if(window.electronAPI){
@@ -2869,6 +2883,7 @@ async function solicitarPermissaoNotif(){
     await showNativeNotif('FinChat 🔔','Notificações estão funcionando! ✅','teste');
   } else {
     alert('Permissão negada. Ative manualmente nas configurações do navegador.');
+    renderConfig(); // reverte toggle para desligado
   }
 }
 
