@@ -2710,10 +2710,11 @@ function renderConfig(){
   const btnEl=document.getElementById('cfg-notif-btn');
   const togglesEl=document.getElementById('cfg-notif-toggles');
   if(subEl){
-    if(perm==='unsupported') subEl.textContent='Não suportado neste navegador';
-    else if(perm==='denied')  subEl.textContent='Bloqueadas — ative nas configurações do navegador';
-    else if(notifAtivas)      subEl.textContent='Ativas ✓';
-    else                      subEl.textContent='Desativadas — clique para ativar';
+    if(perm==='unsupported')            subEl.textContent='Não suportado neste navegador';
+    else if(!window.isSecureContext)    subEl.textContent='Requer HTTPS ou PWA instalado (file:// não suporta)';
+    else if(perm==='denied')            subEl.textContent='Bloqueadas — ative nas configurações do navegador';
+    else if(notifAtivas)                subEl.textContent='Ativas ✓';
+    else                                subEl.textContent='Desativadas — clique para ativar';
   }
   if(btnEl) btnEl.style.display=notifAtivas?'none':'';
   if(togglesEl) togglesEl.style.display=notifAtivas?'':'none';
@@ -2803,16 +2804,27 @@ async function showNativeNotif(title,body,tag){
   }
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   const opts={body,icon:NOTIF_ICON,badge:NOTIF_ICON,tag,renotify:false};
-  try{
-    const sw=await navigator.serviceWorker.ready;
-    await sw.showNotification(title,opts);
-  }catch{
-    try{new Notification(title,opts);}catch{}
+
+  // Tenta via Service Worker com timeout de 2s.
+  // navigator.serviceWorker.ready nunca rejeita (apenas fica pendente)
+  // quando o SW falha — por isso usamos Promise.race com timeout.
+  if('serviceWorker' in navigator){
+    try{
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('SW timeout')), 2000))
+      ]);
+      await reg.showNotification(title, opts);
+      return;
+    }catch{ /* cai no fallback abaixo */ }
   }
+
+  // Fallback direto (funciona enquanto a aba estiver aberta)
+  try{ new Notification(title, opts); }catch{}
 }
 
 async function solicitarPermissaoNotif(){
-  // No Electron as notificações funcionam diretamente via IPC
+  // Electron: notificações nativas via IPC
   if(window.electronAPI){
     const cfg=carregarConfig();
     cfg.notifAtivas=true;
@@ -2822,22 +2834,39 @@ async function solicitarPermissaoNotif(){
     await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
     return;
   }
+
   if(!('Notification' in window)){
-    alert('Seu navegador não suporta notificações nativas.\nUse Chrome, Edge ou Firefox.');
+    alert('Seu navegador não suporta notificações.\nUse Chrome, Edge ou Firefox atualizado.');
     return;
   }
+
+  // Notificações exigem contexto seguro (HTTPS ou localhost).
+  // Abrir index.html diretamente como file:// não funciona.
+  if(!window.isSecureContext){
+    alert(
+      'Notificações só funcionam em:\n' +
+      '  • Endereço HTTPS\n' +
+      '  • http://localhost\n' +
+      '  • App instalado (PWA ou APK)\n\n' +
+      'Abrir o arquivo diretamente (file://) bloqueia notificações.\n' +
+      'Instale o PWA clicando no ícone de instalação na barra do navegador, ou use o APK.'
+    );
+    return;
+  }
+
   if(Notification.permission==='denied'){
-    alert('Notificações bloqueadas pelo navegador.\nVá em Configurações do site → Notificações → Permitir.');
+    alert('Notificações bloqueadas.\nVá em Configurações do site → Notificações → Permitir e recarregue.');
     return;
   }
-  const perm=await Notification.requestPermission();
+
+  const perm = await Notification.requestPermission();
   if(perm==='granted'){
     const cfg=carregarConfig();
     cfg.notifAtivas=true;
     FinStorage.setItem(CFG_KEY,JSON.stringify(cfg));
     renderConfig();
     mostrarToast('🔔 Notificações ativadas!');
-    await showNativeNotif('FinChat 🔔','Notificações estão funcionando!','teste');
+    await showNativeNotif('FinChat 🔔','Notificações estão funcionando! ✅','teste');
   } else {
     alert('Permissão negada. Ative manualmente nas configurações do navegador.');
   }
@@ -3380,47 +3409,55 @@ function renderConfig(){
 // ── SERVICE WORKER + PWA ──────────────────────────────────────────────────────
 function registrarServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
-  // Criar SW inline via blob
-  const swCode = `
-const CACHE = 'finchat-v1';
-const ASSETS = [self.location.href.replace('/sw.js','') || '/'];
-self.addEventListener('install', e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
-  self.skipWaiting();
-});
-self.addEventListener('activate', e=>{
-  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
-});
-self.addEventListener('fetch', e=>{
-  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('/'))));
-});
-self.addEventListener('message', e=>{
+
+  // Preferir sw.js externo (mesmo diretório) — mais confiável que blob URL.
+  // Blob URL SWs têm restrições de escopo e podem não funcionar para notificações.
+  const swCandidates = ['./sw.js', location.pathname.replace(/[^/]+$/, 'sw.js')];
+
+  async function tryRegister(url){
+    try{
+      const reg = await navigator.serviceWorker.register(url, {scope:'./'});
+      console.log('[FinChat SW] registrado:', url, reg.scope);
+      return true;
+    }catch(e){
+      console.warn('[FinChat SW] falhou:', url, e.message);
+      return false;
+    }
+  }
+
+  // Tenta sw.js externo primeiro; se falhar (file://, cors, etc.) usa blob
+  let ok = false;
+  for(const url of swCandidates){
+    ok = await tryRegister(url);
+    if(ok) break;
+  }
+
+  if(!ok){
+    // Fallback blob — funciona em localhost e file:// com limitações
+    const swCode = `
+const CACHE='finchat-v2';
+self.addEventListener('install',e=>{self.skipWaiting();});
+self.addEventListener('activate',e=>{self.clients.claim();});
+self.addEventListener('message',e=>{
   if(e.data&&e.data.type==='NOTIFY'){
     self.registration.showNotification(e.data.title||'FinChat',{
-      body:e.data.body||'',
-      icon:e.data.icon||'',
-      badge:e.data.icon||'',
-      tag:e.data.tag||'finchat',
-      renotify:false,
+      body:e.data.body||'',icon:e.data.icon||'',badge:e.data.icon||'',
+      tag:e.data.tag||'finchat',renotify:false,
     }).catch(()=>{});
   }
 });
-self.addEventListener('notificationclick', e=>{
+self.addEventListener('notificationclick',e=>{
   e.notification.close();
-  e.waitUntil(
-    self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
-      if(cs.length)return cs[0].focus();
-      return self.clients.openWindow('./');
-    })
-  );
-});
-  `;
-  const blob = new Blob([swCode], {type:'application/javascript'});
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl, {scope:'./'})
-    .then(()=>{ console.log('FinChat SW registrado'); })
-    .catch(e=>{ console.warn('SW não suportado neste contexto:', e.message); });
+  e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
+    if(cs.length)return cs[0].focus();
+    return self.clients.openWindow('./');
+  }));
+});`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob), {scope:'./'})
+      .then(()=>console.log('[FinChat SW] blob registrado'))
+      .catch(e=>console.warn('[FinChat SW] blob falhou:', e.message));
+  }
 }
 
 // Gerar manifest.webmanifest dinamicamente
