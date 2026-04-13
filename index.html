@@ -5275,7 +5275,11 @@ function responderConsulta(texto){
   }
 
   // ── CATEGORIA ESPECÍFICA ─────────────────────────────────────────────────
-  const catMatch=Object.entries(CATS).find(([,c])=>c.palavras&&c.palavras.some(p=>n.includes(norm(p))));
+  const catMatch=Object.entries(CATS).find(([k,c])=>{
+    // verifica key ("transporte"), label normalizado ("transporte"), ou palavras-chave
+    if(n.includes(norm(k))||n.includes(norm(c.label||'')))return true;
+    return c.palavras&&c.palavras.some(p=>n.includes(norm(p)));
+  });
   if(catMatch&&(n.includes('gast')||n.includes('quanto')||n.includes('total'))){
     const [catKey,cat]=catMatch;
     const filtCat=gastos.filter(r=>r.categoria.key===catKey);
