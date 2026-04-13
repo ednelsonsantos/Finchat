@@ -1072,6 +1072,8 @@ body.dark .icon-picker-label{color:#555}
 /* Saldo no chip de carteira */
 .chip-bal{font-size:10px;font-weight:500;opacity:.75;margin-left:3px;letter-spacing:0}
 .wallet-chip.active .chip-bal{opacity:.9;color:rgba(255,255,255,.9)}
+.chip-edit{font-size:13px;margin-left:5px;opacity:.8;cursor:pointer;line-height:1}
+.chip-edit:hover{opacity:1}
 
 /* Seção de rótulo genérico na home */
 .home-section-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
@@ -3064,8 +3066,9 @@ function renderWalletChips(){
       const ativo=carteiraFiltro===c.id;
       const sal=saldoMes(c.id);
       const salStr=`<span class="chip-bal">${fmt0(sal)}</span>`;
+      const editBtn=ativo?`<span class="chip-edit" onclick="event.stopPropagation();abrirModalCarteira('${c.id}')" title="Editar carteira">✏️</span>`:'';
       const style=ativo?'background:'+c.cor+';border-color:'+c.cor+';color:#fff':'';
-      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${style}">${c.icon} ${c.nome}${salStr}</div>`;
+      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${style}">${c.icon} ${c.nome}${salStr}${editBtn}</div>`;
     }),
     `<div class="wallet-chip chip-add" onclick="abrirModalCarteira()" title="Nova carteira">+ Nova</div>`,
   ];
