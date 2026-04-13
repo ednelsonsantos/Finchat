@@ -1054,6 +1054,21 @@ body.dark .home-hint .hint-head{border-color:#333}
 body.dark .home-result{background:#242424;border-color:#333}
 .home-mode-ind{font-size:12px;margin:6px 0 4px;min-height:18px}
 
+/* Picker de ícone no modal de carteira */
+.icon-picker{margin-top:4px;margin-bottom:2px}
+.icon-picker-label{font-size:11px;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.icon-picker-grid{display:flex;flex-wrap:wrap;gap:6px}
+.icon-picker-grid span{
+  font-size:22px;cursor:pointer;padding:5px;border-radius:10px;
+  border:2px solid transparent;transition:all .1s;line-height:1;
+  user-select:none;
+}
+.icon-picker-grid span:hover{background:#f0f0f0;border-color:#ddd}
+.icon-picker-grid span.selected{border-color:#1D9E75;background:#E1F5EE}
+body.dark .icon-picker-grid span:hover{background:#2a2a2a;border-color:#444}
+body.dark .icon-picker-grid span.selected{border-color:#1D9E75;background:#0d2018}
+body.dark .icon-picker-label{color:#555}
+
 /* Saldo no chip de carteira */
 .chip-bal{font-size:10px;font-weight:500;opacity:.75;margin-left:3px;letter-spacing:0}
 .wallet-chip.active .chip-bal{opacity:.9;color:rgba(255,255,255,.9)}
@@ -2074,12 +2089,20 @@ body.dark .home-greeting{color:#666}
     </div>
     <div class="edit-row">
       <div class="edit-field">
-        <div class="edit-label">Ícone (emoji)</div>
-        <input class="edit-input" id="carteira-modal-icon" type="text" placeholder="💳" maxlength="4" style="font-size:20px;text-align:center"/>
+        <div class="edit-label">Ícone</div>
+        <input class="edit-input" id="carteira-modal-icon" type="text" placeholder="💳" maxlength="4" style="font-size:20px;text-align:center;width:60px" oninput="selecionarIconeCarteira(this.value.trim())"/>
       </div>
       <div class="edit-field">
         <div class="edit-label">Cor</div>
         <input class="edit-input" id="carteira-modal-cor" type="color" value="#1D9E75" style="padding:4px;height:42px;cursor:pointer"/>
+      </div>
+    </div>
+    <div class="icon-picker" id="carteira-icon-picker">
+      <div class="icon-picker-label">Sugestões</div>
+      <div class="icon-picker-grid">
+        💳 💰 🏦 💵 💴 💶 🏧 🪙 💎 📱
+        🛒 🏠 🚗 ✈️ 🎓 💊 🎬 🍔 ☕ 🐾
+        💼 💻 📦 🎯 🎁 🔑 🌟 ❤️ 🟢 🔵
       </div>
     </div>
     <div class="modal-actions">
@@ -3063,9 +3086,23 @@ function abrirModalCarteira(id){
   document.getElementById('carteira-modal-title').textContent=c?'Editar carteira':'Nova carteira';
   document.getElementById('carteira-modal-id').value=id||'';
   document.getElementById('carteira-modal-nome').value=c?c.nome:'';
-  document.getElementById('carteira-modal-icon').value=c?c.icon:'💳';
+  const iconVal=c?c.icon:'💳';
+  document.getElementById('carteira-modal-icon').value=iconVal;
   document.getElementById('carteira-modal-cor').value=c?c.cor:'#1D9E75';
+  // montar picker de ícones
+  const ICONS=['💳','💰','🏦','💵','💴','💶','🏧','🪙','💎','📱',
+               '🛒','🏠','🚗','✈️','🎓','💊','🎬','🍔','☕','🐾',
+               '💼','💻','📦','🎯','🎁','🔑','🌟','❤️','🟢','🔵'];
+  const grid=document.getElementById('carteira-icon-picker')?.querySelector('.icon-picker-grid');
+  if(grid){
+    grid.innerHTML=ICONS.map(e=>`<span class="${e===iconVal?'selected':''}" onclick="selecionarIconeCarteira('${e}')">${e}</span>`).join('');
+  }
   document.getElementById('carteira-modal').classList.add('open');
+}
+function selecionarIconeCarteira(emoji){
+  document.getElementById('carteira-modal-icon').value=emoji;
+  const grid=document.getElementById('carteira-icon-picker')?.querySelector('.icon-picker-grid');
+  if(grid) grid.querySelectorAll('span').forEach(s=>s.classList.toggle('selected',s.textContent===emoji));
 }
 function fecharModalCarteira(e){
   if(e&&e.target!==document.getElementById('carteira-modal'))return;
