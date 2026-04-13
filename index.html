@@ -1813,7 +1813,7 @@ body.dark .home-greeting{color:#666}
       <div class="cfg-row" style="flex-direction:column;align-items:stretch;gap:10px">
         <div>
           <div class="cfg-row-label">Chave da API Gemini (Google)</div>
-          <div class="cfg-row-sub">Gratuito · 1.500 req/dia · <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#1D9E75">Gerar chave grátis</a></div>
+          <div class="cfg-row-sub">Requer assinatura paga da API · <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#1D9E75">Google AI Studio</a> → ativar billing no Google Cloud</div>
         </div>
         <div class="cfg-api-wrap">
           <input class="cfg-api-input" id="cfg-gemini-key" type="password"
@@ -5067,7 +5067,14 @@ const isoParaDate = iso => { try{ return new Date(iso); }catch{ return new Date(
 
 function eConsulta(texto){
   const n=norm(texto);
-  const kws=['quanto','gastei','recebi','saldo','resumo','onde','qual','mais','semana','hoje','m\u00eas','mes','categoria','total','receita','gasto'];
+  const kws=[
+    'quanto','gastei','recebi','saldo','resumo','onde','qual','mais','semana','hoje',
+    'mes','mês','categoria','total','receita','gasto','despesa','maior','top',
+    'meta','orcamento','orçamento','objetivo','poupan','economiz',
+    'fixo','recorrente','vencimento','compara','anterior','diferenca','diferença',
+    'saude','saúde','situacao','situação','posso gastar','bem financ','mal financ',
+    'ano','passado','financeiramente'
+  ];
   const temNum = /\d/.test(texto);
   if(temNum && detectarValor(texto)) return false; // tem valor -> provavelmente registro
   return kws.some(k=>n.includes(k));
@@ -5078,60 +5085,148 @@ function responderConsulta(texto){
   const hoje=HOJE(), semana=SEMANA(), mesIni=MESINI();
   const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
   const fmtD2=iso=>isoParaDate(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const mesPassadoIni=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth()-1,1);};
+  const mesPassadoFim=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),0,23,59,59);};
+  const anoIni=()=>new Date(new Date().getFullYear(),0,1);
 
-  // helpers de filtro
-  const deHoje   = r=>isoParaDate(r.data)>=hoje;
-  const deSemana = r=>isoParaDate(r.data)>=semana;
-  const doMes    = r=>isoParaDate(r.data)>=mesIni;
+  // período
+  let periodo='mes', filtroData;
+  if(n.includes('hoje'))                                         {periodo='hoje';   filtroData=r=>isoParaDate(r.data)>=hoje;}
+  else if(n.includes('semana'))                                  {periodo='semana'; filtroData=r=>isoParaDate(r.data)>=semana;}
+  else if(n.includes('passado')||n.includes('anterior'))         {periodo='passado';filtroData=r=>{const d=isoParaDate(r.data);return d>=mesPassadoIni()&&d<=mesPassadoFim();};}
+  else if(n.includes('ano'))                                     {periodo='ano';    filtroData=r=>isoParaDate(r.data)>=anoIni();}
+  else                                                           {periodo='mes';    filtroData=r=>isoParaDate(r.data)>=mesIni;}
 
-  let periodo='m\u00eas', filtroData=doMes;
-  if(n.includes('hoje'))                    { periodo='hoje';   filtroData=deHoje;   }
-  else if(n.includes('semana'))             { periodo='semana'; filtroData=deSemana; }
-  else if(n.includes('mes')||n.includes('m\u00eas')) { periodo='m\u00eas';   filtroData=doMes;    }
+  const pStr={hoje:'hoje',semana:'nesta semana',passado:'no mês passado',ano:'neste ano',mes:'neste mês'}[periodo];
 
-  const regs = registros.filter(filtroData);
-  if(!regs.length) return `Nenhum registro encontrado ${periodo==='hoje'?'hoje':periodo==='semana'?'nesta semana':'neste m\u00eas'}. 😕`;
-
+  const regs    = registros.filter(filtroData);
   const gastos  = regs.filter(r=>r.tipo==='gasto');
   const receitas= regs.filter(r=>r.tipo==='receita');
   const totGas  = gastos.reduce((a,r)=>a+r.valor,0);
   const totRec  = receitas.reduce((a,r)=>a+r.valor,0);
   const saldo   = totRec-totGas;
 
-  // ONDE GASTEI MAIS / POR CATEGORIA
-  if(n.includes('onde')||n.includes('categoria')||n.includes('mais')){
-    if(!gastos.length) return 'Nenhum gasto registrado neste per\u00edodo.';
+  // ── METAS / ORÇAMENTO ────────────────────────────────────────────────────
+  if(n.includes('meta')||n.includes('orcamento')||n.includes('orcament')||n.includes('dentro')){
+    const metaKeys=Object.keys(metas);
+    if(!metaKeys.length) return 'Você não tem metas configuradas. Vá em <b>🎯 Metas</b> para criar.';
     const gc={};
-    gastos.forEach(r=>{ const k=r.categoria.label; gc[k]=(gc[k]||0)+r.valor; });
+    registros.filter(r=>r.tipo==='gasto'&&isoParaDate(r.data)>=mesIni)
+             .forEach(r=>{gc[r.categoria.key]=(gc[r.categoria.key]||0)+r.valor;});
+    let rows='', alertas=0;
+    metaKeys.forEach(k=>{
+      const lim=metas[k], gasto=gc[k]||0, pct=lim>0?Math.round(gasto/lim*100):0;
+      const cor=pct>=100?'#E24B4A':pct>=80?'#EF9F27':'#1D9E75';
+      const cat=CATS[k]||{label:k};
+      rows+=`<tr><td style="color:#666">${cat.label}</td><td style="color:${cor}">${pct}%</td><td style="color:#666">${fmt2(gasto)}/${fmt2(lim)}</td></tr>`;
+      if(pct>=80)alertas++;
+    });
+    const status=alertas===0?'✅ Todas as metas estão OK!':alertas===1?`⚠️ 1 meta com atenção`:`🚨 ${alertas} metas precisam de atenção`;
+    return `<b>Metas do mês:</b><br><table class="resp-table">${rows}</table><br>${status}`;
+  }
+
+  // ── OBJETIVOS / POUPANÇA ─────────────────────────────────────────────────
+  if(n.includes('objetivo')||n.includes('poupan')||n.includes('economiz')){
+    if(!objetivos.length) return 'Nenhum objetivo cadastrado. Vá em <b>⭐ Objetivos</b> para criar.';
+    const rows=objetivos.map(o=>{
+      const pct=o.meta>0?Math.round(o.acumulado/o.meta*100):0;
+      const cor=pct>=100?'#1D9E75':pct>=50?'#EF9F27':'#888';
+      return `<tr><td style="color:#666">${o.nome}</td><td style="color:${cor}">${pct}%</td><td style="color:#666">${fmt2(o.acumulado)}/${fmt2(o.meta)}</td></tr>`;
+    }).join('');
+    return `<b>Seus objetivos de poupança:</b><br><table class="resp-table">${rows}</table>`;
+  }
+
+  // ── FIXOS / RECORRENTES ──────────────────────────────────────────────────
+  if(n.includes('fixo')||n.includes('recorrente')||n.includes('vencimento')||n.includes('conta')){
+    if(!recorrentes.length) return 'Nenhum lançamento fixo cadastrado. Vá em <b>🔁 Fixos</b> para adicionar.';
+    const pendentes=recorrentes.filter(r=>!r.pago).sort((a,b)=>a.dia-b.dia);
+    if(!pendentes.length) return '✅ Todos os lançamentos fixos do mês estão pagos!';
+    const agora2=new Date();
+    const rows=pendentes.map(r=>{
+      const venc=new Date(agora2.getFullYear(),agora2.getMonth(),r.dia);
+      const diff=Math.round((venc-agora2)/(1000*60*60*24));
+      const cor=diff<0?'#E24B4A':diff<=3?'#EF9F27':'#666';
+      const label=diff<0?`atrasado ${Math.abs(diff)}d`:diff===0?'vence hoje':`em ${diff}d`;
+      return `<tr><td style="color:#666">${r.descricao}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td><td style="color:${cor}">${label}</td></tr>`;
+    }).join('');
+    return `<b>Lançamentos fixos pendentes:</b><br><table class="resp-table">${rows}</table>`;
+  }
+
+  // ── COMPARAR COM MÊS PASSADO ─────────────────────────────────────────────
+  if(n.includes('compara')||n.includes('diferenc')){
+    const mpGas=registros.filter(r=>r.tipo==='gasto'&&isoParaDate(r.data)>=mesPassadoIni()&&isoParaDate(r.data)<=mesPassadoFim()).reduce((a,r)=>a+r.valor,0);
+    const diff=totGas-mpGas;
+    const cor=diff>0?'#E24B4A':'#1D9E75';
+    const seta=diff>0?'↑ mais':'↓ menos';
+    return `<b>Gastos: mês atual vs mês passado</b><br><table class="resp-table"><tr><td style="color:#666">Mês passado</td><td style="color:#E24B4A">-${fmt2(mpGas)}</td></tr><tr><td style="color:#666">Mês atual</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666">Diferença</td><td style="color:${cor}">${seta} ${fmt2(Math.abs(diff))}</td></tr></table>`;
+  }
+
+  // ── MAIORES GASTOS ───────────────────────────────────────────────────────
+  if(n.includes('maior')||n.includes('mais caro')||n.includes('top')){
+    if(!gastos.length) return `Nenhum gasto registrado ${pStr}.`;
+    const sorted=[...gastos].sort((a,b)=>b.valor-a.valor).slice(0,5);
+    const rows=sorted.map((r,i)=>`<tr><td style="color:#888">${i+1}.</td><td style="color:#666">${r.descricao}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    return `<b>Maiores gastos ${pStr}:</b><br><table class="resp-table">${rows}</table>`;
+  }
+
+  // ── SAÚDE FINANCEIRA ─────────────────────────────────────────────────────
+  if(n.includes('bem')||n.includes('saude')||n.includes('situac')||n.includes('posso gastar')||n.includes('financeiramente')){
+    if(!totRec) return `Sem receitas registradas ${pStr}. Adicione sua renda para uma análise completa.`;
+    const pct=Math.round(totGas/totRec*100);
+    let status,dica;
+    if(pct<=50)      {status='🟢 Excelente!';    dica='Você está gastando menos da metade da sua renda. Continue assim!';}
+    else if(pct<=70) {status='🟡 Bom';           dica='Gastos em nível moderado. Há margem para economizar.';}
+    else if(pct<=90) {status='🟠 Atenção';       dica='Gastos altos em relação à renda. Revise categorias grandes.';}
+    else if(pct<=100){status='🔴 Alerta';        dica='Quase sem margem. Considere cortar gastos não essenciais.';}
+    else             {status='🚨 Déficit';       dica='Você está gastando mais do que recebe!';}
+    const corPct=pct>100?'#E24B4A':pct>70?'#EF9F27':'#1D9E75';
+    return `<b>Saúde financeira ${pStr}:</b><br><br>${status}<br><br><table class="resp-table"><tr><td style="color:#666">Receitas</td><td style="color:#1D9E75">+${fmt2(totRec)}</td></tr><tr><td style="color:#666">Gastos</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666">% da renda</td><td style="color:${corPct}">${pct}%</td></tr></table><br><small style="color:#888">${dica}</small>`;
+  }
+
+  // ── CATEGORIA ESPECÍFICA ─────────────────────────────────────────────────
+  const catMatch=Object.entries(CATS).find(([,c])=>c.palavras&&c.palavras.some(p=>n.includes(norm(p))));
+  if(catMatch&&(n.includes('gast')||n.includes('quanto')||n.includes('total'))){
+    const [catKey,cat]=catMatch;
+    const filtCat=gastos.filter(r=>r.categoria.key===catKey);
+    if(!filtCat.length) return `Nenhum gasto em <b>${cat.label}</b> ${pStr}.`;
+    const tot=filtCat.reduce((a,r)=>a+r.valor,0);
+    const rows=filtCat.slice(-5).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    return `<b>Gastos em ${cat.label} (${pStr}):</b> ${fmt2(tot)}<br><table class="resp-table">${rows}</table>${filtCat.length>5?`<br><small style="color:#aaa">... e mais ${filtCat.length-5} registro(s)</small>`:''}`;
+  }
+
+  if(!regs.length) return `Nenhum registro encontrado ${pStr}. 😕`;
+
+  // ── GASTOS POR CATEGORIA ─────────────────────────────────────────────────
+  if(n.includes('onde')||n.includes('categoria')||n.includes('mais')){
+    if(!gastos.length) return `Nenhum gasto registrado ${pStr}.`;
+    const gc={};
+    gastos.forEach(r=>{const k=r.categoria.label;gc[k]=(gc[k]||0)+r.valor;});
     const sorted=Object.entries(gc).sort((a,b)=>b[1]-a[1]);
-    const maior=sorted[0];
-    let rows=sorted.map(([k,v])=>`<tr><td style="color:#666">${k}</td><td>${fmt2(v)}</td></tr>`).join('');
-    return `<b>Gastos por categoria (${periodo}):</b><br><table class="resp-table">${rows}<tr class="sep"><td style="color:#666">Total</td><td style="color:#E24B4A">${fmt2(totGas)}</td></tr></table><br>Maior gasto: <b>${maior[0]}</b> com ${fmt2(maior[1])}.`;
+    const rows=sorted.map(([k,v])=>`<tr><td style="color:#666">${k}</td><td style="color:#E24B4A">-${fmt2(v)}</td></tr>`).join('');
+    return `<b>Gastos por categoria (${pStr}):</b><br><table class="resp-table">${rows}<tr class="sep"><td style="color:#666">Total</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr></table><br>Maior: <b>${sorted[0][0]}</b> com ${fmt2(sorted[0][1])}.`;
   }
 
-  // SALDO
+  // ── SALDO ────────────────────────────────────────────────────────────────
   if(n.includes('saldo')){
-    return `<b>Saldo ${periodo==='hoje'?'de hoje':periodo==='semana'?'da semana':'do m\u00eas'}:</b><br><table class="resp-table"><tr><td style="color:#666">Receitas</td><td style="color:#1D9E75">+${fmt2(totRec)}</td></tr><tr><td style="color:#666">Gastos</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666"><b>Saldo</b></td><td style="color:${saldo>=0?'#1D9E75':'#E24B4A'}"><b>${fmt2(saldo)}</b></td></tr></table>`;
+    return `<b>Saldo ${pStr}:</b><br><table class="resp-table"><tr><td style="color:#666">Receitas</td><td style="color:#1D9E75">+${fmt2(totRec)}</td></tr><tr><td style="color:#666">Gastos</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666"><b>Saldo</b></td><td style="color:${saldo>=0?'#1D9E75':'#E24B4A'}"><b>${fmt2(saldo)}</b></td></tr></table>`;
   }
 
-  // QUANTO GASTEI
+  // ── GASTOS ───────────────────────────────────────────────────────────────
   if(n.includes('gast')||n.includes('despesa')){
-    if(!gastos.length) return `Nenhum gasto registrado ${periodo==='hoje'?'hoje':periodo==='semana'?'nesta semana':'neste m\u00eas'}.`;
-    const ult=gastos.slice(-3).reverse();
-    let rows=ult.map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
-    return `<b>Gastos ${periodo==='hoje'?'de hoje':periodo==='semana'?'da semana':'do m\u00eas'}:</b> ${fmt2(totGas)}<br><table class="resp-table">${rows}</table>${gastos.length>3?`<br><small style="color:#aaa">... e mais ${gastos.length-3} registro(s)</small>`:''}`;
+    if(!gastos.length) return `Nenhum gasto registrado ${pStr}.`;
+    const rows=gastos.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    return `<b>Gastos ${pStr}:</b> ${fmt2(totGas)}<br><table class="resp-table">${rows}</table>${gastos.length>3?`<br><small style="color:#aaa">... e mais ${gastos.length-3} registro(s)</small>`:''}`;
   }
 
-  // QUANTO RECEBI
+  // ── RECEITAS ─────────────────────────────────────────────────────────────
   if(n.includes('receb')||n.includes('receita')||n.includes('renda')){
-    if(!receitas.length) return `Nenhuma receita registrada ${periodo==='hoje'?'hoje':periodo==='semana'?'nesta semana':'neste m\u00eas'}.`;
-    const ult=receitas.slice(-3).reverse();
-    let rows=ult.map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#1D9E75">+${fmt2(r.valor)}</td></tr>`).join('');
-    return `<b>Receitas ${periodo==='hoje'?'de hoje':periodo==='semana'?'da semana':'do m\u00eas'}:</b> ${fmt2(totRec)}<br><table class="resp-table">${rows}</table>`;
+    if(!receitas.length) return `Nenhuma receita registrada ${pStr}.`;
+    const rows=receitas.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#1D9E75">+${fmt2(r.valor)}</td></tr>`).join('');
+    return `<b>Receitas ${pStr}:</b> ${fmt2(totRec)}<br><table class="resp-table">${rows}</table>`;
   }
 
-  // RESUMO GERAL
-  return `<b>Resumo ${periodo==='hoje'?'de hoje':periodo==='semana'?'da semana':'do m\u00eas'}:</b><br><table class="resp-table"><tr><td style="color:#666">Receitas</td><td style="color:#1D9E75">+${fmt2(totRec)}</td></tr><tr><td style="color:#666">Gastos</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666"><b>Saldo</b></td><td style="color:${saldo>=0?'#1D9E75':'#E24B4A'}"><b>${fmt2(saldo)}</b></td></tr></table><br><small style="color:#aaa">${regs.length} registro(s) no per\u00edodo.</small>`;
+  // ── RESUMO GERAL ─────────────────────────────────────────────────────────
+  return `<b>Resumo ${pStr}:</b><br><table class="resp-table"><tr><td style="color:#666">Receitas</td><td style="color:#1D9E75">+${fmt2(totRec)}</td></tr><tr><td style="color:#666">Gastos</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr><tr class="sep"><td style="color:#666"><b>Saldo</b></td><td style="color:${saldo>=0?'#1D9E75':'#E24B4A'}"><b>${fmt2(saldo)}</b></td></tr></table><br><small style="color:#aaa">${regs.length} registro(s) no período.</small>`;
 }
 
 function adicionarMsgChat(texto, tipo){
