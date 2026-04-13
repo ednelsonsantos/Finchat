@@ -4681,9 +4681,16 @@ async function _pinSubmit(){
 
 async function lockBioAuth(){
   try{
-    const Bio = window.Capacitor?.Plugins?.BiometricAuth;
+    const Bio = window.Capacitor?.Plugins?.BiometricAuthNative;
     if(!Bio) return;
-    await Bio.authenticate({ reason:'Entrar no FinChat', cancelTitle:'Usar PIN' });
+    // Verificar disponibilidade antes de tentar autenticar
+    const check = await Bio.checkBiometry();
+    if(!check?.isAvailable) return;
+    await Bio.internalAuthenticate({
+      reason: 'Entrar no FinChat',
+      cancelTitle: 'Usar PIN',
+      androidTitle: 'FinChat',
+    });
     lockDismiss();
   }catch(e){
     if(e?.code !== 'biometryNotAvailable' && e?.code !== 'userCancel')
@@ -4753,18 +4760,33 @@ async function cfgTogglePin(){
   }
 }
 async function cfgToggleBio(){
-  const Bio = window.Capacitor?.Plugins?.BiometricAuth;
-  if(!Bio){ alert('Biometria não disponível neste dispositivo.'); return; }
+  const Bio = window.Capacitor?.Plugins?.BiometricAuthNative;
+  if(!Bio){
+    alert('Biometria requer o app instalado (APK). Não funciona no navegador.');
+    return;
+  }
+  // Checar disponibilidade real antes de qualquer ação
+  let check;
+  try{ check = await Bio.checkBiometry(); }catch{ check = null; }
+  if(!check?.isAvailable){
+    const motivo = check?.reason || 'Sensor não disponível ou nenhuma digital cadastrada.';
+    alert('Biometria não disponível: ' + motivo);
+    return;
+  }
   if(bioEnabled()){
     FinStorage.removeItem(BIO_KEY);
     mostrarToast('Biometria desativada');
   } else {
     if(!pinIsSet()){ alert('Configure um PIN antes de ativar a biometria.'); return; }
     try{
-      await Bio.authenticate({ reason:'Ativar biometria no FinChat', cancelTitle:'Cancelar' });
+      await Bio.internalAuthenticate({
+        reason: 'Ativar biometria no FinChat',
+        cancelTitle: 'Cancelar',
+        androidTitle: 'FinChat',
+      });
       FinStorage.setItem(BIO_KEY,'1');
       mostrarToast('✅ Biometria ativada!');
-    }catch{ mostrarToast('Biometria não autorizada'); }
+    }catch(e){ mostrarToast('Biometria não autorizada: ' + (e?.message||'')); }
   }
   renderConfig();
 }
