@@ -2481,9 +2481,14 @@ function atualizarParser(texto){
   let catFinal,tipoFinal;
   if(prof){catFinal={key:norm(prof.cat),label:prof.cat,badge:prof.badge,cor:prof.cor||'#888'};tipoFinal=tipoTexto||intentForçado||prof.tipo;}
   else{catFinal=detectarCat(texto);tipoFinal=tipoTexto||(catFinal.key==='salario'||catFinal.key==='freela'?'receita':'gasto');}
-  let conf=0;if(tipoFinal)conf+=35;if(valor)conf+=35;if(catFinal&&catFinal.key!=='outros')conf+=20;if(desc&&desc!=='Transação')conf+=10;
+  const tipoExplicito=!!(tipoTexto||intentForçado||(prof&&prof.tipo));
+  const catDetectada=!!(prof||(catFinal&&catFinal.key!=='outros'));
+  // confiança: tipo só pontua se detectado explicitamente, não pelo fallback 'gasto'
+  let conf=0;if(tipoExplicito)conf+=35;if(valor)conf+=35;if(catDetectada)conf+=20;if(desc&&desc!=='Transação')conf+=10;
   if(!valor){document.getElementById('result').innerHTML ='<div class="error-box">Informe o valor — ex: "paguei 200 dermatologista" ou clique num exemplo acima.</div>';btn.disabled=true;resultadoAtual=null;return;}
   if(prof&&prof.ambiguo&&!tipoFinal){document.getElementById('result').innerHTML ='<div class="placeholder-msg" style="color:#888">Escolha acima se pagou ou recebeu por este serviço.</div>';btn.disabled=true;resultadoAtual=null;return;}
+  // bloquear entradas sem contexto: nem tipo nem categoria foram identificados
+  if(!tipoExplicito&&!catDetectada){document.getElementById('result').innerHTML ='<div class="error-box">Não entendi. Tente: <b>"gastei 200 mercado"</b> ou <b>"recebi 3000 salário"</b>.</div>';btn.disabled=true;resultadoAtual=null;return;}
   const cColor=conf>=80?'#1D9E75':conf>=50?'#EF9F27':'#E24B4A',sinal=tipoFinal==='receita';
   resultadoAtual={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf};
   // preview do número que será atribuído
