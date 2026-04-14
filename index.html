@@ -2197,6 +2197,9 @@ const FinStorage = (() => {
 })();
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Gerador de IDs únicos — evita colisão quando dois registros são criados no mesmo milissegundo
+let _idSeq = 0;
+function novoId(){ return Date.now() * 10000 + (++_idSeq % 10000); }
 const STORAGE_KEY='finchat_v1';
 const PROFISSIONAIS=[
   // ── SAÚDE: sempre gasto ──────────────────────────────────────────────────
@@ -2482,7 +2485,7 @@ function atualizarParser(texto){
   if(!valor){document.getElementById('result').innerHTML ='<div class="error-box">Informe o valor — ex: "paguei 200 dermatologista" ou clique num exemplo acima.</div>';btn.disabled=true;resultadoAtual=null;return;}
   if(prof&&prof.ambiguo&&!tipoFinal){document.getElementById('result').innerHTML ='<div class="placeholder-msg" style="color:#888">Escolha acima se pagou ou recebeu por este serviço.</div>';btn.disabled=true;resultadoAtual=null;return;}
   const cColor=conf>=80?'#1D9E75':conf>=50?'#EF9F27':'#E24B4A',sinal=tipoFinal==='receita';
-  resultadoAtual={id:Date.now(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf};
+  resultadoAtual={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf};
   // preview do número que será atribuído
   let numPreview='';
   if(tipoFinal==='gasto'){
@@ -3516,7 +3519,7 @@ async function atualizarParserComIA(texto){
   try{
     const iaResult = await parsearComIA(texto);
     if(iaResult && iaResult.confianca > (resultadoAtual?.confianca||0)){
-      resultadoAtual = {...iaResult, id: Date.now()};
+      resultadoAtual = {...iaResult, id: novoId()};
       const sinal = iaResult.tipo==='receita';
       const cColor = '#7F77DD';
       resultDiv.innerHTML = `
