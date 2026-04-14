@@ -857,6 +857,11 @@ body.dark .hist-search-wrap input{background:#2a2a2a;border-color:#444;color:#e8
 
 /* ── NOTA NO REGISTRO ───────────────────────────────────────────── */
 .hist-nota{font-size:11px;color:#aaa;margin-top:1px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ── TAGS ────────────────────────────────────────────────────────── */
+.hist-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.hist-tag{font-size:10px;background:#e8f5f0;color:#0F6E56;border-radius:4px;padding:1px 6px;font-weight:500;cursor:pointer}
+.hist-tag:hover{background:#1D9E75;color:#fff}
+body.dark .hist-tag{background:#1a3d2e;color:#4ecb9e}
 
 /* ── METAS DE SONHO / OBJETIVOS ─────────────────────────────────── */
 .obj-wrap{display:flex;flex-direction:column;gap:10px}
@@ -1091,6 +1096,7 @@ body.dark .icon-picker-label{color:#555}
 .wallet-chip.active .chip-bal{opacity:.9;color:rgba(255,255,255,.9)}
 .chip-edit{font-size:13px;margin-left:5px;opacity:.8;cursor:pointer;line-height:1}
 .chip-edit:hover{opacity:1}
+.chip-limit-alert{font-size:10px;margin-left:3px;line-height:1}
 
 /* Seção de rótulo genérico na home */
 .home-section-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
@@ -2158,6 +2164,10 @@ body.dark .home-greeting{color:#666}
         <input class="edit-input" id="carteira-modal-cor" type="color" value="#1D9E75" style="padding:4px;height:42px;cursor:pointer"/>
       </div>
     </div>
+    <div class="edit-field">
+      <div class="edit-label">Limite de crédito (opcional)</div>
+      <input class="edit-input" id="carteira-modal-limite" type="number" placeholder="Ex: 5000" min="0" inputmode="decimal"/>
+    </div>
     <div class="icon-picker" id="carteira-icon-picker">
       <div class="icon-picker-label">Sugestões</div>
       <div class="icon-picker-grid">
@@ -2485,6 +2495,10 @@ function detectarValor(t){
   return null;
 }
 function detectarData(t){const n=norm(t);if(n.includes('ontem')){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString();}const m=t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);if(m){const h=new Date(),d=parseInt(m[1]),me=parseInt(m[2])-1,a=m[3]?parseInt(m[3]):h.getFullYear();return new Date(a<100?2000+a:a,me,d).toISOString();}return new Date().toISOString();}
+function extrairTags(t){
+  const matches=t.match(/#([a-zA-ZÀ-ú0-9_-]+)/g);
+  return matches?matches.map(m=>m.slice(1).toLowerCase()):[];
+}
 function extrairDesc(t){let d=t;d=d.replace(/r\$\s*[\d.,]+/ig,'');d=d.replace(/[\d.,]+\s*reais/ig,'');d=d.replace(/\b[\d.,]+\b/g,'');for(const p of [...TIPO_GASTO,...TIPO_RECEITA])d=d.replace(new RegExp(p+'\\w*','ig'),'');d=d.replace(/\b(de|do|da|no|na|em|para|pro|pra|hoje|ontem)\b/ig,'');return d.replace(/\s+/g,' ').trim()||'Transação';}
 const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmtD=iso=>{try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch{return'--';}};
@@ -2536,7 +2550,7 @@ function atualizarHint(texto){if(!texto.trim()){intentForçado=null;profAtual=nu
 function atualizarParser(texto){
   const btn=document.getElementById('btn');
   if(!texto.trim()){document.getElementById('result').innerHTML ='<div class="placeholder-msg">Aguardando entrada...</div>';btn.disabled=true;resultadoAtual=null;return;}
-  const prof=detectarProf(texto),tipoTexto=detectarTipoTexto(texto),valor=detectarValor(texto),data=detectarData(texto),desc=extrairDesc(texto);
+  const prof=detectarProf(texto),tipoTexto=detectarTipoTexto(texto),valor=detectarValor(texto),data=detectarData(texto),desc=extrairDesc(texto),tags=extrairTags(texto);
   let catFinal,tipoFinal;
   if(prof){catFinal={key:norm(prof.cat),label:prof.cat,badge:prof.badge,cor:prof.cor||'#888'};tipoFinal=tipoTexto||intentForçado||prof.tipo;}
   else{catFinal=detectarCat(texto);tipoFinal=tipoTexto||(catFinal.key==='salario'||catFinal.key==='freela'?'receita':'gasto');}
@@ -2549,7 +2563,7 @@ function atualizarParser(texto){
   // bloquear entradas sem contexto: nem tipo nem categoria foram identificados
   if(!tipoExplicito&&!catDetectada){document.getElementById('result').innerHTML ='<div class="error-box">Não entendi. Tente: <b>"gastei 200 mercado"</b> ou <b>"recebi 3000 salário"</b>.</div>';btn.disabled=true;resultadoAtual=null;return;}
   const cColor=conf>=80?'#1D9E75':conf>=50?'#EF9F27':'#E24B4A',sinal=tipoFinal==='receita';
-  resultadoAtual={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf};
+  resultadoAtual={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf,tags};
   // preview do número que será atribuído
   let numPreview='';
   if(tipoFinal==='gasto'){
@@ -2631,8 +2645,10 @@ function renderHistorico(){
   const mesRegs = regsDoMesFiltro();
   let lista = filtro==='todos'?mesRegs:mesRegs.filter(r=>r.tipo===filtro);
   if(termoBusca){
+    const bt=termoBusca.startsWith('#')?termoBusca.slice(1):null;
     lista = lista.filter(r=>{
-      const n = (r.descricao+' '+r.categoria.label+' '+r.valor).toLowerCase();
+      if(bt) return r.tags&&r.tags.some(t=>t.includes(bt));
+      const n = (r.descricao+' '+r.categoria.label+' '+r.valor+' '+(r.tags||[]).join(' ')).toLowerCase();
       return n.includes(termoBusca);
     });
   }
@@ -2655,6 +2671,7 @@ function histHTML(r,del){
         <span class="hist-desc">${transferIcon}${r.descricao}</span>${numBadge}${wBadge}
       </div>
       <div class="hist-cat">${r.categoria.label} · ${fmtD(r.data)}</div>
+      ${r.tags&&r.tags.length?`<div class="hist-tags" onclick="event.stopPropagation()">${r.tags.map(t=>`<span class="hist-tag" onclick="filtrarPorTag('${t}')">#${t}</span>`).join('')}</div>`:''}
       ${r.nota?`<div class="hist-nota">📝 ${r.nota}</div>`:''}
     </div>
     <div class="hist-right">
@@ -3139,7 +3156,16 @@ function renderWalletChips(){
       const salStr=`<span class="chip-bal">${fmt0(sal)}</span>`;
       const editBtn=ativo?`<span class="chip-edit" onclick="event.stopPropagation();abrirModalCarteira('${c.id}')" title="Editar carteira">✏️</span>`:'';
       const style=ativo?'background:'+c.cor+';border-color:'+c.cor+';color:#fff':'';
-      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${style}">${c.icon} ${c.nome}${salStr}${editBtn}</div>`;
+      // alerta de limite
+      let limAlerta='';
+      if(c.limite){
+        const hj=new Date(),yrC=hj.getFullYear(),msC=hj.getMonth();
+        const gC=registros.filter(r=>{const d=new Date(r.data);return r.carteiraId===c.id&&r.tipo==='gasto'&&!r.isTransferencia&&d.getFullYear()===yrC&&d.getMonth()===msC;}).reduce((a,r)=>a+r.valor,0);
+        const p=gC/c.limite;
+        if(p>=1) limAlerta='<span class="chip-limit-alert chip-limit-over">🔴</span>';
+        else if(p>=0.8) limAlerta='<span class="chip-limit-alert chip-limit-warn">🟡</span>';
+      }
+      return`<div class="wallet-chip${ativo?' active':''}" onclick="setCarteiraFiltro('${c.id}')" style="${style}">${c.icon} ${c.nome}${salStr}${limAlerta}${editBtn}</div>`;
     }),
     `<div class="wallet-chip chip-add" onclick="abrirModalCarteira()" title="Nova carteira">+ Nova</div>`,
   ];
@@ -3163,6 +3189,7 @@ function abrirModalCarteira(id){
   const iconVal=c?c.icon:'💳';
   document.getElementById('carteira-modal-icon').value=iconVal;
   document.getElementById('carteira-modal-cor').value=c?c.cor:'#1D9E75';
+  document.getElementById('carteira-modal-limite').value=c&&c.limite?c.limite:'';
   // montar picker de ícones
   const ICONS=['💳','💰','🏦','💵','💴','💶','🏧','🪙','💎','📱',
                '🛒','🏠','🚗','✈️','🎓','💊','🎬','🍔','☕','🐾',
@@ -3187,12 +3214,14 @@ function salvarModalCarteira(){
   if(!nome){alert('Digite um nome para a carteira.');return;}
   const icon=document.getElementById('carteira-modal-icon').value.trim()||'💳';
   const cor=document.getElementById('carteira-modal-cor').value||'#1D9E75';
+  const limiteRaw=parseFloat(document.getElementById('carteira-modal-limite').value);
+  const limite=limiteRaw>0?limiteRaw:null;
   const existingId=document.getElementById('carteira-modal-id').value;
   if(existingId){
     const idx=carteiras.findIndex(c=>c.id===existingId);
-    if(idx>=0)carteiras[idx]={...carteiras[idx],nome,icon,cor};
+    if(idx>=0)carteiras[idx]={...carteiras[idx],nome,icon,cor,limite};
   }else{
-    carteiras.push({id:'c_'+Date.now(),nome,icon,cor});
+    carteiras.push({id:'c_'+Date.now(),nome,icon,cor,limite});
   }
   salvarCarteiras(carteiras);
   document.getElementById('carteira-modal').classList.remove('open');
@@ -3255,14 +3284,20 @@ function renderCarteirasCfg(){
   const el=document.getElementById('cfg-carteiras-list');
   if(!el)return;
   if(!carteiras.length){el.innerHTML='<div class="empty">Nenhuma carteira</div>';return;}
+  const hoje=new Date(); const anoH=hoje.getFullYear(),mesH=hoje.getMonth();
   el.innerHTML=carteiras.map(c=>{
     const saldo=calcularSaldoCarteira(c.id);
     const isDef=c.id==='geral';
+    const gastoMesC=c.limite?registros.filter(r=>{const d=new Date(r.data);return r.carteiraId===c.id&&r.tipo==='gasto'&&!r.isTransferencia&&d.getFullYear()===anoH&&d.getMonth()===mesH;}).reduce((a,r)=>a+r.valor,0):0;
+    const pctLim=c.limite?Math.min(Math.round(gastoMesC/c.limite*100),100):0;
+    const limCorBg=pctLim>=100?'#E24B4A':pctLim>=80?'#EF9F27':'#1D9E75';
+    const limBar=c.limite?`<div style="margin-top:5px"><div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-bottom:2px"><span>Limite: ${fmt(c.limite)}</span><span style="color:${limCorBg}">${pctLim}% usado</span></div><div style="height:4px;background:#f0f0f0;border-radius:2px"><div style="height:100%;border-radius:2px;background:${limCorBg};width:${pctLim}%"></div></div></div>`:'';
     return`<div class="carteira-item">
       <div class="carteira-icon-wrap" style="background:${escapeHtml(c.cor)}20">${escapeHtml(c.icon)}</div>
-      <div class="carteira-info">
+      <div class="carteira-info" style="flex:1">
         <div class="carteira-nome">${escapeHtml(c.nome)}${isDef?' <span style="font-size:10px;color:#aaa">(padrão)</span>':''}</div>
         <div class="carteira-saldo-label" style="color:${saldo>=0?'#1D9E75':'#E24B4A'}">${fmt(saldo)}</div>
+        ${limBar}
       </div>
       <div class="carteira-btns">
         <button class="btn-carteira-edit" onclick="abrirModalCarteira('${escapeHtml(c.id)}')">✏️</button>
@@ -3794,6 +3829,15 @@ function buscarHistorico(termo){
   renderHistorico();
 }
 
+function filtrarPorTag(tag){
+  setTab('historico');
+  termoBusca='#'+tag;
+  const inp=document.getElementById('hist-search');
+  if(inp) inp.value=termoBusca;
+  const clearBtn=document.getElementById('hist-search-clear');
+  if(clearBtn) clearBtn.className='hist-search-clear visible';
+  renderHistorico();
+}
 function limparBusca(){
   termoBusca='';
   const inp = document.getElementById('hist-search');
