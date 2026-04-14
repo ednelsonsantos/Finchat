@@ -1095,8 +1095,11 @@ body.dark .home-input-row input{
 }
 .home-send-btn:hover{background:#0F6E56;transform:scale(1.05)}
 .home-send-btn:active{transform:scale(.96)}
-.home-send-btn:disabled{background:#ccc;box-shadow:none;cursor:default}
+.home-send-btn:disabled{background:#e0e0e0;box-shadow:none;cursor:default}
 .home-send-btn svg{fill:white;width:20px;height:20px}
+.home-send-btn:disabled svg{fill:#555}
+body.dark .home-send-btn:disabled{background:#2a2a2a}
+body.dark .home-send-btn:disabled svg{fill:#aaa}
 
 /* Hint na home — diferente, mais integrado */
 .home-hint{
