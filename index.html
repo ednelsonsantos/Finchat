@@ -829,6 +829,44 @@ body.dark .query-chips .qchip:hover{background:#1a2e26;color:#4eca97;border-colo
 .gasto-hoje-sub{font-size:11px;opacity:.8;margin-top:4px}
 .gasto-hoje-icon{font-size:36px;opacity:.9}
 
+/* ── SCORE FINANCEIRO ────────────────────────────────────────────── */
+.score-card{background:#fff;border:1px solid #eee;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.score-ring-wrap{position:relative;flex-shrink:0;width:72px;height:72px}
+.score-ring-wrap svg{transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:#f0f0f0;stroke-width:8}
+.score-ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:800;line-height:1;color:#1a1a1a}
+.score-num-sub{font-size:9px;font-weight:500;color:#aaa;text-transform:uppercase;margin-top:1px}
+.score-info{flex:1;min-width:0}
+.score-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:4px}
+.score-title{font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:6px}
+.score-bars{}
+.score-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.score-bar-label{font-size:10px;color:#888;width:72px;flex-shrink:0}
+.score-bar-track{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.score-bar-pts{font-size:10px;color:#aaa;width:28px;text-align:right;flex-shrink:0}
+body.dark .score-card{background:#1e1e1e;border-color:#333}
+body.dark .score-ring-bg{stroke:#2a2a2a}
+body.dark .score-num{color:#e8e8e6}
+body.dark .score-title{color:#e8e8e6}
+body.dark .score-bar-track{background:#2a2a2a}
+
+/* ── DIVISÃO DE GASTOS ───────────────────────────────────────────── */
+.split-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;background:#f0f4ff;color:#378ADD;border-radius:4px;padding:1px 6px;margin-left:4px;cursor:pointer}
+.split-badge:hover{background:#378ADD;color:#fff}
+.split-section{background:#fff;border:1px solid #eee;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.split-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.split-row:last-child{border-bottom:none}
+.split-pessoa{font-weight:600;color:#1a1a1a}
+.split-val{color:#378ADD;font-weight:600}
+body.dark .split-badge{background:#1a2a40;color:#6aaeef}
+body.dark .split-section{background:#1e1e1e;border-color:#333}
+body.dark .split-pessoa{color:#e8e8e6}
+body.dark .split-row{border-color:#2a2a2a}
+.split-parts-btn{padding:6px 14px;border-radius:8px;border:1px solid #ddd;background:#f5f5f3;font-size:13px;cursor:pointer;font-weight:500;color:#555;transition:all .15s}
+.split-parts-btn.active{background:#1D9E75;color:#fff;border-color:#1D9E75}
+
 /* ── RELATÓRIO MENSAL ────────────────────────────────────────────── */
 .rel-kpi-card{background:#f7f7f7;border-radius:10px;padding:10px 12px}
 .rel-kpi-label{font-size:11px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
@@ -1578,6 +1616,22 @@ body.dark .home-greeting{color:#666}
       <div class="kpi"><div class="kl">Registros</div><div class="kv" id="m-count" style="color:#378ADD">0</div></div>
     </div>
 
+    <!-- Score financeiro -->
+    <div id="card-score" class="score-card" style="display:none">
+      <div class="score-ring-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle class="score-ring-bg" cx="36" cy="36" r="30"/>
+          <circle class="score-ring-fill" id="score-ring-fill" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+        </svg>
+        <div class="score-num"><span id="score-num">—</span><span class="score-num-sub">pts</span></div>
+      </div>
+      <div class="score-info">
+        <div class="score-label">Score financeiro</div>
+        <div class="score-title" id="score-titulo">—</div>
+        <div class="score-bars" id="score-bars"></div>
+      </div>
+    </div>
+
     <!-- Card: quanto posso gastar hoje -->
     <div id="card-posso-gastar" class="gasto-hoje-card verde">
       <div class="gasto-hoje-left">
@@ -1666,6 +1720,12 @@ body.dark .home-greeting{color:#666}
         <div class="hf" onclick="setFiltro('gasto')">Gastos</div>
       </div>
       <div class="history" id="history"><div class="empty">Nenhum registro ainda</div></div>
+    </div>
+    <!-- Painel de divisões a receber -->
+    <div id="split-panel" style="display:none" class="split-section">
+      <div class="dash-title" style="margin-bottom:8px">÷ A receber de divisões</div>
+      <div id="split-panel-lista"></div>
+      <div style="font-size:11px;color:#aaa;margin-top:8px">Toque em "÷ dividir" em qualquer gasto para marcar como dividido</div>
     </div>
   </div>
 
@@ -1980,8 +2040,21 @@ body.dark .home-greeting{color:#666}
         <div id="drive-actions" style="display:none;gap:6px;flex-wrap:wrap">
           <button class="cfg-btn" onclick="driveBackup()" style="background:#1D9E75;color:#fff;border-color:#1D9E75">⬆️ Fazer backup</button>
           <button class="cfg-btn" onclick="driveRestore()">⬇️ Restaurar</button>
+          <button class="cfg-btn" id="drive-sync-btn" onclick="driveSync()" style="display:none;background:#378ADD;color:#fff;border-color:#378ADD">👥 Sincronizar grupo</button>
           <button class="cfg-btn cfg-btn-danger" onclick="driveLogout()">Desconectar</button>
         </div>
+        <!-- Modo casal / grupo -->
+        <details style="width:100%;font-size:12px;margin-top:4px">
+          <summary style="color:#888;cursor:pointer">👥 Modo casal / família</summary>
+          <div style="margin-top:8px">
+            <div style="color:#aaa;font-size:11px;margin-bottom:6px">Defina um código e compartilhe com seu parceiro(a). Ambos conectados ao Drive com o mesmo código sincronizam os mesmos dados.</div>
+            <div style="display:flex;gap:6px">
+              <input class="cfg-input" id="cfg-grupo-code" type="text" placeholder="Ex: familia-santos-2026" style="flex:1;font-size:12px" oninput="atualizarGrupoUI()"/>
+              <button class="cfg-btn" onclick="salvarGrupoCode()" style="padding:6px 12px">Salvar</button>
+            </div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px" id="cfg-grupo-status"></div>
+          </div>
+        </details>
         <!-- Client ID — avançado, expansível -->
         <details style="width:100%;font-size:12px">
           <summary style="color:#888;cursor:pointer">Configuração avançada (Client ID)</summary>
@@ -2091,6 +2164,40 @@ body.dark .home-greeting{color:#666}
       <button class="modal-btn-delete" onclick="deletarDoModal()">Excluir</button>
       <button class="modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de divisão de gasto -->
+<div class="modal-overlay" id="split-modal" onclick="if(event.target===this)fecharSplit()">
+  <div class="modal-sheet" style="max-width:380px">
+    <div class="modal-handle"></div>
+    <div class="modal-title">÷ Dividir gasto</div>
+    <input type="hidden" id="split-reg-id"/>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">Gasto: <span id="split-desc-label" style="font-weight:600;color:#1a1a1a"></span> — <span id="split-val-label" style="color:#E24B4A;font-weight:600"></span></div>
+    <div class="edit-field">
+      <div class="edit-label">Dividir com (nome)</div>
+      <input class="edit-input" id="split-pessoa" type="text" placeholder="Ex: João, Maria, Amigos..."/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Dividir em quantas partes iguais</div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="split-parts-btn active" data-parts="2" onclick="setSplitPartes(2)">2</button>
+        <button class="split-parts-btn" data-parts="3" onclick="setSplitPartes(3)">3</button>
+        <button class="split-parts-btn" data-parts="4" onclick="setSplitPartes(4)">4</button>
+        <button class="split-parts-btn" data-parts="0" onclick="setSplitPartes(0)">Valor livre</button>
+      </div>
+    </div>
+    <div class="edit-field" id="split-livre-wrap" style="display:none">
+      <div class="edit-label">Quanto você paga (R$)</div>
+      <input class="edit-input" id="split-minha-parte" type="number" placeholder="Sua parte" min="0" inputmode="decimal"/>
+    </div>
+    <div style="background:#e8f5f0;border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px" id="split-preview">
+      <span id="split-preview-text">Você paga R$ 0 · eles devem R$ 0</span>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharSplit()">Cancelar</button>
+      <button class="modal-btn-save" onclick="salvarSplit()">Salvar divisão</button>
     </div>
   </div>
 </div>
@@ -2654,6 +2761,7 @@ function renderHistorico(){
   }
   document.getElementById('history').innerHTML =[...lista].reverse().map(r=>histHTML(r,true)).join('')||
     '<div class="empty">'+( termoBusca?'Nenhum resultado para "'+termoBusca+'"'  :'Nenhum registro neste mês')+'</div>';
+  renderSplitPanel();
 }
 function histHTML(r,del){
   const s=r.tipo==='receita';
@@ -2676,7 +2784,10 @@ function histHTML(r,del){
     </div>
     <div class="hist-right">
       <span class="hist-val" style="color:${s?'#1D9E75':'#E24B4A'}">${s?'+':'−'} ${fmt(r.valor)}</span>
-      <span style="font-size:11px;color:#ddd">✏️</span>
+      <div style="display:flex;gap:4px;margin-top:3px;justify-content:flex-end">
+        ${!s&&del?`<span class="split-badge" onclick="event.stopPropagation();abrirSplit(${r.id})" title="Dividir gasto">${r.divisao?`÷ ${r.divisao.pessoa}`:'÷ dividir'}</span>`:''}
+        <span style="font-size:11px;color:#ddd">✏️</span>
+      </div>
     </div>
   </div>`;
 }
@@ -3829,6 +3940,67 @@ function buscarHistorico(termo){
   renderHistorico();
 }
 
+// ── DIVISÃO DE GASTOS ────────────────────────────────────────────────────────
+let _splitPartes = 2;
+function abrirSplit(id){
+  const r=registros.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('split-reg-id').value=id;
+  document.getElementById('split-desc-label').textContent=r.descricao;
+  document.getElementById('split-val-label').textContent=fmt(r.valor);
+  document.getElementById('split-pessoa').value=r.divisao?.pessoa||'';
+  _splitPartes=r.divisao?.partes||2;
+  document.querySelectorAll('.split-parts-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.parts)===_splitPartes||(b.dataset.parts==='0'&&_splitPartes===0)));
+  document.getElementById('split-livre-wrap').style.display=_splitPartes===0?'':'none';
+  document.getElementById('split-minha-parte').value=r.divisao&&_splitPartes===0?r.divisao.minhaParte:'';
+  atualizarSplitPreview();
+  document.getElementById('split-modal').classList.add('open');
+}
+function setSplitPartes(p){
+  _splitPartes=p;
+  document.querySelectorAll('.split-parts-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.parts)===p||(b.dataset.parts==='0'&&p===0)));
+  document.getElementById('split-livre-wrap').style.display=p===0?'':'none';
+  atualizarSplitPreview();
+}
+function atualizarSplitPreview(){
+  const id=parseInt(document.getElementById('split-reg-id').value);
+  const r=registros.find(x=>x.id===id);
+  if(!r) return;
+  let minha, devem;
+  if(_splitPartes>0){minha=r.valor/_splitPartes;devem=r.valor-minha;}
+  else{minha=parseFloat(document.getElementById('split-minha-parte').value)||0;devem=r.valor-minha;}
+  document.getElementById('split-preview-text').textContent=`Você paga ${fmt(minha)} · eles devem ${fmt(Math.max(devem,0))}`;
+}
+function fecharSplit(){ document.getElementById('split-modal').classList.remove('open'); }
+function salvarSplit(){
+  const id=parseInt(document.getElementById('split-reg-id').value);
+  const idx=registros.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const r=registros[idx];
+  const pessoa=document.getElementById('split-pessoa').value.trim()||'Outra pessoa';
+  let minha;
+  if(_splitPartes>0) minha=r.valor/_splitPartes;
+  else minha=parseFloat(document.getElementById('split-minha-parte').value)||0;
+  const devem=Math.max(r.valor-minha,0);
+  registros[idx]={...r,divisao:{pessoa,partes:_splitPartes,minhaParte:minha,devem}};
+  salvar(registros);renderHistorico();renderSplitPanel();
+  fecharSplit();mostrarToast(`÷ ${pessoa} deve ${fmt(devem)}`);
+}
+function renderSplitPanel(){
+  const divisoes=registros.filter(r=>r.divisao&&r.divisao.devem>0);
+  const panel=document.getElementById('split-panel');
+  const lista=document.getElementById('split-panel-lista');
+  if(!panel||!lista) return;
+  if(!divisoes.length){panel.style.display='none';return;}
+  // agrupar por pessoa
+  const porPessoa={};
+  divisoes.forEach(r=>{const p=r.divisao.pessoa;if(!porPessoa[p])porPessoa[p]=0;porPessoa[p]+=r.divisao.devem;});
+  lista.innerHTML=Object.entries(porPessoa).sort((a,b)=>b[1]-a[1]).map(([p,v])=>
+    `<div class="split-row"><span class="split-pessoa">👤 ${escapeHtml(p)}</span><span class="split-val">${fmt(v)}</span></div>`
+  ).join('');
+  panel.style.display='';
+}
+
 function filtrarPorTag(tag){
   setTab('historico');
   termoBusca='#'+tag;
@@ -4216,6 +4388,70 @@ function renderDashboard(){
   renderChartComparativo();
   calcularPossoGastar();
   renderPrevisaoMes();
+  renderScoreFinanceiro();
+}
+
+function renderScoreFinanceiro(){
+  const card=document.getElementById('card-score');
+  if(!card) return;
+  const hoje=new Date(), ano=hoje.getFullYear(), mes=hoje.getMonth();
+  const mesRegs=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===ano&&d.getMonth()===mes;});
+  if(mesRegs.length<3){card.style.display='none';return;} // poucos dados
+  const totRec=mesRegs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
+  const totGas=mesRegs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
+
+  // Pilar 1: Poupança (0-40pts) — meta: poupar ≥20% da renda
+  let ptsPoup=0;
+  if(totRec>0){const pct=(totRec-totGas)/totRec;ptsPoup=Math.round(Math.min(pct/0.20,1)*40);}
+
+  // Pilar 2: Metas (0-30pts) — % de metas com limite respeitado
+  const metasAtivas=Object.entries(metas).filter(([,m])=>m&&m.limite);
+  let ptsMetas=30;
+  if(metasAtivas.length){
+    const cumpridas=metasAtivas.filter(([k,m])=>{
+      const g=mesRegs.filter(r=>r.tipo==='gasto'&&r.categoria.key===k).reduce((a,r)=>a+r.valor,0);
+      return g<=m.limite;
+    }).length;
+    ptsMetas=Math.round(cumpridas/metasAtivas.length*30);
+  }
+
+  // Pilar 3: Fixos pagos (0-20pts) — % de recorrentes já registrados este mês
+  const fixosMes=recorrentes.filter(r=>r.tipo==='gasto'&&r.dia);
+  let ptsFixos=20;
+  if(fixosMes.length){
+    const pagos=fixosMes.filter(r=>statusRecorrente(r)==='registrado').length;
+    ptsFixos=Math.round(pagos/fixosMes.length*20);
+  }
+
+  // Pilar 4: Regularidade (0-10pts) — dias com registro / dias passados do mês
+  const diasPassados=hoje.getDate();
+  const diasComReg=new Set(mesRegs.map(r=>new Date(r.data).getDate())).size;
+  const ptsReg=Math.round(Math.min(diasComReg/diasPassados,1)*10);
+
+  const total=ptsPoup+ptsMetas+ptsFixos+ptsReg;
+  const cor=total>=80?'#1D9E75':total>=60?'#EF9F27':'#E24B4A';
+  const titulo=total>=80?'Excelente 🏆':total>=60?'Bom 👍':total>=40?'Regular 📊':'Atenção ⚠️';
+
+  // anel SVG
+  const circ=188.5;
+  const offset=circ-(total/100)*circ;
+  const ring=document.getElementById('score-ring-fill');
+  if(ring){ring.style.stroke=cor;ring.style.strokeDashoffset=offset;}
+  document.getElementById('score-num').textContent=total;
+  document.getElementById('score-titulo').textContent=titulo;
+
+  const fmt1=v=>Math.round(v);
+  document.getElementById('score-bars').innerHTML=[
+    {label:'Poupança',pts:ptsPoup,max:40},
+    {label:'Metas',pts:ptsMetas,max:30},
+    {label:'Fixos',pts:ptsFixos,max:20},
+    {label:'Frequência',pts:ptsReg,max:10},
+  ].map(b=>`<div class="score-bar-row">
+    <span class="score-bar-label">${b.label}</span>
+    <div class="score-bar-track"><div class="score-bar-fill" style="width:${Math.round(b.pts/b.max*100)}%;background:${b.pts/b.max>=0.8?'#1D9E75':b.pts/b.max>=0.5?'#EF9F27':'#E24B4A'}"></div></div>
+    <span class="score-bar-pts">${fmt1(b.pts)}/${b.max}</span>
+  </div>`).join('');
+  card.style.display='flex';
 }
 
 function renderPrevisaoMes(){
@@ -5153,6 +5389,30 @@ async function cfgToggleBio(){
 
 // ── GOOGLE DRIVE BACKUP ──────────────────────────────────────────────────────
 const DRIVE_FILE_NAME   = 'finchat_backup.json';
+const DRIVE_GRUPO_KEY   = 'finchat_grupo_code';
+function driveGetGrupoCode(){ return (FinStorage.getItem(DRIVE_GRUPO_KEY)||'').trim(); }
+function driveGetFileName(){
+  const g=driveGetGrupoCode();
+  return g?`finchat_grupo_${g.replace(/[^a-zA-Z0-9_-]/g,'_')}.json`:DRIVE_FILE_NAME;
+}
+function salvarGrupoCode(){
+  const v=document.getElementById('cfg-grupo-code')?.value?.trim()||'';
+  if(v) FinStorage.setItem(DRIVE_GRUPO_KEY,v);
+  else  FinStorage.removeItem(DRIVE_GRUPO_KEY);
+  atualizarGrupoUI();
+  mostrarToast(v?`👥 Grupo "${v}" ativado!`:'Modo individual ativado');
+}
+function atualizarGrupoUI(){
+  const code=document.getElementById('cfg-grupo-code')?.value?.trim()||driveGetGrupoCode();
+  const statusEl=document.getElementById('cfg-grupo-status');
+  const syncBtn=document.getElementById('drive-sync-btn');
+  const saved=driveGetGrupoCode();
+  if(statusEl){
+    if(saved) statusEl.textContent=`✅ Grupo ativo: "${saved}" — arquivo: finchat_grupo_${saved.replace(/[^a-zA-Z0-9_-]/g,'_')}.json`;
+    else statusEl.textContent='Sem grupo — usando backup individual';
+  }
+  if(syncBtn) syncBtn.style.display=saved&&driveIsConnected()?'':'none';
+}
 const DRIVE_SCOPE       = 'https://www.googleapis.com/auth/drive.appdata';
 const DRIVE_CLIENT_KEY  = 'finchat_drive_client_id';
 const DRIVE_TOKEN_KEY   = 'finchat_drive_token';
@@ -5188,6 +5448,9 @@ function driveUpdateUI(){
   }
   const clientInput = document.getElementById('cfg-drive-client-id');
   if(clientInput) clientInput.value = driveGetClientId();
+  const grupoInput = document.getElementById('cfg-grupo-code');
+  if(grupoInput) grupoInput.value = driveGetGrupoCode();
+  atualizarGrupoUI();
 }
 
 function driveAuth(){
@@ -5249,9 +5512,10 @@ async function driveBackup(){
     registros, metas, recorrentes, objetivos, carteiras, config: carregarConfig()
   });
 
+  const fileName = driveGetFileName();
   // Verificar se arquivo já existe no appDataFolder
   const listRes = await driveRequest('GET',
-    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + DRIVE_FILE_NAME + '%27&fields=files(id)');
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + fileName + '%27&fields=files(id)');
   if(!listRes) return;
   const listData = await listRes.json();
   const existingId = listData.files?.[0]?.id;
@@ -5262,7 +5526,7 @@ async function driveBackup(){
     uploadMethod = 'PATCH';
   } else {
     // Criar novo com metadata
-    const meta = JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'] });
+    const meta = JSON.stringify({ name: fileName, parents: ['appDataFolder'] });
     const boundary = 'finchat_boundary';
     const multipart =
       '--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + meta +
@@ -5283,11 +5547,38 @@ async function driveBackup(){
   else alert('Erro no upload: ' + upRes.status);
 }
 
+async function driveSync(){
+  // merge bidirecional: baixa do Drive, mescla por ID, sobe de volta
+  if(!driveIsConnected()||!driveGetGrupoCode()){mostrarToast('Configure o grupo e conecte o Drive.');return;}
+  mostrarToast('Sincronizando grupo…');
+  const fileName=driveGetFileName();
+  const listRes=await driveRequest('GET',
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27'+fileName+'%27&fields=files(id)');
+  if(!listRes) return;
+  const file=(await listRes.json()).files?.[0];
+  if(file){
+    const dlRes=await driveRequest('GET','https://www.googleapis.com/drive/v3/files/'+file.id+'?alt=media');
+    if(!dlRes) return;
+    try{
+      const data=await dlRes.json();
+      // merge: unir por ID (remoto tem prioridade para novos, local tem prioridade para edições)
+      const idsDrive=new Set((data.registros||[]).map(r=>r.id));
+      const novosLocais=registros.filter(r=>!idsDrive.has(r.id));
+      const merged=[...(data.registros||[]),...novosLocais].sort((a,b)=>new Date(a.data)-new Date(b.data));
+      registros=merged;
+      if(data.metas) metas={...data.metas,...metas}; // local wins para metas
+      salvar(registros);salvarMetas();renderAll();
+    }catch(e){alert('Erro no merge: '+e.message);return;}
+  }
+  await driveBackup();
+  mostrarToast('✅ Grupo sincronizado!');
+}
 async function driveRestore(){
   if(!confirm('Restaurar dados do Google Drive? Os dados locais serão substituídos.')) return;
   mostrarToast('Buscando backup…');
+  const fileName=driveGetFileName();
   const listRes = await driveRequest('GET',
-    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + DRIVE_FILE_NAME + '%27&fields=files(id,modifiedTime)');
+    'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name=%27' + fileName + '%27&fields=files(id,modifiedTime)');
   if(!listRes) return;
   const listData = await listRes.json();
   const file = listData.files?.[0];
