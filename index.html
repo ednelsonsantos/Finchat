@@ -787,9 +787,7 @@ body.dark .obj-empty,body.dark .rec-empty,body.dark .meta-empty{color:#666}
 body.dark .hist-search-wrap input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
 body.dark .hist-search-clear{color:#666}
 
-/* IA */
-body.dark .ia-typing{background:#242424;border-color:#333}
-body.dark .cfg-api-input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
+
 
 /* Numeração */
 body.dark .cat-num{background:#333;color:#aaa}
@@ -804,8 +802,6 @@ body.dark .hist-filters .hf:hover{border-color:#1D9E75;color:#4eca97;background:
 /* Links */
 body.dark a{color:#4eca97}
 
-/* Chips IA */
-body.dark .ia-chip{background:#1a1f2e;border-color:#2a3a5e;color:#7bb3f0}
 
 /* Export bar select */
 body.dark .exp-sel select{background:#2a2a2a;border-color:#444;color:#bbb}
@@ -955,33 +951,6 @@ body.dark .obj-form input,body.dark .obj-form select{background:#333;border-colo
 .trend-eq{color:#888}
 
 
-/* ── IA / GEMINI ──────────────────────────────────────────────── */
-.ia-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
-  padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,#4285F4,#7F77DD);
-  color:#fff;margin-left:6px;vertical-align:middle}
-.ia-typing{display:flex;align-items:center;gap:6px;padding:9px 14px;
-  background:#fff;border:1px solid #eee;border-radius:16px 16px 16px 4px;
-  font-size:13px;color:#888;align-self:flex-start;max-width:85%}
-body.dark .ia-typing{background:#242424;border-color:#333}
-.ia-typing-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:#1D9E75;animation:iaBounce .9s infinite;margin:0 1px}
-.ia-typing-dots span:nth-child(2){animation-delay:.2s}
-.ia-typing-dots span:nth-child(3){animation-delay:.4s}
-@keyframes iaBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-.cfg-api-wrap{display:flex;flex-direction:column;gap:8px;width:100%}
-.cfg-api-input{padding:9px 14px;border-radius:12px;border:1px solid #ddd;
-  font-size:13px;background:#f5f5f3;color:#1a1a1a;outline:none;width:100%;
-  font-family:monospace}
-.cfg-api-input:focus{border-color:#1D9E75}
-body.dark .cfg-api-input{background:#2a2a2a;border-color:#444;color:#e8e8e6}
-.cfg-api-status{font-size:11px;display:flex;align-items:center;gap:5px}
-.cfg-api-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.cfg-api-dot.ok{background:#1D9E75}
-.cfg-api-dot.off{background:#aaa}
-.cfg-api-dot.err{background:#E24B4A}
-.ia-chip{background:linear-gradient(135deg,#E6F1FB,#EEEDFE);
-  border:1px solid #B5D4F4;color:#185FA5}
-body.dark .ia-chip{background:#1a2a3a;border-color:#2a4a6a;color:#7bb3f0}
 
 
 /* catch-all para textos que ainda escapam no dark mode */
@@ -2058,49 +2027,6 @@ body.dark .hist-swipe-del{background:#C0392B}
       </div>
     </div>
 
-    <!-- Dados -->
-    <div class="cfg-section">
-      <div class="cfg-section-title">Inteligência Artificial ✨</div>
-      <div class="cfg-row" style="flex-direction:column;align-items:stretch;gap:10px">
-        <div>
-          <div class="cfg-row-label">Chave da API Gemini (Google)</div>
-          <div class="cfg-row-sub">Requer assinatura paga da API · <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#1D9E75">Google AI Studio</a> → ativar billing no Google Cloud</div>
-        </div>
-        <div class="cfg-api-wrap">
-          <input class="cfg-api-input" id="cfg-gemini-key" type="password"
-            placeholder="Cole aqui sua chave AIza..." oninput="salvarGeminiKey()"/>
-          <div class="cfg-api-status" id="cfg-api-status">
-            <div class="cfg-api-dot off" id="cfg-api-dot"></div>
-            <span id="cfg-api-msg">Sem chave configurada — IA desativada</span>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="cfg-btn" onclick="testarGemini()">🧪 Testar conexão</button>
-          <button class="cfg-btn" onclick="limparGeminiKey()">🗑️ Remover chave</button>
-        </div>
-      </div>
-      <div class="cfg-row">
-        <div>
-          <div class="cfg-row-label">Usar IA como fallback</div>
-          <div class="cfg-row-sub">Aciona IA quando parser tem baixa confiança</div>
-        </div>
-        <label class="cfg-toggle">
-          <input type="checkbox" id="cfg-ia-fallback" checked onchange="salvarConfig()"/>
-          <span class="cfg-toggle-slider"></span>
-        </label>
-      </div>
-      <div class="cfg-row">
-        <div>
-          <div class="cfg-row-label">IA nas consultas do chat</div>
-          <div class="cfg-row-sub">Responde perguntas complexas com IA</div>
-        </div>
-        <label class="cfg-toggle">
-          <input type="checkbox" id="cfg-ia-chat" checked onchange="salvarConfig()"/>
-          <span class="cfg-toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
     <div class="cfg-section">
       <div class="cfg-section-title">Carteiras</div>
       <div id="cfg-carteiras-list"></div>
@@ -2470,7 +2396,7 @@ const FinStorage = (() => {
   const _KEYS = [
     'finchat_v1','finchat_config_v1','finchat_carteiras_v1',
     'finchat_objetivos_v1','finchat_metas_v1','finchat_recorrentes_v1',
-    'finchat_notif_log','finchat_gemini_key','finchat_dark'
+    'finchat_notif_log','finchat_dark'
   ];
   const DB = 'finchat_db';
   const _cache = Object.create(null);
@@ -3142,8 +3068,6 @@ function salvarConfig(){
     diaInicio:        parseInt(document.getElementById('cfg-dia-inicio')?.value)||1,
     alertas:          document.getElementById('cfg-alertas')?.checked!==false,
     confirmarDel:     document.getElementById('cfg-confirmar-del')?.checked!==false,
-    iaFallback:       document.getElementById('cfg-ia-fallback')?.checked!==false,
-    iaChat:           document.getElementById('cfg-ia-chat')?.checked!==false,
     notifAtivas:      carregarConfig().notifAtivas||false, // mantém o valor atual
     notifVencimentos: document.getElementById('cfg-notif-vencimentos')?.checked!==false,
     notifLembrete:    document.getElementById('cfg-notif-lembrete')?.checked||false,
@@ -3754,207 +3678,10 @@ function confirmarImportExtrato(){
   mostrarToast(`✓ ${novos.length} registro${novos.length!==1?'s':''} importado${novos.length!==1?'s':''}!`);
 }
 
-// ── GEMINI API ────────────────────────────────────────────────────────────────
-const GEMINI_KEY_STORAGE = 'finchat_gemini_key';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-
-function getGeminiKey(){ return FinStorage.getItem(GEMINI_KEY_STORAGE)||''; }
-
-function salvarGeminiKey(){
-  const key = document.getElementById('cfg-gemini-key')?.value?.trim()||'';
-  if(key) FinStorage.setItem(GEMINI_KEY_STORAGE, key);
-  else     FinStorage.removeItem(GEMINI_KEY_STORAGE);
-  atualizarStatusIA(key ? 'ok' : 'off', key ? 'Chave configurada' : 'Sem chave configurada — IA desativada');
-}
-
-function limparGeminiKey(){
-  FinStorage.removeItem(GEMINI_KEY_STORAGE);
-  const el = document.getElementById('cfg-gemini-key');
-  if(el) el.value='';
-  atualizarStatusIA('off','Sem chave configurada — IA desativada');
-}
-
-function atualizarStatusIA(status, msg){
-  const dot = document.getElementById('cfg-api-dot');
-  const txt = document.getElementById('cfg-api-msg');
-  if(dot) dot.className = 'cfg-api-dot ' + status;
-  if(txt) txt.textContent = msg;
-}
-
-async function testarGemini(){
-  const key = getGeminiKey();
-  if(!key){ alert('Cole sua chave da API primeiro.'); return; }
-  atualizarStatusIA('off','Testando conexão...');
-  try{
-    const resp = await chamarGemini('Responda apenas: OK', key);
-    if(resp){ atualizarStatusIA('ok','✓ Conectado — Gemini 2.0 Flash funcionando!'); }
-    else     { atualizarStatusIA('err','Erro na conexão — verifique a chave'); }
-  }catch(e){
-    atualizarStatusIA('err','Erro: '+e.message);
-  }
-}
-
-async function chamarGemini(prompt, key){
-  const apiKey = key || getGeminiKey();
-  if(!apiKey) return null;
-  const body = {
-    contents:[{parts:[{text: prompt}]}],
-    generationConfig:{temperature:0.2, maxOutputTokens:1024},
-  };
-  const resp = await fetch(GEMINI_URL+'?key='+apiKey, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(body),
-  });
-  if(!resp.ok){
-    const err = await resp.json().catch(()=>({}));
-    throw new Error(err?.error?.message || 'HTTP '+resp.status);
-  }
-  const data = await resp.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-}
-
-// ── PARSER COM FALLBACK IA ────────────────────────────────────────────────────
-async function parsearComIA(texto){
-  const agora = new Date();
-  const resumoDados = {
-    totalRegistros: registros.length,
-    categorias: [...new Set(registros.map(r=>r.categoria.label))].join(', '),
-    mesAtual: MESES_PTBR[agora.getMonth()] + ' ' + agora.getFullYear(),
-  };
-
-  const prompt = `Você é um assistente de finanças pessoais brasileiro. Analise a frase abaixo e extraia as informações financeiras.
-
-Frase do usuário: "${texto}"
-
-Contexto do usuário:
-- Mês atual: ${resumoDados.mesAtual}
-- Categorias já usadas: ${resumoDados.categorias}
-
-Responda APENAS com um objeto JSON válido, sem markdown, sem explicações, neste formato exato:
-{
-  "tipo": "gasto" | "receita",
-  "valor": number,
-  "descricao": "texto curto descritivo",
-  "categoria": "alimentacao" | "saude" | "transporte" | "moradia" | "lazer" | "educacao" | "pets" | "vestuario" | "investimento" | "salario" | "freela" | "servicos" | "outros",
-  "nota": "observação adicional se houver, senão string vazia",
-  "confianca": number entre 0 e 100
-}
-
-Regras:
-- Se houver múltiplas transações, retorne a principal
-- "descricao" deve ser curta (2-4 palavras)
-- Se não conseguir identificar tipo ou valor, use confianca < 40
-- Para datas relativas, assuma hoje = ${agora.toLocaleDateString('pt-BR')}`;
-
-  try{
-    const respText = await chamarGemini(prompt);
-    if(!respText) return null;
-    const clean = respText.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    if(!parsed.tipo || !parsed.valor) return null;
-    const cat = CATS[parsed.categoria] || CATS.outros;
-    return {
-      tipo: parsed.tipo,
-      valor: Math.abs(parseFloat(parsed.valor)),
-      descricao: parsed.descricao || 'Transação',
-      categoria: {key: parsed.categoria||'outros', label:cat.label, badge:cat.badge, cor:cat.cor||'#888'},
-      nota: parsed.nota||'',
-      data: new Date().toISOString(),
-      confianca: parsed.confianca||75,
-      viaIA: true,
-    };
-  }catch(e){
-    console.warn('Gemini parse error:', e);
-    return null;
-  }
-}
-
-// ── CONSULTA IA ───────────────────────────────────────────────────────────────
-async function consultarComIA(texto){
-  const mesRegs = regsDoMesFiltro();
-  const fmt2 = v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-
-  // montar contexto financeiro compacto
-  const totRec = mesRegs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
-  const totGas = mesRegs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
-  const gc={};
-  mesRegs.filter(r=>r.tipo==='gasto').forEach(r=>{const k=r.categoria.label;gc[k]=(gc[k]||0)+r.valor;});
-  const catStr=Object.entries(gc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${fmt2(v)}`).join(', ');
-  const ultimosStr=mesRegs.slice(-8).map(r=>`${r.descricao} (${r.tipo==='gasto'?'-':'+'}${fmt2(r.valor)})`).join(', ');
-  const agora=new Date();
-
-  const prompt = `Você é um assistente financeiro pessoal simpático e direto. Responda em português brasileiro de forma concisa (máximo 4 linhas).
-
-Dados financeiros do usuário — ${MESES_PTBR[mesFiltro]} ${anoFiltro}:
-- Receitas: ${fmt2(totRec)}
-- Gastos: ${fmt2(totGas)}
-- Saldo: ${fmt2(totRec-totGas)}
-- Gastos por categoria: ${catStr||'sem dados'}
-- Últimas transações: ${ultimosStr||'nenhuma'}
-- Metas ativas: ${Object.keys(metas).length}
-- Lançamentos fixos: ${recorrentes.length}
-- Hoje: ${agora.toLocaleDateString('pt-BR')}
-
-Pergunta do usuário: "${texto}"
-
-Responda de forma útil, personalizada com os dados acima. Seja direto e amigável. Use emojis com moderação.`;
-
-  return await chamarGemini(prompt);
-}
-
-// ── ATUALIZAR atualizarParser PARA CHAMAR IA ──────────────────────────────────
-// Guarda referência da versão original síncrona
-const _atualizarParserSync = atualizarParser;
-
-async function atualizarParserComIA(texto){
-  // primeiro roda o parser local
-  _atualizarParserSync(texto);
-
-  // se confiança baixa E tem chave E fallback ativo, tenta IA
-  const cfg = carregarConfig();
-  const key = getGeminiKey();
-  if(!key || cfg.iaFallback===false) return;
-  if(!resultadoAtual || resultadoAtual.confianca >= 70) return;
-  if(!texto.trim() || eConsulta(texto)) return;
-
-  // mostra indicador sutil de "analisando com IA"
-  const resultDiv = document.getElementById('result');
-  const btnEl = document.getElementById('btn');
-  resultDiv.innerHTML += '<div style="font-size:11px;color:#7F77DD;margin-top:6px">✨ Melhorando com IA...</div>';
-
-  try{
-    const iaResult = await parsearComIA(texto);
-    if(iaResult && iaResult.confianca > (resultadoAtual?.confianca||0)){
-      resultadoAtual = {...iaResult, id: novoId()};
-      const sinal = iaResult.tipo==='receita';
-      const cColor = '#7F77DD';
-      resultDiv.innerHTML = `
-        <div class="field-row"><span class="field-key">Tipo</span><span class="badge ${sinal?'bg-green':'bg-red'}">${sinal?'Receita':'Gasto'}</span><span class="ia-badge">✨ IA</span></div>
-        <div class="field-row"><span class="field-key">Valor</span><span class="field-val" style="color:${sinal?'#1D9E75':'#E24B4A'}">${sinal?'+':'−'} ${fmt(iaResult.valor)}</span></div>
-        <div class="field-row"><span class="field-key">Categoria</span><span class="badge ${iaResult.categoria.badge}">${iaResult.categoria.label}</span></div>
-        <div class="field-row"><span class="field-key">Descrição</span><span class="field-val">${iaResult.descricao}</span></div>
-        ${iaResult.nota?`<div class="field-row"><span class="field-key">Nota</span><span class="field-val" style="color:#888;font-style:italic">${iaResult.nota}</span></div>`:''}
-        <div class="field-row"><span class="field-key">Data</span><span class="field-val">${fmtD(iaResult.data)}</span></div>
-        <div class="conf-bar"><div class="conf-fill" style="width:${iaResult.confianca}%;background:${cColor}"></div></div>
-        <div class="conf-label" style="color:#7F77DD">Gemini: ${iaResult.confianca}% de confiança</div>`;
-      if(btnEl) btnEl.disabled=false;
-    }
-  }catch(e){ console.warn('IA fallback error:', e); }
-}
-
-// ── ATUALIZAR renderConfig PARA IA + DRIVE ────────────────────────────────────
+// ── DRIVE + PIN/BIO na renderConfig ───────────────────────────────────────────
 const _renderConfigOrig = typeof renderConfig==='function' ? renderConfig : null;
 function renderConfig(){
   if(_renderConfigOrig) _renderConfigOrig();
-  const keyEl = document.getElementById('cfg-gemini-key');
-  const fbEl  = document.getElementById('cfg-ia-fallback');
-  const chatEl= document.getElementById('cfg-ia-chat');
-  const key   = getGeminiKey();
-  if(keyEl) keyEl.value = key ? '•'.repeat(Math.min(key.length,24)) : '';
-  if(fbEl)  fbEl.checked  = carregarConfig().iaFallback!==false;
-  if(chatEl)chatEl.checked = carregarConfig().iaChat!==false;
-  atualizarStatusIA(key?'ok':'off', key?'Chave configurada — IA ativa':'Sem chave configurada — IA desativada');
   driveUpdateUI();
   // PIN / Bio status
   const pinBtn  = document.getElementById('cfg-pin-btn');
@@ -6077,32 +5804,8 @@ async function enviar(){
     document.getElementById('btn').textContent ='Enviar';
     document.getElementById('hint-box').style.display='none';
 
-    // verificar se usa IA no chat
-    const cfg=carregarConfig();
-    const key=getGeminiKey();
-    if(key && cfg.iaChat!==false){
-      // mostrar animação de digitação
-      const typingId='typing-'+Date.now();
-      const typingDiv=document.createElement('div');
-      typingDiv.className='ia-typing'; typingDiv.id=typingId;
-      typingDiv.innerHTML='✨ <span class="ia-typing-dots"><span></span><span></span><span></span></span>';
-      document.getElementById('chat-log')?.appendChild(typingDiv);
-      document.getElementById('chat-log').scrollTop=9999;
-      try{
-        const iaResp = await consultarComIA(texto);
-        const el=document.getElementById(typingId);
-        if(el) el.remove();
-        adicionarMsgChat((iaResp||'Não consegui responder agora.').trim()+'<span class="ia-badge">✨ IA</span>','bot');
-      }catch(e){
-        const el=document.getElementById(typingId);
-        if(el) el.remove();
-        const resp=responderConsulta(texto);
-        adicionarMsgChat(resp,'bot');
-      }
-    } else {
-      const resp=responderConsulta(texto);
-      setTimeout(()=>adicionarMsgChat(resp,'bot'),200);
-    }
+    const resp=responderConsulta(texto);
+    setTimeout(()=>adicionarMsgChat(resp,'bot'),200);
     document.getElementById('result').innerHTML ='<div class="placeholder-msg">Aguardando entrada...</div>';
   } else {
     registrar();
@@ -6113,13 +5816,7 @@ document.getElementById('inp').addEventListener('input',e=>{
   intentForçado=null;
   atualizarHint(e.target.value);
   atualizarModeIndicator(e.target.value);
-  if(getGeminiKey() && carregarConfig().iaFallback!==false){
-    atualizarParser(e.target.value);
-    clearTimeout(window.iaDebounceTimer);
-    window.iaDebounceTimer=setTimeout(()=>atualizarParserComIA(e.target.value),800);
-  } else {
-    atualizarParser(e.target.value);
-  }
+  atualizarParser(e.target.value);
 });
 document.getElementById('inp').addEventListener('keydown',e=>{if(e.key==='Enter')enviar();});
 registros=carregar();
