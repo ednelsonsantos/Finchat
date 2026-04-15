@@ -1077,6 +1077,13 @@ body.dark .home-input-row input{
 .home-send-btn:disabled svg{fill:#555}
 body.dark .home-send-btn:disabled{background:#2a2a2a}
 body.dark .home-send-btn:disabled svg{fill:#aaa}
+.home-mic-btn{width:42px;height:42px;border-radius:50%;flex-shrink:0;background:none;border:1.5px solid #ddd;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .15s;color:#888}
+.home-mic-btn:hover{border-color:#1D9E75;color:#1D9E75;background:#e8f5f0}
+.home-mic-btn.ouvindo{background:#E24B4A;border-color:#E24B4A;color:#fff;animation:micPulse .8s infinite}
+@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+body.dark .home-mic-btn{border-color:#444;color:#888}
+body.dark .home-mic-btn:hover{border-color:#1D9E75;color:#4eca97;background:#1a2e26}
+body.dark .home-mic-btn.ouvindo{background:#C0392B;border-color:#C0392B;color:#fff}
 
 /* Hint na home — diferente, mais integrado */
 .home-hint{
@@ -1598,6 +1605,7 @@ body.dark .hist-swipe-del{background:#C0392B}
         <input id="inp" type="text"
           placeholder='"gasto 80 farmácia" ou "recebi 4000 salário"'
           autocomplete="off"/>
+        <button class="home-mic-btn" id="mic-btn" onclick="iniciarVoz()" title="Falar para registrar">🎤</button>
         <button class="home-send-btn" id="btn" onclick="enviar()" disabled title="Registrar / Perguntar">
           <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2z"/></svg>
         </button>
@@ -1823,6 +1831,7 @@ body.dark .hist-swipe-del{background:#C0392B}
           <option value="servicos">🔧 Serviços</option>
           <option value="outros">📦 Outros</option>
         </select>
+        <!-- opções customizadas injetadas por preencherSelectMeta() -->
         <input type="number" id="meta-val" placeholder="Limite R$" min="1" step="1" inputmode="decimal"/>
         <button class="meta-add-btn" onclick="adicionarMeta()">Definir meta</button>
       </div>
@@ -4682,7 +4691,17 @@ function removerMeta(catKey){
   renderMetas();
 }
 
+function preencherSelectMeta(){
+  const sel=document.getElementById('meta-cat');if(!sel)return;
+  [...sel.options].filter(o=>o.value.startsWith('custom_')).forEach(o=>o.remove());
+  catsCustom.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.key;opt.textContent=`${c.icon} ${c.label}`;
+    sel.appendChild(opt);
+  });
+}
 function renderMetas(){
+  preencherSelectMeta();
   const lista = document.getElementById('meta-lista');
   const entries = Object.entries(metas);
   if(!entries.length){
@@ -4691,7 +4710,8 @@ function renderMetas(){
   }
   const fmt2 = v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
   lista.innerHTML = entries.map(([catKey, meta])=>{
-    const info   = CAT_META_INFO[catKey]||{nome:catKey,icon:'📦'};
+    const customCat=catsCustom.find(c=>c.key===catKey);
+    const info = CAT_META_INFO[catKey]||(customCat?{nome:customCat.label,icon:customCat.icon}:{nome:catKey,icon:'📦'});
     const gasto  = gastoMesCategoria(catKey);
     const pct    = Math.min(Math.round(gasto/meta.limite*100),100);
     const over   = gasto > meta.limite;
@@ -4749,8 +4769,10 @@ function checarLimiteCarteira(registro){
   const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
   if(gastoMes>c.limite){
     mostrarNotifMeta(`💳 Limite estourado: ${c.icon} ${c.nome}`,`${fmt2(gastoMes)} de ${fmt2(c.limite)} (${pct}%)`,'over');
+    chatAlerta(`💳 Limite estourado em ${c.icon} ${c.nome}! Você gastou ${fmt2(gastoMes)} de ${fmt2(c.limite)} (${pct}%).`);
   } else if(pct>=80){
     mostrarNotifMeta(`💳 ${pct}% do limite: ${c.icon} ${c.nome}`,`Restam ${fmt2(c.limite-gastoMes)} de ${fmt2(c.limite)}`,'warn');
+    chatAlerta(`💳 ${pct}% do limite de ${c.icon} ${c.nome} usado. Restam ${fmt2(c.limite-gastoMes)}.`);
   }
 }
 function checarAlertasMetas(registro){
@@ -4760,7 +4782,8 @@ function checarAlertasMetas(registro){
   const meta  = metas[catKey];
   const gasto = gastoMesCategoria(catKey);
   const pct   = Math.round(gasto/meta.limite*100);
-  const info  = CAT_META_INFO[catKey]||{nome:catKey,icon:'📦'};
+  const customCat=catsCustom.find(c=>c.key===catKey);
+  const info  = CAT_META_INFO[catKey]||(customCat?{nome:customCat.label,icon:customCat.icon}:{nome:catKey,icon:'📦'});
   const fmt2  = v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
   let titulo='', sub='', tipo='';
@@ -4773,7 +4796,7 @@ function checarAlertasMetas(registro){
     sub=`${info.nome}: restam ${fmt2(meta.limite-gasto)} de ${fmt2(meta.limite)}`;
     tipo='warn';
   }
-  if(titulo) mostrarNotifMeta(titulo, sub, tipo);
+  if(titulo){ mostrarNotifMeta(titulo, sub, tipo); chatAlerta(`${titulo} ${sub}`); }
 }
 
 function mostrarNotifMeta(titulo, sub, tipo){
@@ -6023,6 +6046,41 @@ function verificarResumoSemanal(){
   document.getElementById('modal-resumo-semanal').style.display='flex';
 }
 function fecharResumoSemanal(){document.getElementById('modal-resumo-semanal').style.display='none';}
+
+// ── ALERTA NO CHAT ────────────────────────────────────────────────────────────
+function chatAlerta(msg){
+  const log=document.getElementById('chat-log');
+  if(!log||!log.offsetParent)return; // só se o chat estiver visível
+  setTimeout(()=>adicionarMsgChat(msg,'bot'),400);
+}
+
+// ── BUSCA POR VOZ ─────────────────────────────────────────────────────────────
+let _recVoz=null;
+function iniciarVoz(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){mostrarToast('Voz não suportada neste navegador');return;}
+  const btn=document.getElementById('mic-btn');
+  if(_recVoz){_recVoz.stop();return;}
+  _recVoz=new SpeechRecognition();
+  _recVoz.lang='pt-BR';
+  _recVoz.continuous=false;
+  _recVoz.interimResults=false;
+  _recVoz.onstart=()=>{btn.classList.add('ouvindo');btn.textContent='⏹';};
+  _recVoz.onresult=e=>{
+    const txt=e.results[0][0].transcript;
+    const inp=document.getElementById('inp');
+    inp.value=txt;
+    inp.dispatchEvent(new Event('input'));
+    btn.classList.remove('ouvindo');btn.textContent='🎤';
+    _recVoz=null;
+  };
+  _recVoz.onerror=e=>{
+    btn.classList.remove('ouvindo');btn.textContent='🎤';_recVoz=null;
+    if(e.error!=='aborted') mostrarToast('Voz: '+e.error);
+  };
+  _recVoz.onend=()=>{btn.classList.remove('ouvindo');btn.textContent='🎤';_recVoz=null;};
+  _recVoz.start();
+}
 
 if(registros.some(r=>!r.carteiraId)){
   registros=registros.map(r=>r.carteiraId?r:{...r,carteiraId:'geral'});
