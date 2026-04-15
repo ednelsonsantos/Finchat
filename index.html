@@ -866,6 +866,14 @@ body.dark .split-pessoa{color:#e8e8e6}
 body.dark .split-row{border-color:#2a2a2a}
 .split-parts-btn{padding:6px 14px;border-radius:8px;border:1px solid #ddd;background:#f5f5f3;font-size:13px;cursor:pointer;font-weight:500;color:#555;transition:all .15s}
 .split-parts-btn.active{background:#1D9E75;color:#fff;border-color:#1D9E75}
+body.dark .split-parts-btn{background:#2a2a2a;border-color:#444;color:#ccc}
+body.dark .split-parts-btn.active{background:#1D9E75;color:#fff;border-color:#1D9E75}
+body.dark #split-preview{background:#1a2e26;color:#ccc}
+body.dark .split-desc-info{color:#aaa}
+body.dark .split-desc-info span:not([style*='#E24B4A']){color:#e8e8e6}
+/* modal de divisão centralizado */
+#split-modal{align-items:center}
+#split-modal .modal-sheet{border-radius:20px;max-width:420px}
 
 /* ── RELATÓRIO MENSAL ────────────────────────────────────────────── */
 .rel-kpi-card{background:#f7f7f7;border-radius:10px;padding:10px 12px}
@@ -2314,7 +2322,7 @@ body.dark .hist-swipe-del{background:#C0392B}
     <div class="modal-handle"></div>
     <div class="modal-title">÷ Dividir gasto</div>
     <input type="hidden" id="split-reg-id"/>
-    <div style="font-size:13px;color:#888;margin-bottom:12px">Gasto: <span id="split-desc-label" style="font-weight:600;color:#1a1a1a"></span> — <span id="split-val-label" style="color:#E24B4A;font-weight:600"></span></div>
+    <div class="split-desc-info" style="font-size:13px;margin-bottom:12px">Gasto: <span id="split-desc-label" style="font-weight:600"></span> — <span id="split-val-label" style="color:#E24B4A;font-weight:600"></span></div>
     <div class="edit-field">
       <div class="edit-label">Dividir com (nome)</div>
       <input class="edit-input" id="split-pessoa" type="text" placeholder="Ex: João, Maria, Amigos..."/>
