@@ -7,7 +7,7 @@
 [![HTML](https://img.shields.io/badge/HTML-único%20arquivo-orange?style=flat-square&logo=html5)](https://ednelsonsantos.github.io/Finchat/)
 [![PWA](https://img.shields.io/badge/PWA-instalável-5A0FC8?style=flat-square&logo=pwa)](https://ednelsonsantos.github.io/Finchat/)
 [![IA](https://img.shields.io/badge/IA-Gemini%202.0%20Flash-4285F4?style=flat-square&logo=google)](https://aistudio.google.com)
-[![Tamanho](https://img.shields.io/badge/tamanho-194KB-brightgreen?style=flat-square)](#)
+[![Tamanho](https://img.shields.io/badge/tamanho-313kb-brightgreen?style=flat-square)](#)
 [![License](https://img.shields.io/badge/licença-MIT-green?style=flat-square)](LICENSE)
 [![Zero backend](https://img.shields.io/badge/backend-zero-brightgreen?style=flat-square)](#)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ativo-2088FF?style=flat-square&logo=github)](https://ednelsonsantos.github.io/Finchat/)
@@ -344,11 +344,11 @@ No Android Studio: **Run ▶** para emulador ou **Build → Build Bundle/APK** p
 
 ## 🗺️ Roadmap
 
+- [x] Sincronização Google Drive / Dropbox
 - [x] Múltiplas carteiras (Nubank, dinheiro, cartão de crédito)
+- [x] Capacitor — APK Android / iOS nativo
+- [x] Electron — app desktop
 - [x] Gráfico comparativo dos últimos 6 meses
-- [x] Capacitor — APK Android / iOS com SQLite nativo
-- [x] Electron — app desktop com SQLite local
-- [ ] Sincronização Google Drive / Dropbox
 - [x] Importação de extrato OFX/CSV bancário
 - [x] Notificações push nativas
 
@@ -357,12 +357,20 @@ No Android Studio: **Run ▶** para emulador ou **Build → Build Bundle/APK** p
 ## 🤝 Contribuindo
 
 ```bash
-git fork
+# 1. Clique em "Fork" no GitHub (canto superior direito do repositório)
+# 2. Clone o seu fork
+git clone https://github.com/SEU_USUARIO/Finchat.git
+cd Finchat
 git checkout -b minha-melhoria
-# edite finchat.html
-git commit -m "feat: minha melhoria"
+
+# 3. Edite o arquivo principal
+# edite index.html
+
+# 4. Commit e push
+git commit -am "feat: minha melhoria"
 git push origin minha-melhoria
-# abra Pull Request
+
+# 5. Abra um Pull Request no GitHub
 ```
 
 ### Adicionar palavras ao dicionário
@@ -395,7 +403,7 @@ MIT © 2026
 
 <div align="center">
 
-**FinChat · 194KB · um único arquivo HTML · zero backend · zero rastreamento**
+**FinChat · 313kb · um único arquivo HTML · zero backend · zero rastreamento**
 
 Seus dados são seus.
 
