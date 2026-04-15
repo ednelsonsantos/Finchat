@@ -1195,6 +1195,22 @@ body.dark .aba-header-title{color:#e8e8e6}
 }
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 body.dark .global-toast{background:#0d5c3f;box-shadow:0 4px 16px rgba(13,92,63,.5)}
+/* toast com undo */
+.undo-toast{
+  display:none;
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  z-index:999;
+  background:#222;color:#fff;
+  border-radius:24px;padding:10px 8px 10px 18px;
+  font-size:13px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  white-space:nowrap;
+  animation:toastIn .2s ease;
+  pointer-events:all;
+  display:none;align-items:center;gap:10px;
+}
+.undo-toast-btn{padding:5px 14px;border-radius:16px;border:none;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.undo-toast-btn:hover{background:#0F6E56}
 
 
 /* ── HINT DARK MODE ─────────────────────────────────────────── */
@@ -1460,7 +1476,56 @@ body.dark .home-greeting{color:#666}
 
   <!-- Toast global -->
   <div id="toast" class="global-toast">✓ Registro salvo!</div>
+  <!-- Toast com undo -->
+  <div id="undo-toast" class="undo-toast">
+    <span id="undo-msg">✓ Registrado!</span>
+    <button class="undo-toast-btn" onclick="desfazerRegistro()">Desfazer</button>
+  </div>
   <span id="storage-label" style="display:none"></span>
+
+  <!-- Modal: Onboarding primeiro uso -->
+  <div id="modal-onboarding" class="modal-overlay" style="display:none">
+    <div class="modal-sheet" style="max-width:380px;padding:0;overflow:hidden">
+      <div id="ob-step-1">
+        <div style="background:linear-gradient(135deg,#1D9E75,#0F6E56);padding:28px 24px 20px;color:#fff;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">💬</div>
+          <div style="font-size:20px;font-weight:700;margin-bottom:6px">Bem-vindo ao FinChat!</div>
+          <div style="font-size:13px;opacity:.85">Registre suas finanças como se estivesse mandando uma mensagem</div>
+        </div>
+        <div style="padding:20px 24px">
+          <div class="edit-label" style="margin-bottom:6px">Como quer ser chamado?</div>
+          <input class="edit-input" id="ob-nome" type="text" placeholder="Seu nome" style="margin-bottom:16px"/>
+          <div class="edit-label" style="margin-bottom:6px">Qual sua renda mensal? (opcional)</div>
+          <input class="edit-input" id="ob-renda" type="number" placeholder="Ex: 4000" inputmode="decimal" style="margin-bottom:20px"/>
+          <button onclick="obProximo(1)" style="width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">Próximo →</button>
+        </div>
+      </div>
+      <div id="ob-step-2" style="display:none">
+        <div style="padding:24px 24px 8px;text-align:center">
+          <div style="font-size:36px;margin-bottom:8px">🎯</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:6px">Defina uma meta</div>
+          <div style="font-size:13px;color:#888;margin-bottom:20px">Quanto quer gastar por mês em alimentação?</div>
+          <input class="edit-input" id="ob-meta-alim" type="number" placeholder="Ex: 600" inputmode="decimal" style="margin-bottom:8px"/>
+          <div style="font-size:11px;color:#aaa;margin-bottom:20px">Pode configurar mais metas em Metas 🎯</div>
+        </div>
+        <div style="padding:0 24px 24px;display:flex;gap:8px">
+          <button onclick="obProximo(2,'pular')" style="flex:1;padding:12px;background:#f5f5f3;color:#555;border:1px solid #ddd;border-radius:12px;font-size:14px;cursor:pointer">Pular</button>
+          <button onclick="obProximo(2)" style="flex:2;padding:12px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Próximo →</button>
+        </div>
+      </div>
+      <div id="ob-step-3" style="display:none">
+        <div style="padding:24px 24px 8px;text-align:center">
+          <div style="font-size:36px;margin-bottom:8px">🔔</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:6px">Ativar notificações?</div>
+          <div style="font-size:13px;color:#888;margin-bottom:20px">Lembretes de contas próximas do vencimento e resumo diário</div>
+        </div>
+        <div style="padding:0 24px 24px;display:flex;gap:8px">
+          <button onclick="obFinalizar(false)" style="flex:1;padding:12px;background:#f5f5f3;color:#555;border:1px solid #ddd;border-radius:12px;font-size:14px;cursor:pointer">Agora não</button>
+          <button onclick="obFinalizar(true)" style="flex:2;padding:12px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Ativar 🔔</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal: Relatório mensal automático -->
   <div id="modal-relatorio" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharRelatorio()">
@@ -2042,6 +2107,9 @@ body.dark .home-greeting{color:#666}
         </div>
         <div id="drive-actions" style="display:none;gap:6px;flex-wrap:wrap">
           <button class="cfg-btn" onclick="driveBackup()" style="background:#1D9E75;color:#fff;border-color:#1D9E75">⬆️ Fazer backup</button>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;cursor:pointer;padding:6px 10px;border:1px solid #ddd;border-radius:10px">
+            <input type="checkbox" id="cfg-drive-auto" onchange="salvarConfig()" style="accent-color:#1D9E75"/> Auto-backup
+          </label>
           <button class="cfg-btn" onclick="driveRestore()">⬇️ Restaurar</button>
           <button class="cfg-btn" id="drive-sync-btn" onclick="driveSync()" style="display:none;background:#378ADD;color:#fff;border-color:#378ADD">👥 Sincronizar grupo</button>
           <button class="cfg-btn cfg-btn-danger" onclick="driveLogout()">Desconectar</button>
@@ -2158,6 +2226,10 @@ body.dark .home-greeting{color:#666}
           <option value="outros">📦 Outros</option>
         </select>
       </div>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Tags (opcional)</div>
+      <input class="edit-input" id="edit-tags" type="text" placeholder='Ex: #viagem #trabalho #festa'/>
     </div>
     <div class="edit-field">
       <div class="edit-label">Nota / observação (opcional)</div>
@@ -2614,7 +2686,15 @@ const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmtD=iso=>{try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch{return'--';}};
 
 // STORAGE — FinStorage (SQLite + localStorage fallback)
-function salvar(regs){try{FinStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);}catch(e){alert('Erro ao salvar: '+e.message);}}
+let _driveAutoTimer=null;
+function driveAutoBackup(){
+  if(!driveIsConnected()) return;
+  const cfg=carregarConfig();
+  if(!cfg.driveAuto) return;
+  clearTimeout(_driveAutoTimer);
+  _driveAutoTimer=setTimeout(()=>driveBackup(),30000); // 30s debounce
+}
+function salvar(regs){try{FinStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);driveAutoBackup();}catch(e){alert('Erro ao salvar: '+e.message);}}
 function carregar(){try{const r=FinStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);atualizarLabel(d.length);return d;}}catch{}atualizarLabel(0);return[];}
 function atualizarLabel(n){
   const msg = n===0
@@ -2628,6 +2708,7 @@ function atualizarLabel(n){
 }
 
 let registros=[], resultadoAtual=null, intentForçado=null, profAtual=null, tabAtual='resumo', filtro='todos';
+let _ultimoRegistroId=null, _undoTimer=null;
 
 // HINT
 function mostrarHint(prof,tipoTexto){
@@ -2701,12 +2782,32 @@ function registrar(){
   salvar(registros);
   renderAll();
   checarAlertasMetas(novoReg);
+  checarLimiteCarteira(novoReg);
   document.getElementById('inp').value='';
   document.getElementById('hint-box').style.display='none';
   document.getElementById('result').innerHTML ='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
   document.getElementById('btn').disabled=true;
+  _ultimoRegistroId=novoReg.id;
   resultadoAtual=null;intentForçado=null;profAtual=null;
-  mostrarToast('✓ Registro salvo!');
+  mostrarUndoToast(`✓ ${novoReg.tipo==='receita'?'Receita':'Gasto'} de ${fmt(novoReg.valor)} salvo`);
+}
+function mostrarUndoToast(msg){
+  const el=document.getElementById('undo-toast');
+  const msgEl=document.getElementById('undo-msg');
+  if(!el||!msgEl)return;
+  msgEl.textContent=msg;
+  el.style.display='flex';
+  clearTimeout(_undoTimer);
+  _undoTimer=setTimeout(()=>{el.style.display='none';_ultimoRegistroId=null;},5000);
+}
+function desfazerRegistro(){
+  if(!_ultimoRegistroId)return;
+  registros=registros.filter(r=>r.id!==_ultimoRegistroId);
+  salvar(registros);renderAll();
+  _ultimoRegistroId=null;
+  clearTimeout(_undoTimer);
+  document.getElementById('undo-toast').style.display='none';
+  mostrarToast('↩ Registro removido');
 }
 function deletar(id){if(!confirm('Remover este registro?'))return;registros=registros.filter(r=>r.id!==id);salvar(registros);renderAll();}
 function limparTudo(){if(!confirm('Apagar TODOS os registros? Esta ação não pode ser desfeita.'))return;registros=[];salvar(registros);renderAll();}
@@ -2883,6 +2984,7 @@ function abrirModal(id){
   const dd   = String(d.getDate()).padStart(2,'0');
   document.getElementById('edit-data').value  = `${yyyy}-${mm}-${dd}`;
   document.getElementById('edit-nota').value  = r.nota||'';
+  document.getElementById('edit-tags').value  = r.tags&&r.tags.length?r.tags.map(t=>'#'+t).join(' '):'';
   document.getElementById('edit-modal').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -2909,6 +3011,7 @@ function salvarEdicao(){
     categoria:  {key:catKey, label:cat.label, badge:cat.badge, cor:cat.cor||'#888'},
     data:       dataVal ? new Date(dataVal+'T12:00:00').toISOString() : registros[idx].data,
     nota:       document.getElementById('edit-nota').value.trim()||'',
+    tags:       extrairTags(document.getElementById('edit-tags').value),
   };
   salvar(registros);
   renderAll();
@@ -2961,6 +3064,7 @@ function salvarConfig(){
     notifAtivas:      carregarConfig().notifAtivas||false, // mantém o valor atual
     notifVencimentos: document.getElementById('cfg-notif-vencimentos')?.checked!==false,
     notifLembrete:    document.getElementById('cfg-notif-lembrete')?.checked||false,
+    driveAuto:        document.getElementById('cfg-drive-auto')?.checked||false,
     desde:            carregarConfig().desde || new Date().toISOString(),
   };
   FinStorage.setItem(CFG_KEY, JSON.stringify(cfg));
@@ -3032,6 +3136,8 @@ function renderConfig(){
   const nl=document.getElementById('cfg-notif-lembrete');
   if(nv) nv.checked=cfg.notifVencimentos!==false;
   if(nl) nl.checked=cfg.notifLembrete||false;
+  const da=document.getElementById('cfg-drive-auto');
+  if(da) da.checked=cfg.driveAuto||false;
 }
 
 function exportarJSON(){
@@ -4768,6 +4874,23 @@ function renderMetas(){
 }
 
 // Notificações automáticas ao registrar gasto
+function checarLimiteCarteira(registro){
+  if(registro.tipo!=='gasto'||registro.isTransferencia) return;
+  const c=carteiraById(registro.carteiraId);
+  if(!c||!c.limite) return;
+  const hoje=new Date(),ano=hoje.getFullYear(),mes=hoje.getMonth();
+  const gastoMes=registros.filter(r=>{
+    const d=new Date(r.data);
+    return r.carteiraId===c.id&&r.tipo==='gasto'&&!r.isTransferencia&&d.getFullYear()===ano&&d.getMonth()===mes;
+  }).reduce((a,r)=>a+r.valor,0);
+  const pct=Math.round(gastoMes/c.limite*100);
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  if(gastoMes>c.limite){
+    mostrarNotifMeta(`💳 Limite estourado: ${c.icon} ${c.nome}`,`${fmt2(gastoMes)} de ${fmt2(c.limite)} (${pct}%)`,'over');
+  } else if(pct>=80){
+    mostrarNotifMeta(`💳 ${pct}% do limite: ${c.icon} ${c.nome}`,`Restam ${fmt2(c.limite-gastoMes)} de ${fmt2(c.limite)}`,'warn');
+  }
+}
 function checarAlertasMetas(registro){
   if(registro.tipo!=='gasto')return;
   const catKey = registro.categoria.key;
@@ -5867,6 +5990,44 @@ document.getElementById('inp').addEventListener('keydown',e=>{if(e.key==='Enter'
 registros=carregar();
 carteiras=carregarCarteiras();
 // migrar registros sem carteiraId (dados anteriores à feature)
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+function verificarOnboarding(){
+  const cfg=carregarConfig();
+  if(cfg.onboardingFeito||cfg.nome||registros.length>0) return;
+  document.getElementById('modal-onboarding').style.display='flex';
+}
+function obProximo(step, acao){
+  if(step===1){
+    // salvar nome e renda
+    const nome=document.getElementById('ob-nome').value.trim();
+    const renda=parseFloat(document.getElementById('ob-renda').value)||0;
+    if(nome){
+      const cfg=carregarConfig();cfg.nome=nome;
+      if(renda>0) cfg.rendaMensal=renda;
+      FinStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+      const el=document.getElementById('cfg-nome'); if(el) el.value=nome;
+    }
+    document.getElementById('ob-step-1').style.display='none';
+    document.getElementById('ob-step-2').style.display='';
+  } else if(step===2){
+    if(acao!=='pular'){
+      const v=parseFloat(document.getElementById('ob-meta-alim').value);
+      if(v>0){metas.alimentacao=metas.alimentacao||{};metas.alimentacao.limite=v;salvarMetas();}
+    }
+    document.getElementById('ob-step-2').style.display='none';
+    document.getElementById('ob-step-3').style.display='';
+  }
+}
+async function obFinalizar(ativarNotif){
+  const cfg=carregarConfig();
+  cfg.onboardingFeito=true;
+  FinStorage.setItem(CFG_KEY,JSON.stringify(cfg));
+  document.getElementById('modal-onboarding').style.display='none';
+  renderConfig();
+  if(ativarNotif) await solicitarPermissaoNotif();
+  mostrarToast('🎉 Tudo pronto! Digite seu primeiro lançamento');
+}
+
 // ── RELATÓRIO MENSAL AUTOMÁTICO ───────────────────────────────────────────────
 function verificarRelatorioMensal(){
   const hoje=new Date();
@@ -5930,6 +6091,7 @@ aplicarConfig(carregarConfig());
 objetivos=carregarObjetivos();
 renderAll();
 mostrarHome(); // começa na home limpa
+setTimeout(verificarOnboarding,800);
 setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 setTimeout(verificarRelatorioMensal,1500);
