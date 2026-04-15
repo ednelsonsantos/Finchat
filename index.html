@@ -1405,6 +1405,14 @@ body.dark .cat-num{background:#111;color:#888;border:1px solid #222}
 }
 body.dark .home-greeting{color:#666}
 
+/* ── SWIPE TO DELETE no histórico ──────────────────────────── */
+.hist-swipe-wrap{position:relative;overflow:hidden;border-radius:8px}
+.hist-swipe-del{position:absolute;right:0;top:0;bottom:0;width:76px;background:#E24B4A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;cursor:pointer;border-radius:0 8px 8px 0;user-select:none}
+.hist-swipe-del:active{background:#C0392B}
+.hist-swipe-wrap .hist-item{position:relative;z-index:1;margin:0;transition:transform .2s ease}
+.hist-swipe-wrap .hist-item.swiping{transition:none}
+body.dark .hist-swipe-del{background:#C0392B}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
@@ -1759,6 +1767,14 @@ body.dark .home-greeting{color:#666}
       </div>
     </div>
 
+    <!-- Linha 4: Tendência mês atual vs anterior -->
+    <div class="dash-card-full">
+      <div class="dash-title">Tendência — gastos acumulados (mês atual vs anterior)</div>
+      <div class="dash-canvas-wrap" style="height:160px">
+        <canvas id="chart-tendencia"></canvas>
+      </div>
+    </div>
+
     <!-- Últimos registros -->
     <div class="dash-card-full" style="margin-bottom:0">
       <div class="dash-title">Últimos registros</div>
@@ -1989,6 +2005,12 @@ body.dark .home-greeting{color:#666}
           <span class="cfg-toggle-slider"></span>
         </label>
       </div>
+    </div>
+
+    <!-- Categorias personalizadas -->
+    <div class="cfg-section">
+      <div class="cfg-section-title" style="display:flex;justify-content:space-between;align-items:center"><span>Categorias personalizadas</span><button onclick="abrirModalCustomCat()" style="background:#1D9E75;color:#fff;border:none;border-radius:20px;padding:3px 11px;font-size:11px;cursor:pointer">+ Adicionar</button></div>
+      <div id="cfg-custom-cats"><div style="color:#aaa;font-size:12px;padding:4px 0">Nenhuma categoria personalizada</div></div>
     </div>
 
     <!-- Notificações -->
@@ -2240,6 +2262,49 @@ body.dark .home-greeting{color:#666}
       <button class="modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarEdicao()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal de categoria personalizada -->
+<div id="modal-custom-cat" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharModalCustomCat()">
+  <div class="modal-box" style="max-width:320px">
+    <div class="modal-title" style="margin-bottom:14px">Nova categoria</div>
+    <div class="edit-field">
+      <div class="edit-label">Emoji</div>
+      <input id="cc-icon" class="edit-input" value="📁" maxlength="4" style="width:65px;text-align:center;font-size:22px"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Nome da categoria</div>
+      <input id="cc-nome" class="edit-input" placeholder="Ex: Academia, Consultório..." maxlength="30"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Palavras-chave (separe por vírgula)</div>
+      <input id="cc-palavras" class="edit-input" placeholder="Ex: academia, gym, crossfit"/>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharModalCustomCat()">Cancelar</button>
+      <button class="modal-btn-save" onclick="salvarCustomCat()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de resumo semanal -->
+<div id="modal-resumo-semanal" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharResumoSemanal()">
+  <div class="modal-box" style="max-width:320px">
+    <div class="modal-title">📆 Resumo da semana</div>
+    <div id="resumo-sem-periodo" style="font-size:11px;color:#aaa;margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div class="kpi" style="flex:1;text-align:center">
+        <div class="m-label">Gastos na semana</div>
+        <div class="m-val" id="resumo-sem-gas" style="color:#E24B4A">R$ 0</div>
+      </div>
+      <div class="kpi" style="flex:1;text-align:center">
+        <div class="m-label">vs semana anterior</div>
+        <div class="m-val" id="resumo-sem-diff" style="font-size:14px">—</div>
+      </div>
+    </div>
+    <div id="resumo-sem-top" style="font-size:12px;color:#555;margin-bottom:14px;line-height:1.6"></div>
+    <button class="modal-btn-save" onclick="fecharResumoSemanal()" style="width:100%">Fechar</button>
   </div>
 </div>
 
@@ -2600,6 +2665,14 @@ function detectarCat(t){
       }
     }
   }
+  // verificar categorias personalizadas
+  for(const c of (catsCustom||[])){
+    for(const p of (c.palavras||[])){
+      if(p&&n.includes(norm(p))) return{...c};
+    }
+    // nome da categoria como palavra-chave
+    if(n.includes(norm(c.label))) return{...c};
+  }
   return{key:'outros',...CATS.outros};
 }
 function detectarValor(t){
@@ -2865,6 +2938,7 @@ function renderHistorico(){
   }
   document.getElementById('history').innerHTML =[...lista].reverse().map(r=>histHTML(r,true)).join('')||
     '<div class="empty">'+( termoBusca?'Nenhum resultado para "'+termoBusca+'"'  :'Nenhum registro neste mês')+'</div>';
+  addSwipeListeners();
   renderSplitPanel();
 }
 function histHTML(r,del){
@@ -2877,7 +2951,7 @@ function histHTML(r,del){
   const cw=carteiras.length>1?carteiraById(r.carteiraId):null;
   const wBadge=cw?`<span style="font-size:9px;background:${cw.cor}20;color:${cw.cor};border-radius:4px;padding:1px 5px;margin-left:4px">${cw.icon} ${cw.nome}</span>`:'';
   const transferIcon=r.isTransferencia?'↕ ':'';
-  return`<div class="hist-item" onclick="abrirModal(${r.id})" title="Toque para editar">
+  return`<div class="hist-swipe-wrap" data-id="${r.id}"><div class="hist-swipe-del" onclick="event.stopPropagation();deletar(${r.id})">🗑</div><div class="hist-item" onclick="abrirModal(${r.id})" title="Toque para editar">
     <div style="flex:1;min-width:0">
       <div class="hist-desc-wrap">
         <span class="hist-desc">${transferIcon}${r.descricao}</span>${numBadge}${wBadge}
@@ -2893,7 +2967,7 @@ function histHTML(r,del){
         <span style="font-size:11px;color:#ddd">✏️</span>
       </div>
     </div>
-  </div>`;
+  </div></div>`;
 }
 function renderCategorias(){
   const gc={};
@@ -2973,6 +3047,7 @@ function abrirModal(id){
   const r = registros.find(x=>x.id===id);
   if(!r) return;
   editandoId = id;
+  preencherOpcoesCategoria();
   document.getElementById('edit-desc').value  = r.descricao;
   document.getElementById('edit-valor').value = r.valor;
   document.getElementById('edit-tipo').value  = r.tipo;
@@ -3001,7 +3076,7 @@ function salvarEdicao(){
   const idx = registros.findIndex(x=>x.id===editandoId);
   if(idx===-1) return;
   const catKey  = document.getElementById('edit-cat').value;
-  const cat     = CATS[catKey]||{key:catKey,label:catKey,badge:'bg-gray',cor:'#888'};
+  const cat     = CATS[catKey]||catsCustom.find(c=>c.key===catKey)||{key:catKey,label:catKey,badge:'bg-gray',cor:'#888'};
   const dataVal = document.getElementById('edit-data').value;
   registros[idx] = {
     ...registros[idx],
@@ -3117,6 +3192,7 @@ function renderConfig(){
   if(sc) sc.textContent = cats||0;
   if(smt)smt.textContent= Object.keys(metas).length;
   renderCarteirasCfg();
+  renderCfgCatsCustom();
   // notificações UI
   const perm=('Notification' in window)?Notification.permission:'unsupported';
   const notifAtivas=cfg.notifAtivas&&perm==='granted';
@@ -4104,9 +4180,10 @@ function renderSplitPanel(){
   // agrupar por pessoa
   const porPessoa={};
   divisoes.forEach(r=>{const p=r.divisao.pessoa;if(!porPessoa[p])porPessoa[p]=0;porPessoa[p]+=r.divisao.devem;});
-  lista.innerHTML=Object.entries(porPessoa).sort((a,b)=>b[1]-a[1]).map(([p,v])=>
-    `<div class="split-row"><span class="split-pessoa">👤 ${escapeHtml(p)}</span><span class="split-val">${fmt(v)}</span></div>`
-  ).join('');
+  lista.innerHTML=Object.entries(porPessoa).sort((a,b)=>b[1]-a[1]).map(([p,v])=>{
+    const msg=encodeURIComponent(`Olá ${p}! Você me deve ${v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} 💸 (via FinChat)`);
+    return`<div class="split-row"><span class="split-pessoa">👤 ${escapeHtml(p)}</span><span style="display:flex;align-items:center;gap:6px"><span class="split-val">${fmt(v)}</span><a href="https://wa.me/?text=${msg}" target="_blank" style="font-size:11px;background:#25D366;color:#fff;border-radius:8px;padding:2px 7px;text-decoration:none;font-weight:600">WhatsApp</a></span></div>`;
+  }).join('');
   panel.style.display='';
 }
 
@@ -4445,7 +4522,7 @@ function atualizarBottomNav(tab){
 }
 
 // ── DASHBOARD / GRÁFICOS ──────────────────────────────────────────────────────
-let chartLinha=null, chartPizza=null, chartBarras=null, chartComparativo=null;
+let chartLinha=null, chartPizza=null, chartBarras=null, chartComparativo=null, chartTendencia=null;
 
 const CORES_CAT = {
   alimentacao:'#E24B4A', saude:'#D4537E', transporte:'#EF9F27',
@@ -4495,6 +4572,7 @@ function renderDashboard(){
   renderChartPizza(regs);
   renderChartBarras();
   renderChartComparativo();
+  renderChartTendencia();
   calcularPossoGastar();
   renderPrevisaoMes();
   renderScoreFinanceiro();
@@ -4763,6 +4841,55 @@ function renderChartComparativo(){
       },
       scales:{
         x:{ticks:{font:{size:10},color:'#aaa'},grid:{display:false}},
+        y:{ticks:{font:{size:9},color:'#aaa',callback:v=>v===0?'0':'R$'+Math.round(v)},grid:{color:'#f0f0f0'}},
+      }
+    }
+  });
+}
+
+function renderChartTendencia(){
+  const ctx=document.getElementById('chart-tendencia');
+  if(!ctx||typeof Chart==='undefined')return;
+  const hoje=new Date();
+  let mAtual=mesFiltro,yrAtual=anoFiltro;
+  let mAnt=mAtual-1,yrAnt=yrAtual;
+  if(mAnt<0){mAnt=11;yrAnt--;}
+  const diasAtual=new Date(yrAtual,mAtual+1,0).getDate();
+  const diasAnt=new Date(yrAnt,mAnt+1,0).getDate();
+  const maxDias=Math.max(diasAtual,diasAnt);
+  const isCurrentMonth=mAtual===hoje.getMonth()&&yrAtual===hoje.getFullYear();
+  const diaCorte=isCurrentMonth?hoje.getDate():diasAtual;
+  const regsAtual=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===yrAtual&&d.getMonth()===mAtual&&r.tipo==='gasto';});
+  const regsAnt=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===yrAnt&&d.getMonth()===mAnt&&r.tipo==='gasto';});
+  const labels=[],dadosAtual=[],dadosAnt=[];
+  let cumAtual=0,cumAnt=0;
+  for(let d=1;d<=maxDias;d++){
+    labels.push(d);
+    cumAtual+=regsAtual.filter(r=>new Date(r.data).getDate()===d).reduce((s,r)=>s+r.valor,0);
+    cumAnt+=regsAnt.filter(r=>new Date(r.data).getDate()===d).reduce((s,r)=>s+r.valor,0);
+    dadosAtual.push(d<=diasAtual&&d<=diaCorte?cumAtual:null);
+    dadosAnt.push(d<=diasAnt?cumAnt:null);
+  }
+  const mesLabel=MESES_PTBR[mAtual].substring(0,3)+'/'+String(yrAtual).slice(2);
+  const antLabel=MESES_PTBR[mAnt].substring(0,3)+'/'+String(yrAnt).slice(2);
+  if(chartTendencia){chartTendencia.destroy();chartTendencia=null;}
+  chartTendencia=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:mesLabel,data:dadosAtual,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2,spanGaps:false},
+        {label:antLabel,data:dadosAnt,borderColor:'#bbb',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:0,borderWidth:1.5,borderDash:[4,3],spanGaps:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,padding:12}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${(c.raw||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`}}
+      },
+      scales:{
+        x:{ticks:{font:{size:9},color:'#aaa',maxTicksLimit:10},grid:{display:false}},
         y:{ticks:{font:{size:9},color:'#aaa',callback:v=>v===0?'0':'R$'+Math.round(v)},grid:{color:'#f0f0f0'}},
       }
     }
@@ -6078,6 +6205,120 @@ function fecharRelatorio(){
   if(m) m.style.display='none';
 }
 
+// ── CATEGORIAS PERSONALIZADAS ─────────────────────────────────────────────────
+const CUSTOM_CATS_KEY='finchat_cats_custom_v1';
+let catsCustom=[];
+function carregarCatsCustom(){try{const d=FinStorage.getItem(CUSTOM_CATS_KEY);if(d)return JSON.parse(d);}catch{}return[];}
+function salvarCatsCustom(){FinStorage.setItem(CUSTOM_CATS_KEY,JSON.stringify(catsCustom));}
+function renderCfgCatsCustom(){
+  const el=document.getElementById('cfg-custom-cats');if(!el)return;
+  if(!catsCustom.length){el.innerHTML='<div style="color:#aaa;font-size:12px;padding:4px 0">Nenhuma categoria personalizada</div>';return;}
+  el.innerHTML=catsCustom.map((c,i)=>`<div class="cfg-row" style="padding:8px 12px">
+    <span style="font-size:18px">${c.icon}</span>
+    <span style="flex:1;font-size:13px;font-weight:500;margin:0 8px">${escapeHtml(c.label)}</span>
+    ${c.palavras&&c.palavras.length?`<span style="font-size:11px;color:#aaa;flex:2">${c.palavras.join(', ')}</span>`:''}
+    <button onclick="excluirCatCustom(${i})" style="background:none;border:none;color:#E24B4A;cursor:pointer;font-size:15px;padding:2px 6px">🗑</button>
+  </div>`).join('');
+}
+function abrirModalCustomCat(){
+  document.getElementById('cc-icon').value='📁';
+  document.getElementById('cc-nome').value='';
+  document.getElementById('cc-palavras').value='';
+  document.getElementById('modal-custom-cat').style.display='flex';
+}
+function fecharModalCustomCat(){document.getElementById('modal-custom-cat').style.display='none';}
+function salvarCustomCat(){
+  const icon=document.getElementById('cc-icon').value.trim()||'📁';
+  const label=document.getElementById('cc-nome').value.trim();
+  if(!label){mostrarToast('Digite o nome da categoria');return;}
+  const slug=label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,20);
+  const key='custom_'+slug+'_'+Date.now();
+  const palavras=document.getElementById('cc-palavras').value.split(',').map(p=>p.trim().toLowerCase()).filter(Boolean);
+  catsCustom.push({key,label,icon,cor:'#888780',badge:'bg-gray',palavras});
+  salvarCatsCustom();
+  preencherOpcoesCategoria();
+  fecharModalCustomCat();
+  renderCfgCatsCustom();
+  mostrarToast(`✓ Categoria "${label}" criada`);
+}
+function excluirCatCustom(idx){
+  if(!confirm(`Excluir categoria "${catsCustom[idx].label}"?`))return;
+  catsCustom.splice(idx,1);
+  salvarCatsCustom();
+  preencherOpcoesCategoria();
+  renderCfgCatsCustom();
+}
+function preencherOpcoesCategoria(){
+  const sel=document.getElementById('edit-cat');if(!sel)return;
+  [...sel.options].filter(o=>o.value.startsWith('custom_')).forEach(o=>o.remove());
+  catsCustom.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.key;opt.textContent=`${c.icon} ${c.label}`;
+    sel.appendChild(opt);
+  });
+}
+
+// ── SWIPE TO DELETE ───────────────────────────────────────────────────────────
+function addSwipeListeners(){
+  document.querySelectorAll('.hist-swipe-wrap').forEach(wrap=>{
+    const item=wrap.querySelector('.hist-item');
+    if(!item||item._swipeBound)return;
+    item._swipeBound=true;
+    let sx=0,dx=0,active=false;
+    item.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;active=true;dx=0;item.classList.add('swiping');},{passive:true});
+    item.addEventListener('touchmove',e=>{
+      if(!active)return;
+      dx=e.touches[0].clientX-sx;
+      if(dx<0)item.style.transform=`translateX(${Math.max(dx,-76)}px)`;
+    },{passive:true});
+    item.addEventListener('touchend',()=>{
+      active=false;item.classList.remove('swiping');
+      if(dx<-50){item.style.transform='translateX(-76px)';}
+      else{item.style.transform='';}
+      dx=0;
+    });
+  });
+}
+
+// ── RESUMO SEMANAL AUTOMÁTICO ─────────────────────────────────────────────────
+function verificarResumoSemanal(){
+  const hoje=new Date();
+  if(hoje.getDay()!==0)return; // só domingo
+  const ini=new Date(hoje);ini.setDate(hoje.getDate()-6);ini.setHours(0,0,0,0);
+  const fim=new Date(hoje);fim.setHours(23,59,59,999);
+  const regs=registros.filter(r=>{const d=new Date(r.data);return d>=ini&&d<=fim;});
+  if(!regs.length)return;
+  const yr=hoje.getFullYear();
+  const doy=Math.floor((hoje-new Date(yr,0,0))/(1000*60*60*24));
+  const wk=Math.ceil(doy/7);
+  const chave=`finchat_resumo_sem_${yr}_${wk}`;
+  if(FinStorage.getItem(chave))return;
+  FinStorage.setItem(chave,'1');
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const gastos=regs.filter(r=>r.tipo==='gasto').reduce((s,r)=>s+r.valor,0);
+  if(!gastos)return;
+  const iniAnt=new Date(ini);iniAnt.setDate(ini.getDate()-7);
+  const fimAnt=new Date(ini);fimAnt.setDate(ini.getDate()-1);fimAnt.setHours(23,59,59,999);
+  const gastosAnt=registros.filter(r=>{const d=new Date(r.data);return d>=iniAnt&&d<=fimAnt&&r.tipo==='gasto';}).reduce((s,r)=>s+r.valor,0);
+  const fmtD2=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('resumo-sem-periodo').textContent=`${fmtD2(ini)} a ${fmtD2(fim)}`;
+  document.getElementById('resumo-sem-gas').textContent=fmt2(gastos);
+  const diffEl=document.getElementById('resumo-sem-diff');
+  if(gastosAnt>0){
+    const diff=gastos-gastosAnt;
+    const pct=Math.round(Math.abs(diff)/gastosAnt*100);
+    diffEl.textContent=(diff>0?'▲ ':'▼ ')+fmt2(Math.abs(diff))+` (${pct}%)`;
+    diffEl.style.color=diff>0?'#E24B4A':'#1D9E75';
+  } else {diffEl.textContent='— sem comparação';diffEl.style.color='#aaa';}
+  const porCat={};
+  regs.filter(r=>r.tipo==='gasto').forEach(r=>{const k=r.categoria.key;porCat[k]=(porCat[k]||0)+r.valor;});
+  const top=Object.entries(porCat).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const allCats={...Object.fromEntries(Object.entries(CATS).map(([k,v])=>[k,v])),...Object.fromEntries(catsCustom.map(c=>[c.key,c]))};
+  document.getElementById('resumo-sem-top').innerHTML='<b>Top categorias:</b><br>'+top.map(([k,v])=>`${allCats[k]?.icon||'📦'} ${allCats[k]?.label||k}: ${fmt2(v)}`).join('<br>');
+  document.getElementById('modal-resumo-semanal').style.display='flex';
+}
+function fecharResumoSemanal(){document.getElementById('modal-resumo-semanal').style.display='none';}
+
 if(registros.some(r=>!r.carteiraId)){
   registros=registros.map(r=>r.carteiraId?r:{...r,carteiraId:'geral'});
   salvar(registros);
@@ -6089,12 +6330,14 @@ carregarDarkMode();
 atualizarMesLabel();
 aplicarConfig(carregarConfig());
 objetivos=carregarObjetivos();
+catsCustom=carregarCatsCustom();
 renderAll();
 mostrarHome(); // começa na home limpa
 setTimeout(verificarOnboarding,800);
 setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 setTimeout(verificarRelatorioMensal,1500);
+setTimeout(verificarResumoSemanal,3000);
 registrarServiceWorker();
 driveHandleRedirect(); // processa token do OAuth2 redirect (se houver)
 driveUpdateUI();       // atualiza estado do Drive na tela de Config
