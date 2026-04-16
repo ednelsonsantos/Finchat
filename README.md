@@ -114,7 +114,7 @@ Cada tela tem um botão `←` para voltar à home.
 ### 💬 Chat financeiro local
 - Detecta automaticamente se é registro ou consulta
 - Consultas locais: *"quanto gastei essa semana?"*, *"resumo do mês"*, *"top categorias"*
-- Funciona 100% offline, sem necessidade de chave de API
+- Funciona 100% offline
 
 ### 🎯 Metas por categoria
 - Limites mensais com barra de progresso e alertas automáticos (80% e 100%)

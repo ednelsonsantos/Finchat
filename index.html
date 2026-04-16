@@ -96,6 +96,9 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 .metric .m-val{font-size:18px;font-weight:700}
 
 /* histórico */
+.hist-wallet-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.hwc{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #eee;cursor:pointer;color:#888;background:#f5f5f3;white-space:nowrap}
+.hwc.active{color:#fff;border-color:transparent}
 .hist-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .hf{font-size:12px;padding:4px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#888;background:#f5f5f3}
 .hf:hover,.hf.active{border-color:#1D9E75;color:#0F6E56;background:#E1F5EE}
@@ -334,6 +337,8 @@ body{padding:0;background:#f5f5f3}
 .rec-reg-btn:hover{background:#1D9E75;color:#fff}
 .rec-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:15px;padding:2px 5px}
 .rec-del-btn:hover{color:#E24B4A}
+.rec-edit-btn{background:none;border:none;cursor:pointer;color:#aaa;font-size:14px;padding:2px 5px}
+.rec-edit-btn:hover{color:#1D9E75}
 .rec-form{background:#f5f5f3;border:1px dashed #ddd;border-radius:12px;padding:14px 16px;margin-bottom:10px}
 .rec-form-title{font-size:12px;font-weight:600;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
 .rec-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -591,6 +596,8 @@ body{padding:0;background:#f5f5f3}
 .rec-reg-btn:hover{background:#1D9E75;color:#fff}
 .rec-del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:15px;padding:2px 5px}
 .rec-del-btn:hover{color:#E24B4A}
+.rec-edit-btn{background:none;border:none;cursor:pointer;color:#aaa;font-size:14px;padding:2px 5px}
+.rec-edit-btn:hover{color:#1D9E75}
 .rec-form{background:#f5f5f3;border:1px dashed #ddd;border-radius:12px;padding:14px 16px;margin-bottom:10px}
 .rec-form-title{font-size:12px;font-weight:600;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
 .rec-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -1783,6 +1790,7 @@ body.dark .hist-swipe-del{background:#C0392B}
           oninput="buscarHistorico(this.value)" autocomplete="off"/>
         <button class="hist-search-clear" id="hist-search-clear" onclick="limparBusca()">×</button>
       </div>
+      <div class="hist-wallet-chips" id="hist-wallet-chips"></div>
       <div class="hist-filters">
         <div class="hf active" onclick="setFiltro('todos')">Todos</div>
         <div class="hf" onclick="setFiltro('receita')">Receitas</div>
@@ -2215,6 +2223,9 @@ body.dark .hist-swipe-del{background:#C0392B}
     <div class="edit-field">
       <div class="edit-label">Emoji</div>
       <input id="cc-icon" class="edit-input" value="📁" maxlength="4" style="width:65px;text-align:center;font-size:22px"/>
+      <div id="cc-emoji-grid" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+        <!-- rendered by JS -->
+      </div>
     </div>
     <div class="edit-field">
       <div class="edit-label">Nome da categoria</div>
@@ -2227,6 +2238,63 @@ body.dark .hist-swipe-del{background:#C0392B}
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="fecharModalCustomCat()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarCustomCat()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de editar lançamento fixo -->
+<div id="rec-edit-modal" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharEditarRec()">
+  <div class="modal-box" style="max-width:340px">
+    <div class="modal-title" style="margin-bottom:14px">✏️ Editar lançamento fixo</div>
+    <input type="hidden" id="rec-edit-id"/>
+    <div class="edit-field">
+      <div class="edit-label">Descrição</div>
+      <input id="rec-edit-desc" class="edit-input" placeholder="Ex: Aluguel, Netflix..." maxlength="60"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Valor R$</div>
+      <input id="rec-edit-val" class="edit-input" type="number" min="0.01" step="0.01" inputmode="decimal"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Tipo</div>
+      <select id="rec-edit-tipo" class="edit-input">
+        <option value="gasto">💸 Gasto fixo</option>
+        <option value="receita">💰 Receita fixa</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Categoria</div>
+      <select id="rec-edit-cat" class="edit-input">
+        <option value="moradia">🏠 Moradia</option>
+        <option value="alimentacao">🛒 Alimentação</option>
+        <option value="saude">💊 Saúde</option>
+        <option value="transporte">🚗 Transporte</option>
+        <option value="lazer">🎬 Lazer</option>
+        <option value="educacao">📚 Educação</option>
+        <option value="pets">🐾 Pets</option>
+        <option value="vestuario">👕 Vestuário</option>
+        <option value="investimento">📈 Investimento</option>
+        <option value="salario">💼 Salário</option>
+        <option value="freela">💻 Renda extra</option>
+        <option value="servicos">🔧 Serviços</option>
+        <option value="outros">📦 Outros</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Dia do vencimento (1-31, opcional)</div>
+      <input id="rec-edit-dia" class="edit-input" type="number" min="1" max="31" inputmode="numeric" placeholder="Deixe vazio se sem dia fixo"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Frequência</div>
+      <select id="rec-edit-freq" class="edit-input">
+        <option value="mensal">Mensal</option>
+        <option value="semanal">Semanal</option>
+        <option value="anual">Anual</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharEditarRec()">Cancelar</button>
+      <button class="modal-btn-save" onclick="salvarEditarRec()">Salvar</button>
     </div>
   </div>
 </div>
@@ -2868,7 +2936,24 @@ function renderAll(){
 function renderResumo(){
   renderDashboard();
 }
+function renderHistWalletChips(){
+  const wrap = document.getElementById('hist-wallet-chips');
+  if(!wrap) return;
+  if(carteiras.length<=1){ wrap.innerHTML=''; return; }
+  const chips = [
+    `<div class="hwc${carteiraFiltro==='todas'?' active':''}" style="${carteiraFiltro==='todas'?'background:#1D9E75;color:#fff;border-color:#1D9E75':''}" onclick="setCarteiraFiltro('todas')">Todas</div>`,
+    ...carteiras.map(c=>{
+      const ativo = carteiraFiltro===c.id;
+      const bg = ativo?c.cor:'';
+      const style = ativo?`background:${c.cor};color:#fff;border-color:${c.cor}`:'';
+      return `<div class="hwc${ativo?' active':''}" style="${style}" onclick="setCarteiraFiltro('${c.id}')">${c.icon} ${c.nome}</div>`;
+    }),
+  ];
+  wrap.innerHTML = chips.join('');
+}
+
 function renderHistorico(){
+  renderHistWalletChips();
   const mesRegs = regsDoMesFiltro();
   let lista = filtro==='todos'?mesRegs:mesRegs.filter(r=>r.tipo===filtro);
   if(termoBusca){
@@ -4888,6 +4973,43 @@ function removerRecorrente(id){
   renderRecorrentes();
 }
 
+function abrirEditarRec(id){
+  const rec = recorrentes.find(r=>r.id===id);
+  if(!rec) return;
+  document.getElementById('rec-edit-id').value = id;
+  document.getElementById('rec-edit-desc').value = rec.desc;
+  document.getElementById('rec-edit-val').value = rec.val;
+  document.getElementById('rec-edit-tipo').value = rec.tipo;
+  document.getElementById('rec-edit-cat').value = rec.catKey;
+  document.getElementById('rec-edit-dia').value = rec.dia||'';
+  document.getElementById('rec-edit-freq').value = rec.freq||'mensal';
+  document.getElementById('rec-edit-modal').style.display='flex';
+}
+function fecharEditarRec(){
+  document.getElementById('rec-edit-modal').style.display='none';
+}
+function salvarEditarRec(){
+  const id = parseInt(document.getElementById('rec-edit-id').value);
+  const rec = recorrentes.find(r=>r.id===id);
+  if(!rec) return;
+  const desc = document.getElementById('rec-edit-desc').value.trim();
+  const val  = parseFloat(document.getElementById('rec-edit-val').value);
+  if(!desc){ alert('Informe a descrição.'); return; }
+  if(!val||val<=0){ alert('Informe o valor.'); return; }
+  const catKey = document.getElementById('rec-edit-cat').value;
+  const cat = CATS[catKey] || {key:catKey,label:catKey,badge:'bg-gray',cor:'#888'};
+  rec.desc  = desc;
+  rec.val   = val;
+  rec.tipo  = document.getElementById('rec-edit-tipo').value;
+  rec.catKey = catKey;
+  rec.categoria = {key:catKey, label:cat.label, badge:cat.badge, cor:cat.cor||'#888'};
+  rec.dia   = document.getElementById('rec-edit-dia').value||null;
+  rec.freq  = document.getElementById('rec-edit-freq').value;
+  salvarRecorrentes();
+  fecharEditarRec();
+  renderRecorrentes();
+}
+
 function registrarRecorrente(id){
   const rec = recorrentes.find(r=>r.id===id);
   if(!rec) return;
@@ -4969,6 +5091,7 @@ function renderRecorrentes(){
         <span class="rec-val" style="color:${corVal}">${sinal?'+':'-'} ${fmt2(rec.val)}</span>
         <div class="rec-actions">
           ${podeRegistrar?`<button class="rec-reg-btn" onclick="registrarRecorrente(${rec.id})">Registrar agora</button>`:''}
+          <button class="rec-edit-btn" onclick="abrirEditarRec(${rec.id})" title="Editar">✏️</button>
           <button class="rec-del-btn" onclick="removerRecorrente(${rec.id})" title="Remover">×</button>
         </div>
       </div>
@@ -5948,10 +6071,17 @@ function renderCfgCatsCustom(){
     <button onclick="excluirCatCustom(${i})" style="background:none;border:none;color:#E24B4A;cursor:pointer;font-size:15px;padding:2px 6px">🗑</button>
   </div>`).join('');
 }
+const CC_EMOJIS=['🏠','🛒','💊','🚗','🎬','📚','🐾','👕','📈','💼','💻','🔧','📦','🍕','☕','✈️','🏋️','💆','🎮','🎵','🌿','🛍️','⚽','🧹','💡','💈','🚿','📱','💳','🎁','🏦','🩺','🎨','🚌','🧃','🍷','🐶','🐱','🌎','🏖️','⛽','🧺','🧸','🎓','🏪','🍜','🥗','💉','🏡','🪴'];
+function renderCcEmojiGrid(){
+  const grid=document.getElementById('cc-emoji-grid');
+  if(!grid)return;
+  grid.innerHTML=CC_EMOJIS.map(e=>`<span onclick="document.getElementById('cc-icon').value='${e}'" style="font-size:20px;cursor:pointer;padding:3px;border-radius:6px;line-height:1;user-select:none" title="${e}">${e}</span>`).join('');
+}
 function abrirModalCustomCat(){
   document.getElementById('cc-icon').value='📁';
   document.getElementById('cc-nome').value='';
   document.getElementById('cc-palavras').value='';
+  renderCcEmojiGrid();
   document.getElementById('modal-custom-cat').style.display='flex';
 }
 function fecharModalCustomCat(){document.getElementById('modal-custom-cat').style.display='none';}

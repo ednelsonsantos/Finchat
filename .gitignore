@@ -1,9 +1,17 @@
 node_modules/
 dist-electron/
-android/
-ios/
-www/
+/android/
+/ios/
+/www/
 .DS_Store
 *.local
 
 .fake
+
+# PowerShell
+*.ps1
+*.psm1
+*.psd1
+*.ps1xml
+*.pssc
+*.cdxml
