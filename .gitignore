@@ -17,3 +17,19 @@ dist-electron/
 *.ps1xml
 *.pssc
 *.cdxml
+
+# Scripts utilitários locais
+generate-icons.js
+generate-keystore.ps1
+resize-icons.ps1
+resize-splash.ps1
+
+# Arquivos temporários / instruções
+INSTRUCAO_README.md
+
+# npm lock (sem CI/CD)
+package-lock.json
+
+# Assets duplicados na raiz
+iconefinchat.png
+logofinchat.png
