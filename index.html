@@ -895,6 +895,52 @@ body.dark #rel-destaques{color:#aaa}
 body.dark .previsao-card{background:#1e1e1e;border-color:#333}
 body.dark .previsao-val{color:#e8e8e6}
 
+/* ── MODO QUIOSQUE ──────────────────────────────────────────────── */
+#quiosque-overlay{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+body.dark #quiosque-overlay{background:#111}
+#quiosque-overlay .q-title{font-size:18px;font-weight:700;color:#1D9E75;letter-spacing:.02em}
+#quiosque-overlay .q-input-row{display:flex;gap:8px;width:100%;max-width:400px}
+#quiosque-overlay .q-inp{flex:1;padding:14px 16px;border-radius:24px;border:2px solid #1D9E75;font-size:16px;outline:none;background:#fff;color:#1a1a1a}
+body.dark #quiosque-overlay .q-inp{background:#1e1e1e;color:#e8e8e6;border-color:#1D9E75}
+#quiosque-overlay .q-btn{padding:14px 20px;border-radius:24px;background:#1D9E75;color:#fff;border:none;cursor:pointer;font-size:18px}
+#quiosque-overlay .q-result{width:100%;max-width:400px;font-size:13px;min-height:60px}
+#quiosque-overlay .q-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#aaa}
+.quiosque-fab{position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:#1D9E75;color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:500;display:flex;align-items:center;justify-content:center}
+.quiosque-fab:hover{background:#0F6E56}
+
+/* ── DESAFIO DE ECONOMIA ────────────────────────────────────────── */
+.desafio-section{background:#fff;border:1px solid #eee;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.desafio-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.desafio-title{font-size:13px;font-weight:700;color:#1a1a1a}
+.desafio-new-btn{font-size:12px;padding:4px 12px;border-radius:20px;background:#1D9E75;color:#fff;border:none;cursor:pointer;font-weight:500}
+.desafio-card{background:#f5f5f3;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.desafio-card:last-child{margin-bottom:0}
+.desafio-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.desafio-nome{font-size:13px;font-weight:600;color:#1a1a1a}
+.desafio-meta{font-size:12px;color:#888}
+.desafio-prog-track{height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin-bottom:4px}
+.desafio-prog-fill{height:100%;border-radius:4px;transition:width .4s}
+.desafio-prog-label{display:flex;justify-content:space-between;font-size:11px;color:#aaa}
+.desafio-badge-ok{background:#E1F5EE;color:#0F6E56;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.desafio-badge-fail{background:#FDECEA;color:#B71C1C;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.desafio-badge-on{background:#FFF8E1;color:#7B5F00;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.desafio-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;padding:0 2px}
+.desafio-del:hover{color:#E24B4A}
+body.dark .desafio-section{background:#1e1e1e;border-color:#333}
+body.dark .desafio-card{background:#2a2a2a}
+body.dark .desafio-nome{color:#e8e8e6}
+body.dark .desafio-prog-track{background:#3a3a3a}
+
+/* ── INSIGHTS ───────────────────────────────────────────────────── */
+.insight-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.insight-row:last-child{border-bottom:none;padding-bottom:0}
+.insight-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.insight-text{flex:1;line-height:1.4;color:#444}
+.insight-text strong{color:#1a1a1a}
+body.dark .insight-row{border-color:#2a2a2a}
+body.dark .insight-text{color:#ccc}
+body.dark .insight-text strong{color:#e8e8e6}
+
 /* ── BUSCA NO HISTÓRICO ─────────────────────────────────────────── */
 .hist-search-wrap{position:relative;margin-bottom:10px}
 .hist-search-wrap input{width:100%;padding:9px 14px 9px 36px;border-radius:20px;border:1px solid #ddd;font-size:13px;background:#f5f5f3;color:#1a1a1a;outline:none}
@@ -1767,6 +1813,12 @@ body.dark .hist-swipe-del{background:#C0392B}
       </div>
     </div>
 
+    <!-- Insights automáticos -->
+    <div id="card-insights" class="dash-card-full" style="display:none;margin-bottom:12px">
+      <div class="dash-title">💡 Insights do mês</div>
+      <div id="insights-lista"></div>
+    </div>
+
     <!-- Últimos registros -->
     <div class="dash-card-full" style="margin-bottom:0">
       <div class="dash-title">Últimos registros</div>
@@ -1846,6 +1898,16 @@ body.dark .hist-swipe-del{background:#C0392B}
     </div>
     <div style="height:10px"></div>
     <div class="meta-wrap" id="meta-lista"><div class="meta-empty">Nenhuma meta definida ainda.<br>Defina um limite mensal por categoria acima.</div></div>
+
+    <!-- Desafio de economia -->
+    <div style="height:14px"></div>
+    <div class="desafio-section">
+      <div class="desafio-header">
+        <span class="desafio-title">🏆 Desafio de economia</span>
+        <button class="desafio-new-btn" onclick="abrirNovoDesafio()">+ Novo</button>
+      </div>
+      <div id="desafio-lista"><div class="meta-empty" style="margin:0">Nenhum desafio ativo. Crie um para se motivar!</div></div>
+    </div>
   </div>
 
   <div id="tab-recorrentes" style="display:none">
@@ -1919,6 +1981,13 @@ body.dark .hist-swipe-del{background:#C0392B}
       <button class="obj-add-btn" onclick="adicionarObjetivo()">Criar objetivo</button>
     </div>
     <div class="obj-wrap" id="obj-lista"><div class="obj-empty">Nenhum objetivo criado ainda.<br>Defina uma meta de poupança acima — viagem, carro, reserva de emergência...</div></div>
+
+    <!-- Card de projeção de reserva de emergência -->
+    <div style="height:14px"></div>
+    <div id="card-reserva" class="dash-card-full">
+      <div class="dash-title">🛡️ Reserva de emergência</div>
+      <div id="reserva-content"></div>
+    </div>
   </div>
 
   <div id="tab-config" style="display:none">
@@ -1998,6 +2067,19 @@ body.dark .hist-swipe-del{background:#C0392B}
           <input type="checkbox" id="cfg-dark-mode" onchange="toggleDarkMode(this.checked)"/>
           <span class="cfg-toggle-slider"></span>
         </label>
+      </div>
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-row-label">Lembrete diário</div>
+          <div class="cfg-row-sub">Notificação para registrar gastos</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="cfg-input" id="cfg-lembrete-hora" type="time" value="21:00" style="width:90px" onchange="salvarLembrete()"/>
+          <label class="cfg-toggle" title="Ativar lembrete">
+            <input type="checkbox" id="cfg-lembrete-ativo" onchange="salvarLembrete()"/>
+            <span class="cfg-toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -2242,6 +2324,73 @@ body.dark .hist-swipe-del{background:#C0392B}
   </div>
 </div>
 
+<!-- Modal simulador de juros -->
+<div id="modal-simulador" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharSimulador()">
+  <div class="modal-box" style="max-width:360px">
+    <div class="modal-title" style="margin-bottom:14px">🧮 Simulador de Empréstimo</div>
+    <div class="edit-field">
+      <div class="edit-label">Valor total R$</div>
+      <input id="sim-total" class="edit-input" type="number" min="1" inputmode="decimal" placeholder="Ex: 5000" oninput="calcularSimulador()"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Número de parcelas</div>
+      <input id="sim-parcelas" class="edit-input" type="number" min="1" max="360" inputmode="numeric" placeholder="Ex: 12" oninput="calcularSimulador()"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Taxa de juros mensal (%)</div>
+      <input id="sim-taxa" class="edit-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ex: 2.5" oninput="calcularSimulador()"/>
+    </div>
+    <div id="sim-resultado" style="display:none;background:#f5f5f3;border-radius:12px;padding:12px 14px;margin-top:8px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:#888">Parcela mensal</span>
+        <strong id="sim-parcela-val" style="color:#E24B4A">—</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:#888">Total pago</span>
+        <strong id="sim-total-pago">—</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:#888">Juros totais</span>
+        <strong id="sim-juros-totais" style="color:#E24B4A">—</strong>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="modal-btn-cancel" onclick="fecharSimulador()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal novo desafio de economia -->
+<div id="modal-desafio" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharModalDesafio()">
+  <div class="modal-box" style="max-width:320px">
+    <div class="modal-title" style="margin-bottom:14px">🏆 Novo desafio</div>
+    <div class="edit-field">
+      <div class="edit-label">Nome do desafio</div>
+      <input id="desafio-nome-inp" class="edit-input" placeholder="Ex: Não comer fora em maio" maxlength="50"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Limite de gasto (R$)</div>
+      <input id="desafio-limite-inp" class="edit-input" type="number" min="1" inputmode="decimal" placeholder="Ex: 300"/>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Categoria (opcional)</div>
+      <select id="desafio-cat-inp" class="edit-input">
+        <option value="">Qualquer categoria</option>
+        <option value="alimentacao">🛒 Alimentação</option>
+        <option value="lazer">🎬 Lazer</option>
+        <option value="saude">💊 Saúde</option>
+        <option value="transporte">🚗 Transporte</option>
+        <option value="vestuario">👕 Vestuário</option>
+        <option value="outros">📦 Outros</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="fecharModalDesafio()">Cancelar</button>
+      <button class="modal-btn-save" onclick="salvarDesafio()">Criar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal de editar lançamento fixo -->
 <div id="rec-edit-modal" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharEditarRec()">
   <div class="modal-box" style="max-width:340px">
@@ -2298,6 +2447,19 @@ body.dark .hist-swipe-del{background:#C0392B}
     </div>
   </div>
 </div>
+
+<!-- Modo quiosque -->
+<div id="quiosque-overlay" style="display:none">
+  <button class="q-close" onclick="fecharQuiosque()" title="Fechar">×</button>
+  <div class="q-title">⚡ Registro rápido</div>
+  <div class="q-input-row">
+    <input id="q-inp" class="q-inp" type="text" placeholder="gasto 50 mercado..." autocomplete="off"
+      onkeydown="if(event.key==='Enter')enviarQuiosque()"/>
+    <button class="q-btn" onclick="enviarQuiosque()">→</button>
+  </div>
+  <div id="q-result" class="q-result"></div>
+</div>
+<button class="quiosque-fab" onclick="abrirQuiosque()" title="Registro rápido">⚡</button>
 
 <!-- Modal de resumo semanal -->
 <div id="modal-resumo-semanal" style="display:none" class="modal-overlay" onclick="if(event.target===this)fecharResumoSemanal()">
@@ -2686,6 +2848,17 @@ function detectarCat(t){
   }
   return{key:'outros',...CATS.outros};
 }
+function detectarParcelas(t){
+  const n=norm(t);
+  // "em 6x", "6x", "em 6 parcelas", "parcelado em 6", "12 vezes"
+  let m;
+  m=n.match(/\bem\s+(\d+)\s*x\b/); if(m) return parseInt(m[1]);
+  m=n.match(/\b(\d+)\s*x\b/);      if(m&&parseInt(m[1])>1&&parseInt(m[1])<=48) return parseInt(m[1]);
+  m=n.match(/\bem\s+(\d+)\s+parcela/); if(m) return parseInt(m[1]);
+  m=n.match(/\b(\d+)\s+(?:parcelas?|vezes?)\b/); if(m&&parseInt(m[1])>1) return parseInt(m[1]);
+  m=n.match(/parcelad[oa]\s+em\s+(\d+)/); if(m) return parseInt(m[1]);
+  return 1;
+}
 function detectarValor(t){
   const n=norm(t);
 
@@ -2837,8 +3010,10 @@ function atualizarParser(texto){
   if(prof&&prof.ambiguo&&!tipoFinal){document.getElementById('result').innerHTML ='<div class="placeholder-msg" style="color:#888">Escolha acima se pagou ou recebeu por este serviço.</div>';btn.disabled=true;resultadoAtual=null;return;}
   // bloquear entradas sem contexto: nem tipo nem categoria foram identificados
   if(!tipoExplicito&&!catDetectada){document.getElementById('result').innerHTML ='<div class="error-box">Não entendi. Tente: <b>"gastei 200 mercado"</b> ou <b>"recebi 3000 salário"</b>.</div>';btn.disabled=true;resultadoAtual=null;return;}
+  const parcelas=detectarParcelas(texto);
+  const valorParcela=parcelas>1?Math.round((valor/parcelas)*100)/100:valor;
   const cColor=conf>=80?'#1D9E75':conf>=50?'#EF9F27':'#E24B4A',sinal=tipoFinal==='receita';
-  resultadoAtual={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:conf,tags};
+  resultadoAtual={id:novoId(),tipo:tipoFinal,valor:valorParcela,valorTotal:parcelas>1?valor:null,parcelas,categoria:catFinal,descricao:desc,data,confianca:conf,tags};
   // preview do número que será atribuído
   let numPreview='';
   if(tipoFinal==='gasto'){
@@ -2847,9 +3022,13 @@ function atualizarParser(texto){
     const cores=corBadgeNum(catFinal.key);
     numPreview=`<span class="cat-num" style="background:${cores.bg};color:${cores.txt}">#${proximo}</span>`;
   }
+  const parcelaInfo=parcelas>1
+    ?`<div class="field-row"><span class="field-key">Parcelas</span><span class="field-val" style="color:#EF9F27;font-weight:600">💳 ${parcelas}× de ${fmt(valorParcela)} <span style="color:#aaa;font-size:11px">(total ${fmt(valor)})</span></span></div>`
+    :'';
   document.getElementById('result').innerHTML =`
     <div class="field-row"><span class="field-key">Tipo</span><span class="badge ${sinal?'bg-green':'bg-red'}">${sinal?'Receita':'Gasto'}</span></div>
-    <div class="field-row"><span class="field-key">Valor</span><span class="field-val" style="color:${sinal?'#1D9E75':'#E24B4A'}">${sinal?'+':'−'} ${fmt(valor)}</span></div>
+    <div class="field-row"><span class="field-key">Valor</span><span class="field-val" style="color:${sinal?'#1D9E75':'#E24B4A'}">${sinal?'+':'−'} ${fmt(parcelas>1?valor:valorParcela)}</span></div>
+    ${parcelaInfo}
     <div class="field-row"><span class="field-key">Categoria</span><span class="field-val" style="display:flex;align-items:center;gap:6px"><span class="badge ${catFinal.badge}">${catFinal.label}</span>${numPreview}</span></div>
     <div class="field-row"><span class="field-key">Descrição</span><span class="field-val">${desc}</span></div>
     <div class="field-row"><span class="field-key">Data</span><span class="field-val">${fmtD(data)}</span></div>
@@ -2861,12 +3040,43 @@ function atualizarParser(texto){
 // REGISTRAR
 function registrar(){
   if(!resultadoAtual)return;
+  const n=resultadoAtual.parcelas||1;
+  if(n>1){
+    // criar uma entrada por parcela, deslocando o mês
+    const baseData=new Date(resultadoAtual.data);
+    for(let i=0;i<n;i++){
+      const d=new Date(baseData.getFullYear(),baseData.getMonth()+i,baseData.getDate());
+      const entry={
+        ...resultadoAtual,
+        id:novoId(),
+        data:d.toISOString().split('T')[0],
+        descricao:`${resultadoAtual.descricao} (${i+1}/${n})`,
+        parcelaNum:i+1, parcelaTotal:n,
+        carteiraId:carteiraAtiva,
+      };
+      delete entry.parcelas; delete entry.valorTotal;
+      registros.push(entry);
+      if(i===0) _ultimoRegistroId=entry.id; // undo remove só a 1ª por simplicidade
+    }
+    salvar(registros);
+    renderAll();
+    checarAlertasMetas({...resultadoAtual,carteiraId:carteiraAtiva});
+    document.getElementById('inp').value='';
+    document.getElementById('hint-box').style.display='none';
+    document.getElementById('result').innerHTML='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
+    document.getElementById('btn').disabled=true;
+    resultadoAtual=null;intentForçado=null;profAtual=null;
+    mostrarUndoToast(`✓ ${n} parcelas de ${fmt(registros[registros.length-n].valor)} registradas`);
+    return;
+  }
   const novoReg = {...resultadoAtual, carteiraId: carteiraAtiva};
+  delete novoReg.parcelas; delete novoReg.valorTotal;
   registros.push(novoReg);
   salvar(registros);
   renderAll();
   checarAlertasMetas(novoReg);
   checarLimiteCarteira(novoReg);
+  checarPadraoIncomum(novoReg);
   document.getElementById('inp').value='';
   document.getElementById('hint-box').style.display='none';
   document.getElementById('result').innerHTML ='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
@@ -3151,6 +3361,41 @@ function carregarConfig(){
     if(r) return JSON.parse(r);
   }catch{}
   return {nome:'', moeda:'BRL', diaInicio:1, alertas:true, confirmarDel:true, desde: new Date().toISOString()};
+}
+
+// ── LEMBRETE DIÁRIO ──────────────────────────────────────────────────────────
+const LEMBRETE_KEY='finchat_lembrete_v1';
+function salvarLembrete(){
+  const ativo=document.getElementById('cfg-lembrete-ativo')?.checked||false;
+  const hora=document.getElementById('cfg-lembrete-hora')?.value||'21:00';
+  FinStorage.setItem(LEMBRETE_KEY,JSON.stringify({ativo,hora}));
+  if(ativo) agendarLembrete(hora);
+}
+function carregarLembrete(){try{const d=FinStorage.getItem(LEMBRETE_KEY);if(d)return JSON.parse(d);}catch{}return{ativo:false,hora:'21:00'};}
+function agendarLembrete(hora){
+  if(!('Notification' in window))return;
+  if(Notification.permission!=='granted'){Notification.requestPermission().then(p=>{if(p==='granted')agendarLembrete(hora);});return;}
+  const [h,m]=hora.split(':').map(Number);
+  const agora=new Date();
+  const alvo=new Date(agora.getFullYear(),agora.getMonth(),agora.getDate(),h,m,0,0);
+  if(alvo<=agora) alvo.setDate(alvo.getDate()+1);
+  const ms=alvo-agora;
+  clearTimeout(window._lembreteTimer);
+  window._lembreteTimer=setTimeout(()=>{
+    const chave=`finchat_lembrete_${new Date().toISOString().slice(0,10)}`;
+    if(FinStorage.getItem(chave))return;
+    FinStorage.setItem(chave,'1');
+    try{new Notification('💬 FinChat',{body:'Boa noite! Não esqueça de registrar seus gastos de hoje.',icon:'icon.png'});}catch{}
+    agendarLembrete(hora); // reagendar para amanhã
+  },ms);
+}
+function inicializarLembrete(){
+  const cfg=carregarLembrete();
+  const el=document.getElementById('cfg-lembrete-ativo');
+  const elH=document.getElementById('cfg-lembrete-hora');
+  if(el) el.checked=cfg.ativo;
+  if(elH) elH.value=cfg.hora;
+  if(cfg.ativo) agendarLembrete(cfg.hora);
 }
 
 function salvarConfig(){
@@ -3777,6 +4022,7 @@ const _renderConfigOrig = typeof renderConfig==='function' ? renderConfig : null
 function renderConfig(){
   if(_renderConfigOrig) _renderConfigOrig();
   driveUpdateUI();
+  inicializarLembrete();
   // PIN / Bio status
   const pinBtn  = document.getElementById('cfg-pin-btn');
   const pinSub  = document.getElementById('cfg-pin-sub');
@@ -4089,11 +4335,63 @@ Atual: ${fmt(obj.atual)} de ${fmt(obj.meta)}`));
   salvarObjetivos(); renderObjetivos();
 }
 
+function renderReservaEmergencia(){
+  const el=document.getElementById('reserva-content');
+  if(!el)return;
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  // calcular média de gastos nos últimos 3 meses
+  const hoje=new Date();
+  const ini3=new Date(hoje.getFullYear(),hoje.getMonth()-3,1);
+  const gastos3=registros.filter(r=>r.tipo==='gasto'&&new Date(r.data)>=ini3);
+  if(gastos3.length<3){
+    el.innerHTML='<div style="color:#aaa;font-size:13px">Adicione pelo menos 3 meses de gastos para calcular sua reserva ideal.</div>';
+    return;
+  }
+  const totalGas3=gastos3.reduce((a,r)=>a+r.valor,0);
+  const mediaMensal=totalGas3/3;
+  const reserva3=mediaMensal*3;
+  const reserva6=mediaMensal*6;
+  const reserva12=mediaMensal*12;
+  // verificar se já tem objetivo de reserva
+  const objReserva=objetivos.find(o=>/(reserva|emergencia|emergência)/i.test(o.nome));
+  const acumulado=objReserva?objReserva.atual:0;
+  const pct3=Math.min(Math.round(acumulado/reserva3*100),100);
+  const pct6=Math.min(Math.round(acumulado/reserva6*100),100);
+  const cor=pct6>=100?'#1D9E75':pct6>=50?'#EF9F27':'#E24B4A';
+  el.innerHTML=`
+    <div style="font-size:13px;color:#555;margin-bottom:10px">Baseado na sua média de gastos dos últimos 3 meses: <strong style="color:#1a1a1a">${fmt2(Math.round(mediaMensal))}/mês</strong></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:#f5f5f3;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#aaa;margin-bottom:4px">3 MESES</div>
+        <div style="font-size:14px;font-weight:700;color:#1a1a1a">${fmt2(Math.round(reserva3))}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">mínima</div>
+      </div>
+      <div style="background:#f5f5f3;border-radius:8px;padding:10px;text-align:center;border:2px solid #1D9E75">
+        <div style="font-size:10px;color:#1D9E75;margin-bottom:4px">6 MESES</div>
+        <div style="font-size:14px;font-weight:700;color:#1D9E75">${fmt2(Math.round(reserva6))}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">recomendada</div>
+      </div>
+      <div style="background:#f5f5f3;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#aaa;margin-bottom:4px">12 MESES</div>
+        <div style="font-size:14px;font-weight:700;color:#1a1a1a">${fmt2(Math.round(reserva12))}</div>
+        <div style="font-size:10px;color:#888;margin-top:2px">ideal</div>
+      </div>
+    </div>
+    ${acumulado>0?`
+    <div style="font-size:12px;color:#555;margin-bottom:6px">Seu progresso (objetivo "<strong>${objReserva.nome}</strong>"): <strong style="color:${cor}">${pct6}% da reserva de 6 meses</strong></div>
+    <div style="height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden">
+      <div style="height:100%;background:${cor};border-radius:4px;width:${pct6}%;transition:width .4s"></div>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-top:4px">${fmt2(acumulado)} acumulados · faltam ${fmt2(Math.max(0,Math.round(reserva6-acumulado)))}</div>
+    `:`<div style="font-size:12px;color:#888">💡 Crie um objetivo chamado "Reserva de emergência" acima para acompanhar seu progresso aqui.</div>`}`;
+}
+
 function renderObjetivos(){
   const lista=document.getElementById('obj-lista');
   if(!lista) return;
   if(!objetivos.length){
     lista.innerHTML='<div class="obj-empty">Nenhum objetivo criado ainda.<br>Defina uma meta de poupança acima — viagem, carro, reserva de emergência...</div>';
+    renderReservaEmergencia();
     return;
   }
   const hoje=new Date();
@@ -4142,6 +4440,7 @@ function renderObjetivos(){
       ${!done?`<button class="obj-aport-btn" onclick="aportarObjetivo(${obj.id})">+ Adicionar aporte</button>`:''}
     </div>`;
   }).join('');
+  renderReservaEmergencia();
 }
 
 
@@ -4405,6 +4704,7 @@ function renderDashboard(){
   calcularPossoGastar();
   renderPrevisaoMes();
   renderScoreFinanceiro();
+  renderInsights(regs);
 }
 
 function renderScoreFinanceiro(){
@@ -4468,6 +4768,66 @@ function renderScoreFinanceiro(){
     <span class="score-bar-pts">${fmt1(b.pts)}/${b.max}</span>
   </div>`).join('');
   card.style.display='flex';
+}
+
+const DIAS_SEMANA=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function renderInsights(regs){
+  const card=document.getElementById('card-insights');
+  const lista=document.getElementById('insights-lista');
+  if(!card||!lista)return;
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const gastos=regs.filter(r=>r.tipo==='gasto');
+  const insights=[];
+
+  // 1. Dia da semana mais caro
+  if(gastos.length>=5){
+    const porDia=[0,0,0,0,0,0,0];
+    const contDia=[0,0,0,0,0,0,0];
+    gastos.forEach(r=>{const d=new Date(r.data).getDay();porDia[d]+=r.valor;contDia[d]++;});
+    const maxDia=porDia.indexOf(Math.max(...porDia));
+    if(porDia[maxDia]>0){
+      insights.push({icon:'📅',text:`Seu dia mais caro é <strong>${DIAS_SEMANA[maxDia]}</strong> — total de <strong>${fmt2(porDia[maxDia])}</strong> em ${contDia[maxDia]} gasto(s) este mês.`});
+    }
+  }
+
+  // 2. Comparativo de categoria vs mês anterior
+  const hoje=new Date();
+  let mA=hoje.getMonth()-1,yA=hoje.getFullYear();
+  if(mA<0){mA=11;yA--;}
+  const regsAnt=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===yA&&d.getMonth()===mA&&r.tipo==='gasto';});
+  if(gastos.length>=3&&regsAnt.length>=3){
+    const porCatAtual={},porCatAnt={};
+    gastos.forEach(r=>{porCatAtual[r.categoria.label]=(porCatAtual[r.categoria.label]||0)+r.valor;});
+    regsAnt.forEach(r=>{porCatAnt[r.categoria.label]=(porCatAnt[r.categoria.label]||0)+r.valor;});
+    let maiorDelta=0,maiorCat='',maiorAtu=0,maiorPct=0;
+    Object.entries(porCatAtual).forEach(([cat,v])=>{
+      if(porCatAnt[cat]&&porCatAnt[cat]>0){
+        const pct=Math.round((v-porCatAnt[cat])/porCatAnt[cat]*100);
+        if(pct>maiorPct&&v>50){maiorPct=pct;maiorCat=cat;maiorAtu=v;}
+      }
+    });
+    if(maiorPct>=30)
+      insights.push({icon:'📈',text:`<strong>${maiorCat}</strong> subiu <strong>${maiorPct}%</strong> em relação ao mês anterior (${fmt2(maiorAtu)} este mês).`});
+  }
+
+  // 3. Maior gasto único
+  if(gastos.length>=3){
+    const maior=gastos.reduce((a,r)=>r.valor>a.valor?r:a,gastos[0]);
+    const media=gastos.reduce((a,r)=>a+r.valor,0)/gastos.length;
+    if(maior.valor>media*3)
+      insights.push({icon:'💸',text:`Seu maior gasto foi <strong>${maior.descricao}</strong> (${fmt2(maior.valor)}) — ${Math.round(maior.valor/media)}× acima da sua média de ${fmt2(Math.round(media))}.`});
+  }
+
+  // 4. Frequência de registro
+  if(gastos.length>=10){
+    const diasComGasto=new Set(gastos.map(r=>new Date(r.data).getDay())).size;
+    if(diasComGasto<=3)
+      insights.push({icon:'⚠️',text:`Você registrou gastos em apenas <strong>${diasComGasto} dias da semana</strong>. Pode haver gastos não registrados nos demais dias.`});
+  }
+
+  if(!insights.length){card.style.display='none';return;}
+  lista.innerHTML=insights.map(i=>`<div class="insight-row"><span class="insight-icon">${i.icon}</span><span class="insight-text">${i.text}</span></div>`).join('');
+  card.style.display='block';
 }
 
 function renderPrevisaoMes(){
@@ -4757,6 +5117,71 @@ function gastoMesCategoria(catKey){
     .reduce((a,r)=>a+r.valor,0);
 }
 
+// ── DESAFIO DE ECONOMIA ───────────────────────────────────────────────────────
+const DESAFIO_KEY='finchat_desafios_v1';
+let desafios=[];
+function carregarDesafios(){try{const d=FinStorage.getItem(DESAFIO_KEY);if(d)return JSON.parse(d);}catch{}return[];}
+function salvarDesafios(){FinStorage.setItem(DESAFIO_KEY,JSON.stringify(desafios));}
+function abrirNovoDesafio(){
+  document.getElementById('desafio-nome-inp').value='';
+  document.getElementById('desafio-limite-inp').value='';
+  document.getElementById('desafio-cat-inp').value='';
+  document.getElementById('modal-desafio').style.display='flex';
+}
+function fecharModalDesafio(){document.getElementById('modal-desafio').style.display='none';}
+function salvarDesafio(){
+  const nome=document.getElementById('desafio-nome-inp').value.trim();
+  const limite=parseFloat(document.getElementById('desafio-limite-inp').value);
+  if(!nome){mostrarToast('Digite o nome do desafio');return;}
+  if(!limite||limite<=0){mostrarToast('Informe o limite');return;}
+  const cat=document.getElementById('desafio-cat-inp').value||null;
+  const hoje=new Date();
+  desafios.push({
+    id:Date.now(), nome, limite, cat,
+    mes:hoje.getMonth(), ano:hoje.getFullYear(),
+  });
+  salvarDesafios();
+  fecharModalDesafio();
+  renderDesafios();
+}
+function removerDesafio(id){
+  desafios=desafios.filter(d=>d.id!==id);
+  salvarDesafios();
+  renderDesafios();
+}
+function renderDesafios(){
+  const el=document.getElementById('desafio-lista');
+  if(!el)return;
+  if(!desafios.length){el.innerHTML='<div class="meta-empty" style="margin:0">Nenhum desafio ativo. Crie um para se motivar!</div>';return;}
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const hoje=new Date();
+  el.innerHTML=desafios.map(d=>{
+    const gastosMes=registros.filter(r=>{
+      const rd=new Date(r.data);
+      return r.tipo==='gasto'&&rd.getMonth()===d.mes&&rd.getFullYear()===d.ano&&
+        (!d.cat||(r.categoria&&r.categoria.key===d.cat));
+    });
+    const gasto=gastosMes.reduce((a,r)=>a+r.valor,0);
+    const pct=Math.min(Math.round(gasto/d.limite*100),100);
+    const ok=gasto<=d.limite;
+    const mesPassado=hoje.getMonth()!==d.mes||hoje.getFullYear()!==d.ano;
+    const cor=ok?'#1D9E75':'#E24B4A';
+    const badge=mesPassado?(ok?'<span class="desafio-badge-ok">✅ Concluído!</span>':'<span class="desafio-badge-fail">❌ Não atingido</span>')
+      :(ok?'<span class="desafio-badge-on">🔥 Em andamento</span>':'<span class="desafio-badge-fail">⚠️ Limite ultrapassado</span>');
+    return`<div class="desafio-card">
+      <div class="desafio-card-top">
+        <span class="desafio-nome">${escapeHtml(d.nome)}</span>
+        <div style="display:flex;align-items:center;gap:6px">${badge}<button class="desafio-del" onclick="removerDesafio(${d.id})">×</button></div>
+      </div>
+      <div class="desafio-prog-track"><div class="desafio-prog-fill" style="width:${pct}%;background:${cor}"></div></div>
+      <div class="desafio-prog-label">
+        <span>${fmt2(gasto)} gastos</span>
+        <span>limite: ${fmt2(d.limite)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function adicionarMeta(){
   const catKey = document.getElementById('meta-cat').value;
   const limite = parseFloat(document.getElementById('meta-val').value);
@@ -4787,6 +5212,7 @@ function preencherSelectMeta(){
 }
 function renderMetas(){
   preencherSelectMeta();
+  renderDesafios();
   const lista = document.getElementById('meta-lista');
   const entries = Object.entries(metas);
   if(!entries.length){
@@ -4882,6 +5308,26 @@ function checarAlertasMetas(registro){
     tipo='warn';
   }
   if(titulo){ mostrarNotifMeta(titulo, sub, tipo); chatAlerta(`${titulo} ${sub}`); }
+}
+
+function checarPadraoIncomum(registro){
+  if(registro.tipo!=='gasto'||registro.valor<=0)return;
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const catKey=registro.categoria.key;
+  // pegar últimos 3 meses de gastos na mesma categoria
+  const hoje=new Date();
+  const ini=new Date(hoje.getFullYear(),hoje.getMonth()-3,1);
+  const historico=registros.filter(r=>
+    r.tipo==='gasto'&&r.categoria.key===catKey&&
+    new Date(r.data)>=ini&&r.id!==registro.id
+  );
+  if(historico.length<5)return; // poucos dados para comparar
+  const media=historico.reduce((a,r)=>a+r.valor,0)/historico.length;
+  const multiplo=registro.valor/media;
+  if(multiplo>=3){
+    const label=registro.categoria.label;
+    chatAlerta(`⚠️ Esse gasto em <b>${label}</b> (${fmt2(registro.valor)}) é ${Math.round(multiplo)}× acima da sua média de ${fmt2(Math.round(media))} para essa categoria.`);
+  }
 }
 
 function mostrarNotifMeta(titulo, sub, tipo){
@@ -5751,7 +6197,8 @@ function eConsulta(texto){
     'meta','orcamento','orçamento','objetivo','poupan','economiz',
     'fixo','recorrente','vencimento','compara','anterior','diferenca','diferença',
     'saude','saúde','situacao','situação','posso gastar','bem financ','mal financ',
-    'ano','passado','financeiramente'
+    'ano','passado','financeiramente',
+    'simular','simulador','emprestimo','empréstimo','financiamento','parcela','juros'
   ];
   const temNum = /\d/.test(texto);
   if(temNum && detectarValor(texto)) return false; // tem valor -> provavelmente registro
@@ -5874,6 +6321,19 @@ function responderConsulta(texto){
     const tot=filtCat.reduce((a,r)=>a+r.valor,0);
     const rows=filtCat.slice(-5).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
     return `<b>Gastos em ${cat.label} (${pStr}):</b> ${fmt2(tot)}<br><table class="resp-table">${rows}</table>${filtCat.length>5?`<br><small style="color:#aaa">... e mais ${filtCat.length-5} registro(s)</small>`:''}`;
+  }
+
+  // ── SIMULADOR DE JUROS ──────────────────────────────────────────────────────
+  if(n.includes('simul')||n.includes('emprestimo')||n.includes('financiamento')||(n.includes('juros')&&n.includes('parcela'))){
+    // tenta extrair valores do texto: "simular empréstimo 5000 em 12x a 2.5%"
+    const valM=texto.match(/(\d[\d.,]*)\s*(?:reais|r\$)?/i);
+    const parM=texto.match(/(\d+)\s*[xX×]|(\d+)\s*parcelas?/i);
+    const taxM=texto.match(/(\d+[\d.,]*)\s*%/i);
+    const total=valM?parseFloat(valM[1].replace(',','.')):null;
+    const nPar=parM?(parseInt(parM[1]||parM[2])):null;
+    const taxa=taxM?parseFloat(taxM[1].replace(',','.')):null;
+    setTimeout(()=>abrirSimulador(total,nPar,taxa),300);
+    return '🧮 Abrindo simulador de empréstimo...';
   }
 
   if(!regs.length) return `Nenhum registro encontrado ${pStr}. 😕`;
@@ -6085,6 +6545,70 @@ function abrirModalCustomCat(){
   document.getElementById('modal-custom-cat').style.display='flex';
 }
 function fecharModalCustomCat(){document.getElementById('modal-custom-cat').style.display='none';}
+
+// ── MODO QUIOSQUE ────────────────────────────────────────────────────────────
+function abrirQuiosque(){
+  document.getElementById('q-inp').value='';
+  document.getElementById('q-result').innerHTML='';
+  document.getElementById('quiosque-overlay').style.display='flex';
+  setTimeout(()=>document.getElementById('q-inp').focus(),100);
+}
+function fecharQuiosque(){document.getElementById('quiosque-overlay').style.display='none';}
+function enviarQuiosque(){
+  const inp=document.getElementById('q-inp');
+  const res=document.getElementById('q-result');
+  const texto=inp.value.trim();
+  if(!texto)return;
+  const prof=detectarProf(texto),tipoTexto=detectarTipoTexto(texto),valor=detectarValor(texto),data=detectarData(texto),desc=extrairDesc(texto),tags=extrairTags(texto);
+  let catFinal,tipoFinal;
+  if(prof){catFinal={key:norm(prof.cat),label:prof.cat,badge:prof.badge,cor:prof.cor||'#888'};tipoFinal=tipoTexto||prof.tipo;}
+  else{catFinal=detectarCat(texto);tipoFinal=tipoTexto||(catFinal.key==='salario'||catFinal.key==='freela'?'receita':'gasto');}
+  const tipoExplicito=!!(tipoTexto||(prof&&prof.tipo));
+  const catDetectada=!!(prof||(catFinal&&catFinal.key!=='outros'));
+  if(!valor||(!tipoExplicito&&!catDetectada)){
+    res.innerHTML=`<div style="color:#E24B4A;font-size:13px;text-align:center">Não entendi. Tente: "gasto 50 mercado"</div>`;
+    return;
+  }
+  const reg={id:novoId(),tipo:tipoFinal,valor,categoria:catFinal,descricao:desc,data,confianca:80,tags,carteiraId:carteiraAtiva};
+  registros.push(reg);salvar(registros);renderAll();
+  checarAlertasMetas(reg);checarPadraoIncomum(reg);
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const sinal=tipoFinal==='receita';
+  res.innerHTML=`<div style="color:${sinal?'#1D9E75':'#E24B4A'};font-size:15px;font-weight:600;text-align:center">✓ ${sinal?'+':'-'} ${fmt2(valor)} em ${catFinal.label}</div><div style="color:#aaa;font-size:12px;text-align:center;margin-top:4px">${desc}</div>`;
+  inp.value='';
+  setTimeout(()=>inp.focus(),50);
+}
+
+// ── SIMULADOR DE JUROS ──────────────────────────────────────────────────────
+function abrirSimulador(total,parcelas,taxa){
+  document.getElementById('sim-total').value=total||'';
+  document.getElementById('sim-parcelas').value=parcelas||'';
+  document.getElementById('sim-taxa').value=taxa||'';
+  document.getElementById('sim-resultado').style.display='none';
+  document.getElementById('modal-simulador').style.display='flex';
+  if(total&&parcelas&&taxa) calcularSimulador();
+}
+function fecharSimulador(){document.getElementById('modal-simulador').style.display='none';}
+function calcularSimulador(){
+  const fmt2=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const P=parseFloat(document.getElementById('sim-total').value)||0;
+  const n=parseInt(document.getElementById('sim-parcelas').value)||0;
+  const iMes=(parseFloat(document.getElementById('sim-taxa').value)||0)/100;
+  const res=document.getElementById('sim-resultado');
+  if(!P||!n){res.style.display='none';return;}
+  let parcMensal;
+  if(iMes===0){
+    parcMensal=P/n;
+  } else {
+    parcMensal=P*(iMes*Math.pow(1+iMes,n))/(Math.pow(1+iMes,n)-1);
+  }
+  const totalPago=parcMensal*n;
+  const jurosTotais=totalPago-P;
+  document.getElementById('sim-parcela-val').textContent=fmt2(parcMensal);
+  document.getElementById('sim-total-pago').textContent=fmt2(totalPago);
+  document.getElementById('sim-juros-totais').textContent=fmt2(jurosTotais);
+  res.style.display='block';
+}
 function salvarCustomCat(){
   const icon=document.getElementById('cc-icon').value.trim()||'📁';
   const label=document.getElementById('cc-nome').value.trim();
@@ -6218,6 +6742,7 @@ if(registros.some(r=>!r.carteiraId)){
 }
 metas=carregarMetas();
 recorrentes=carregarRecorrentes();
+desafios=carregarDesafios();
 gerarManifest();
 carregarDarkMode();
 atualizarMesLabel();

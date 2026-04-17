@@ -380,11 +380,27 @@ No Android Studio: **Run ▶** para emulador ou **Build → Build Bundle/APK** p
 - [x] Capacitor — APK Android
 - [x] Electron — app desktop
 
-### Próximas melhorias
+### Implementado recentemente ✅
 
-- [ ] Busca por voz (Web Speech API)
-- [ ] Alertas de limite no chat ao registrar
-- [ ] Categorias personalizadas com ícone selecionável
+- [x] Busca por voz (Web Speech API)
+- [x] Alertas de limite no chat ao registrar
+- [x] Categorias personalizadas com emoji picker
+- [x] Editar lançamentos fixos
+- [x] Filtro por carteira no histórico
+
+### Implementado recentemente ✅ (2ª leva)
+
+- [x] Parcelamento automático ("comprei tênis 600 em 6x")
+- [x] Insights automáticos no dashboard (dia mais caro, maior gasto, comparativo meses)
+- [x] Alerta de padrão incomum ao registrar
+- [x] Simulador de juros / empréstimo (modal + comando no chat)
+- [x] Desafio de economia (gamificação na aba Metas)
+- [x] Modo quiosque ⚡ (botão flutuante para registro rápido sem sair da tela)
+- [x] Lembrete diário por horário (Config → toggle + seletor de hora)
+- [x] Projeção de reserva de emergência (aba Objetivos)
+
+### Próximas melhorias 🚧
+
 - [ ] Exportar relatório em imagem para redes sociais
 
 ---
