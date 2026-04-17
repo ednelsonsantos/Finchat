@@ -1972,9 +1972,9 @@ body.dark .hist-swipe-del{background:#C0392B}
       <div class="obj-form-title">Novo objetivo de poupança</div>
       <div class="obj-form-grid">
         <input id="obj-nome" type="text" placeholder="Nome do objetivo (ex: Viagem, Carro...)"/>
-        <input id="obj-meta" type="number" placeholder="Valor total R$" min="1" step="1" inputmode="decimal"/>
-        <input id="obj-inicial" type="number" placeholder="Já tenho R$ (opcional)" min="0" step="0.01" inputmode="decimal"/>
-        <input id="obj-prazo" type="month" title="Prazo para atingir"/>
+        <input id="obj-meta" type="number" placeholder="Valor total R$" min="1" step="1" inputmode="numeric" pattern="[0-9]*"/>
+        <input id="obj-inicial" type="number" placeholder="Já tenho R$ (opcional)" min="0" step="1" inputmode="numeric" pattern="[0-9]*"/>
+        <input id="obj-prazo" type="number" placeholder="Prazo em dias (ex: 365 = 1 ano)" min="1" step="1" inputmode="numeric" pattern="[0-9]*"/>
         <input id="obj-icon-inp" type="text" placeholder="Emoji (ex: ✈️ 🏠 🚗)" maxlength="4"/>
         <select id="obj-cor">
           <option value="verde">🟢 Verde</option>
@@ -4312,7 +4312,13 @@ function adicionarObjetivo(){
   const nome   = document.getElementById('obj-nome').value.trim();
   const meta   = parseFloat(document.getElementById('obj-meta').value)||0;
   const atual  = parseFloat(document.getElementById('obj-inicial').value)||0;
-  const prazo  = document.getElementById('obj-prazo').value;
+  const prazoDias = parseInt(document.getElementById('obj-prazo').value)||0;
+  // converte dias em string "YYYY-MM" para compatibilidade com o renderizador
+  let prazo = '';
+  if(prazoDias>0){
+    const d=new Date(); d.setDate(d.getDate()+prazoDias);
+    prazo=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
   const icon   = document.getElementById('obj-icon-inp').value.trim()||'⭐';
   const cor    = document.getElementById('obj-cor').value||'verde';
 
@@ -4414,12 +4420,17 @@ function renderObjetivos(){
     let prazoTxt='', aporteTxt='', badgeClass='on-track', badgeTxt='';
     if(obj.prazo){
       const [py,pm]=obj.prazo.split('-').map(Number);
+      const alvo=new Date(py,pm-1,1);
+      const diasR=Math.round((alvo-hoje)/(1000*60*60*24));
       const mesesR=(py-hoje.getFullYear())*12+(pm-1-hoje.getMonth());
-      if(mesesR<=0){ prazoTxt='Prazo encerrado'; badgeClass='warn'; }
+      if(diasR<=0){ prazoTxt='Prazo encerrado'; badgeClass='warn'; }
       else{
-        const aporte=resto/mesesR;
-        prazoTxt=`${mesesR} mes${mesesR!==1?'es':''} restante${mesesR!==1?'s':''}`;
-        aporteTxt=` · poupar ${fmt(aporte)}/mês`;
+        if(diasR<60) prazoTxt=`${diasR} dia${diasR!==1?'s':''} restante${diasR!==1?'s':''}`;
+        else prazoTxt=`${mesesR} mes${mesesR!==1?'es':''} restante${mesesR!==1?'s':''}`;
+        if(mesesR>0){
+          const aporte=resto/mesesR;
+          aporteTxt=` · poupar ${fmt(aporte)}/mês`;
+        }
       }
     }
     if(done){ badgeClass='done'; badgeTxt='🎉 Objetivo atingido!'; }
