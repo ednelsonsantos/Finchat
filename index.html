@@ -1463,6 +1463,38 @@ body.dark .home-greeting{color:#666}
 .hist-swipe-wrap .hist-item.swiping{transition:none}
 body.dark .hist-swipe-del{background:#C0392B}
 
+/* ── HUMOR (mood) ──────────────────────────────────────────── */
+#modal-humor{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:9000}
+.humor-box{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;text-align:center}
+body.dark .humor-box{background:#1a2e26}
+.humor-title{font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:16px}
+body.dark .humor-title{color:#e8e8e6}
+.humor-sub{font-size:13px;color:#888;margin-bottom:20px}
+.humor-emojis{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.humor-btn{font-size:32px;background:none;border:2px solid transparent;border-radius:50%;width:56px;height:56px;cursor:pointer;transition:border-color .15s,transform .15s}
+.humor-btn:hover{border-color:#1D9E75;transform:scale(1.1)}
+.humor-skip{margin-top:16px;font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline}
+
+/* ── DIETA FINANCEIRA ──────────────────────────────────────── */
+.dieta-alert{background:#FEF3C7;border:1px solid #F59E0B;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#92400E;margin-bottom:8px}
+body.dark .dieta-alert{background:#2d2200;border-color:#b45309;color:#fcd34d}
+.dieta-badge{display:inline-block;background:#F59E0B;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700}
+.dieta-ok{background:#ECFDF5;border-color:#1D9E75;color:#065F46}
+body.dark .dieta-ok{background:#0d2e1f;border-color:#1D9E75;color:#6ee7b7}
+.dieta-badge-ok{background:#1D9E75}
+
+/* ── COMPARATIVO MÊS A MÊS ─────────────────────────────────── */
+.comp-selectors{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.comp-sel{flex:1;min-width:120px;padding:6px 10px;border-radius:20px;border:1px solid #ddd;font-size:13px;background:#f5f5f3;color:#1a1a1a;outline:none}
+body.dark .comp-sel{background:#1a2e26;border-color:#2d4a3a;color:#e8e8e6}
+.comp-table{width:100%;border-collapse:collapse;font-size:13px}
+.comp-table th{text-align:left;color:#888;font-weight:500;padding:4px 0;border-bottom:1px solid #eee}
+body.dark .comp-table th{border-color:#2d4a3a}
+.comp-table td{padding:6px 0;color:#1a1a1a;border-bottom:1px solid #f0f0f0}
+body.dark .comp-table td{color:#e8e8e6;border-color:#1e3a2a}
+.comp-diff-pos{color:#1D9E75;font-weight:600}
+.comp-diff-neg{color:#E24B4A;font-weight:600}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
@@ -1827,6 +1859,30 @@ body.dark .hist-swipe-del{background:#C0392B}
       </div>
     </div>
 
+    <!-- Saldo diário -->
+    <div class="dash-card-full">
+      <div class="dash-title">📈 Evolução do saldo — mês atual</div>
+      <div class="dash-canvas-wrap" style="height:160px">
+        <canvas id="chart-saldo-diario"></canvas>
+      </div>
+    </div>
+
+    <!-- Comparativo mês a mês -->
+    <div class="dash-card-full" id="card-comp-mes">
+      <div class="dash-title">⚖️ Comparativo mês a mês</div>
+      <div class="comp-selectors">
+        <select class="comp-sel" id="comp-mes-a" onchange="renderComparativoMes()"></select>
+        <select class="comp-sel" id="comp-mes-b" onchange="renderComparativoMes()"></select>
+      </div>
+      <div id="comp-mes-resultado"></div>
+    </div>
+
+    <!-- Dieta financeira -->
+    <div id="card-dieta" class="dash-card-full" style="display:none">
+      <div class="dash-title">🥗 Dieta financeira hoje</div>
+      <div id="dieta-status"></div>
+    </div>
+
     <!-- Insights automáticos -->
     <div id="card-insights" class="dash-card-full" style="display:none;margin-bottom:12px">
       <div class="dash-title">💡 Insights do mês</div>
@@ -2051,6 +2107,23 @@ body.dark .hist-swipe-del{background:#C0392B}
           <div class="cfg-row-sub">Para relatórios e metas</div>
         </div>
         <input class="cfg-input" id="cfg-dia-inicio" type="number" min="1" max="28" value="1" style="width:70px" onchange="salvarConfig()" inputmode="numeric"/>
+      </div>
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-row-label">🥗 Dieta financeira diária</div>
+          <div class="cfg-row-sub">Teto de gastos por dia (0 = desativado)</div>
+        </div>
+        <input class="cfg-input" id="cfg-teto-diario" type="number" min="0" step="10" value="0" style="width:90px" onchange="salvarConfig()" inputmode="numeric" placeholder="R$ 0"/>
+      </div>
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-row-label">😊 Rastrear humor</div>
+          <div class="cfg-row-sub">Perguntar como você está ao registrar</div>
+        </div>
+        <label class="cfg-toggle">
+          <input type="checkbox" id="cfg-humor-ativo" onchange="salvarConfig()"/>
+          <span class="cfg-toggle-slider"></span>
+        </label>
       </div>
       <div class="cfg-row">
         <div>
@@ -2335,6 +2408,23 @@ body.dark .hist-swipe-del{background:#C0392B}
       <button class="modal-btn-cancel" onclick="fecharModalCustomCat()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarCustomCat()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal humor (mood tracker) -->
+<div id="modal-humor" onclick="if(event.target===this)fecharHumor()">
+  <div class="humor-box">
+    <div class="humor-title">Como você está agora?</div>
+    <div class="humor-sub">Registre seu humor para descobrir padrões de gasto</div>
+    <div class="humor-emojis">
+      <button class="humor-btn" onclick="salvarHumor('😄','Feliz')" title="Feliz">😄</button>
+      <button class="humor-btn" onclick="salvarHumor('😊','Bem')" title="Bem">😊</button>
+      <button class="humor-btn" onclick="salvarHumor('😐','Neutro')" title="Neutro">😐</button>
+      <button class="humor-btn" onclick="salvarHumor('😔','Triste')" title="Triste">😔</button>
+      <button class="humor-btn" onclick="salvarHumor('😤','Estressado')" title="Estressado">😤</button>
+      <button class="humor-btn" onclick="salvarHumor('😴','Cansado')" title="Cansado">😴</button>
+    </div>
+    <div class="humor-skip" onclick="fecharHumor()">Pular</div>
   </div>
 </div>
 
@@ -3095,6 +3185,8 @@ function registrar(){
   checarAlertasMetas(novoReg);
   checarLimiteCarteira(novoReg);
   checarPadraoIncomum(novoReg);
+  checarDietaDiaria(novoReg);
+  verificarPadraoRecorrente(novoReg);
   document.getElementById('inp').value='';
   document.getElementById('hint-box').style.display='none';
   document.getElementById('result').innerHTML ='<div class="placeholder-msg">✓ Registrado! Digite o próximo...</div>';
@@ -3102,6 +3194,9 @@ function registrar(){
   _ultimoRegistroId=novoReg.id;
   resultadoAtual=null;intentForçado=null;profAtual=null;
   mostrarUndoToast(`✓ ${novoReg.tipo==='receita'?'Receita':'Gasto'} de ${fmt(novoReg.valor)} salvo`);
+  // Mood tracker
+  const cfg=carregarConfig();
+  if(cfg.humorAtivo && novoReg.tipo==='gasto') setTimeout(()=>abrirHumor(novoReg.id),800);
 }
 function mostrarUndoToast(msg){
   const el=document.getElementById('undo-toast');
@@ -3430,6 +3525,8 @@ function salvarConfig(){
     notifLembrete:    document.getElementById('cfg-notif-lembrete')?.checked||false,
     driveAuto:        document.getElementById('cfg-drive-auto')?.checked||false,
     desde:            carregarConfig().desde || new Date().toISOString(),
+    tetoDiario:       parseFloat(document.getElementById('cfg-teto-diario')?.value)||0,
+    humorAtivo:       document.getElementById('cfg-humor-ativo')?.checked||false,
   };
   FinStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   aplicarConfig(cfg);
@@ -3467,6 +3564,10 @@ function renderConfig(){
   if(cd) cd.checked = cfg.confirmarDel!==false;
   const dm=document.getElementById('cfg-dark-mode');
   if(dm) dm.checked=document.body.classList.contains('dark');
+  const td=document.getElementById('cfg-teto-diario');
+  if(td) td.value=cfg.tetoDiario||0;
+  const ha=document.getElementById('cfg-humor-ativo');
+  if(ha) ha.checked=cfg.humorAtivo||false;
   aplicarConfig(cfg);
 
   // Estatísticas
@@ -4734,6 +4835,9 @@ function renderDashboard(){
   renderPrevisaoMes();
   renderScoreFinanceiro();
   renderInsights(regs);
+  renderChartSaldoDiario(regs);
+  renderComparativoMes();
+  renderDietaDiaria();
 }
 
 function renderScoreFinanceiro(){
@@ -4852,6 +4956,15 @@ function renderInsights(regs){
     const diasComGasto=new Set(gastos.map(r=>new Date(r.data).getDay())).size;
     if(diasComGasto<=3)
       insights.push({icon:'⚠️',text:`Você registrou gastos em apenas <strong>${diasComGasto} dias da semana</strong>. Pode haver gastos não registrados nos demais dias.`});
+  }
+
+  // 5. Humor mais gastador
+  const comHumor=registros.filter(r=>r.humor&&r.tipo==='gasto');
+  if(comHumor.length>=5){
+    const porH={};
+    comHumor.forEach(r=>{const h=r.humor.label;if(!porH[h])porH[h]={total:0,n:0,emoji:r.humor.emoji};porH[h].total+=r.valor;porH[h].n++;});
+    const top=Object.entries(porH).sort((a,b)=>b[1].total/b[1].n-a[1].total/a[1].n)[0];
+    if(top) insights.push({icon:top[1].emoji,text:`Você gasta mais quando está <strong>${top[0]}</strong> — média de <strong>${fmt2(Math.round(top[1].total/top[1].n))}</strong> por gasto.`});
   }
 
   if(!insights.length){card.style.display='none';return;}
@@ -5871,6 +5984,198 @@ async function exportarImagem(){
   },'image/png');
 }
 
+// ── K: GRÁFICO DE SALDO DIÁRIO ────────────────────────────────────────────────
+function renderChartSaldoDiario(regs){
+  const canvas=document.getElementById('chart-saldo-diario');
+  if(!canvas) return;
+  const hoje=new Date();
+  const ano=hoje.getFullYear(), mes=hoje.getMonth();
+  const diasNoMes=new Date(ano,mes+1,0).getDate();
+  const diasAte=Math.min(hoje.getDate(), diasNoMes);
+
+  let saldoAcc=0;
+  const labels=[], dados=[];
+  for(let d=1;d<=diasAte;d++){
+    const iso=`${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dodia=regs.filter(r=>r.data===iso);
+    dodia.forEach(r=>{ saldoAcc += r.tipo==='receita'?r.valor:-r.valor; });
+    labels.push(d);
+    dados.push(parseFloat(saldoAcc.toFixed(2)));
+  }
+
+  const dark=document.body.classList.contains('dark');
+  const cor=saldoAcc>=0?'#1D9E75':'#E24B4A';
+  const ctx=canvas.getContext('2d');
+  if(canvas._chartInst) canvas._chartInst.destroy();
+  canvas._chartInst=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{label:'Saldo acumulado',data:dados,borderColor:cor,backgroundColor:cor+'22',fill:true,tension:.35,pointRadius:2,pointHoverRadius:5}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'R$ '+c.raw.toLocaleString('pt-BR',{minimumFractionDigits:2})}}},
+      scales:{
+        x:{ticks:{color:dark?'#aaa':'#666',font:{size:10}},grid:{color:dark?'#2a3a2a':'#f0f0ee'}},
+        y:{ticks:{color:dark?'#aaa':'#666',font:{size:10},callback:v=>'R$ '+v.toLocaleString('pt-BR')},grid:{color:dark?'#2a3a2a':'#f0f0ee'}}
+      }
+    }
+  });
+}
+
+// ── O: COMPARATIVO MÊS A MÊS ─────────────────────────────────────────────────
+function inicializarComparativoMes(){
+  const selA=document.getElementById('comp-mes-a');
+  const selB=document.getElementById('comp-mes-b');
+  if(!selA||!selB) return;
+  const meses=[];
+  const hoje=new Date();
+  for(let i=0;i<12;i++){
+    const d=new Date(hoje.getFullYear(), hoje.getMonth()-i, 1);
+    meses.push({ano:d.getFullYear(), mes:d.getMonth(), label:d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})});
+  }
+  const opts=meses.map((m,i)=>`<option value="${m.ano}-${m.mes}">${m.label}</option>`).join('');
+  selA.innerHTML=opts;
+  selB.innerHTML=opts;
+  if(meses.length>1) selB.selectedIndex=1;
+  renderComparativoMes();
+}
+function renderComparativoMes(){
+  const selA=document.getElementById('comp-mes-a');
+  const selB=document.getElementById('comp-mes-b');
+  const res=document.getElementById('comp-mes-resultado');
+  if(!selA||!selB||!res) return;
+  const parse=v=>{const[a,m]=v.split('-').map(Number);return{ano:a,mes:m};};
+  const ma=parse(selA.value), mb=parse(selB.value);
+  const regsA=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===ma.ano&&d.getMonth()===ma.mes;});
+  const regsB=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===mb.ano&&d.getMonth()===mb.mes;});
+  const calc=regs=>({
+    rec:regs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0),
+    gas:regs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0),
+    n:regs.length
+  });
+  const A=calc(regsA), B=calc(regsB);
+  const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const diff=(a,b)=>{const d=a-b;const cls=d>0?'comp-diff-neg':'comp-diff-pos';const seta=d>0?'↑':'↓';return `<span class="${cls}">${seta} ${fmt(Math.abs(d))}</span>`;};
+  res.innerHTML=`<table class="comp-table">
+    <tr><th></th><th>${selA.options[selA.selectedIndex].text.split(' ')[0]}</th><th>${selB.options[selB.selectedIndex].text.split(' ')[0]}</th><th>Diferença</th></tr>
+    <tr><td>Receitas</td><td style="color:#1D9E75">${fmt(A.rec)}</td><td style="color:#1D9E75">${fmt(B.rec)}</td><td>${diff(A.rec,B.rec)}</td></tr>
+    <tr><td>Gastos</td><td style="color:#E24B4A">${fmt(A.gas)}</td><td style="color:#E24B4A">${fmt(B.gas)}</td><td>${diff(A.gas,B.gas)}</td></tr>
+    <tr><td><b>Saldo</b></td><td style="color:${A.rec-A.gas>=0?'#1D9E75':'#E24B4A'}">${fmt(A.rec-A.gas)}</td><td style="color:${B.rec-B.gas>=0?'#1D9E75':'#E24B4A'}">${fmt(B.rec-B.gas)}</td><td>${diff(A.rec-A.gas,B.rec-B.gas)}</td></tr>
+    <tr><td style="color:#888;font-size:12px">Registros</td><td style="color:#888;font-size:12px">${A.n}</td><td style="color:#888;font-size:12px">${B.n}</td><td></td></tr>
+  </table>`;
+}
+
+// ── L: DIETA FINANCEIRA DIÁRIA ────────────────────────────────────────────────
+function renderDietaDiaria(){
+  const card=document.getElementById('card-dieta');
+  const status=document.getElementById('dieta-status');
+  if(!card||!status) return;
+  const cfg=carregarConfig();
+  const teto=cfg.tetoDiario||0;
+  if(!teto){ card.style.display='none'; return; }
+  card.style.display='block';
+  const hoje=new Date().toISOString().split('T')[0];
+  const gastosHoje=registros.filter(r=>r.tipo==='gasto'&&r.data===hoje).reduce((a,r)=>a+r.valor,0);
+  const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const pct=Math.min(Math.round(gastosHoje/teto*100),100);
+  const ok=gastosHoje<=teto;
+  const cor=ok?'#1D9E75':'#E24B4A';
+  const resto=Math.max(teto-gastosHoje,0);
+  status.innerHTML=`<div class="${ok?'dieta-alert dieta-ok':'dieta-alert'}">
+    <span style="font-size:22px">${ok?'✅':'⚠️'}</span>
+    <div>
+      <div><b>${fmt(gastosHoje)}</b> gastos hoje de <b>${fmt(teto)}</b> (${pct}%)</div>
+      <div style="font-size:12px;margin-top:2px">${ok?`Você ainda pode gastar ${fmt(resto)} hoje`:'Limite diário ultrapassado!'}</div>
+      <div style="margin-top:8px;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${cor};transition:width .4s"></div></div>
+    </div>
+  </div>`;
+}
+function checarDietaDiaria(registro){
+  if(registro.tipo!=='gasto') return;
+  const cfg=carregarConfig();
+  const teto=cfg.tetoDiario||0;
+  if(!teto) return;
+  const hoje=registro.data;
+  const totalHoje=registros.filter(r=>r.tipo==='gasto'&&r.data===hoje).reduce((a,r)=>a+r.valor,0);
+  if(totalHoje>=teto){
+    const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    mostrarToast(`⚠️ Limite diário de ${fmt(teto)} ultrapassado!`);
+  }
+}
+
+// ── S: RASTREAMENTO DE HUMOR ──────────────────────────────────────────────────
+let _humorRegistroId=null;
+function abrirHumor(registroId){
+  _humorRegistroId=registroId;
+  document.getElementById('modal-humor').style.display='flex';
+}
+function fecharHumor(){
+  document.getElementById('modal-humor').style.display='none';
+  _humorRegistroId=null;
+}
+function salvarHumor(emoji, label){
+  if(_humorRegistroId){
+    const reg=registros.find(r=>r.id===_humorRegistroId);
+    if(reg){ reg.humor={emoji,label}; salvar(registros); }
+  }
+  fecharHumor();
+  mostrarToast(`${emoji} Humor registrado`);
+}
+
+// ── N: SUGESTÃO DE FIXO AUTOMÁTICO ───────────────────────────────────────────
+function verificarPadraoRecorrente(novoReg){
+  if(novoReg.tipo!=='gasto') return;
+  const hoje=new Date(novoReg.data);
+  const mesesAnteriores=[1,2,3].map(i=>{
+    const d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);
+    return {ano:d.getFullYear(),mes:d.getMonth()};
+  });
+  const descNorm=norm(novoReg.descricao.replace(/\s*\(\d+\/\d+\)\s*$/,'').trim());
+  const matches=mesesAnteriores.filter(({ano,mes})=>{
+    return registros.some(r=>{
+      const d=new Date(r.data);
+      return r.tipo==='gasto' && d.getFullYear()===ano && d.getMonth()===mes
+        && norm(r.descricao).includes(descNorm.slice(0,6));
+    });
+  });
+  if(matches.length>=2){
+    const jaFixo=recorrentes.some(r=>norm(r.descricao).includes(descNorm.slice(0,6)));
+    if(!jaFixo){
+      setTimeout(()=>{
+        mostrarToastAcao(
+          `📅 "${novoReg.descricao}" aparece todo mês. Cadastrar como fixo?`,
+          'Cadastrar',
+          ()=>sugerirFixo(novoReg)
+        );
+      },1500);
+    }
+  }
+}
+function sugerirFixo(reg){
+  setTab('recorrentes');
+  setTimeout(()=>{
+    const di=document.getElementById('rec-desc'); if(di) di.value=reg.descricao;
+    const vi=document.getElementById('rec-val');  if(vi) vi.value=reg.valor;
+    const da=new Date(reg.data);
+    const dd=document.getElementById('rec-dia');  if(dd) dd.value=da.getDate();
+    mostrarToast('📋 Preencha os detalhes e salve o fixo');
+  },300);
+}
+function mostrarToastAcao(msg, btnLabel, fn){
+  const el=document.getElementById('undo-toast');
+  const msgEl=document.getElementById('undo-msg');
+  if(!el||!msgEl) return;
+  msgEl.textContent=msg;
+  const btnEl=el.querySelector('[onclick="desfazerRegistro()"]');
+  if(btnEl){ btnEl.textContent=btnLabel; btnEl.onclick=fn; }
+  el.style.display='flex';
+  clearTimeout(_undoTimer);
+  _undoTimer=setTimeout(()=>{
+    el.style.display='none';
+    const b=el.querySelector('button');
+    if(b){b.textContent='Desfazer';b.onclick=desfazerRegistro;}
+  },6000);
+}
+
 async function compartilharRelatorio(){
   const regs = getFiltradosPorPeriodo();
   if(!regs.length){ mostrarToast('Nenhum registro no período'); return; }
@@ -6329,7 +6634,9 @@ function eConsulta(texto){
     'fixo','recorrente','vencimento','compara','anterior','diferenca','diferença',
     'saude','saúde','situacao','situação','posso gastar','bem financ','mal financ',
     'ano','passado','financeiramente',
-    'simular','simulador','emprestimo','empréstimo','financiamento','parcela','juros'
+    'simular','simulador','emprestimo','empréstimo','financiamento','parcela','juros',
+    'humor','mood','emocao','emoção','dieta','teto','limite diario',
+    'janeiro','fevereiro','marco','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'
   ];
   const temNum = /\d/.test(texto);
   if(temNum && detectarValor(texto)) return false; // tem valor -> provavelmente registro
@@ -6345,9 +6652,18 @@ function responderConsulta(texto){
   const mesPassadoFim=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),0,23,59,59);};
   const anoIni=()=>new Date(new Date().getFullYear(),0,1);
 
-  // período
+  // período — detecta nome de mês específico
+  const NOMES_MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const mesMenc=NOMES_MESES.findIndex(m=>n.includes(m));
   let periodo='mes', filtroData;
-  if(n.includes('hoje'))                                         {periodo='hoje';   filtroData=r=>isoParaDate(r.data)>=hoje;}
+  if(mesMenc>=0){
+    const anoMenc=n.match(/\b(20\d{2})\b/);
+    const yrAlvo=anoMenc?parseInt(anoMenc[1]):new Date().getFullYear();
+    const ini=new Date(yrAlvo,mesMenc,1), fim=new Date(yrAlvo,mesMenc+1,0,23,59,59);
+    periodo=NOMES_MESES[mesMenc];
+    filtroData=r=>{const d=isoParaDate(r.data);return d>=ini&&d<=fim;};
+  }
+  else if(n.includes('hoje'))                                    {periodo='hoje';   filtroData=r=>isoParaDate(r.data)>=hoje;}
   else if(n.includes('semana'))                                  {periodo='semana'; filtroData=r=>isoParaDate(r.data)>=semana;}
   else if(n.includes('passado')||n.includes('anterior'))         {periodo='passado';filtroData=r=>{const d=isoParaDate(r.data);return d>=mesPassadoIni()&&d<=mesPassadoFim();};}
   else if(n.includes('ano'))                                     {periodo='ano';    filtroData=r=>isoParaDate(r.data)>=anoIni();}
@@ -6452,6 +6768,32 @@ function responderConsulta(texto){
     const tot=filtCat.reduce((a,r)=>a+r.valor,0);
     const rows=filtCat.slice(-5).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
     return `<b>Gastos em ${cat.label} (${pStr}):</b> ${fmt2(tot)}<br><table class="resp-table">${rows}</table>${filtCat.length>5?`<br><small style="color:#aaa">... e mais ${filtCat.length-5} registro(s)</small>`:''}`;
+  }
+
+  // ── DIETA FINANCEIRA ─────────────────────────────────────────────────────────
+  if(n.includes('dieta')||n.includes('teto diario')||n.includes('limite diario')){
+    const cfg=carregarConfig();
+    const teto=cfg.tetoDiario||0;
+    if(!teto) return 'Você não tem dieta financeira configurada. Vá em <b>⚙️ Config</b> e defina um teto diário.';
+    const fmtD=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    const hj=new Date().toISOString().split('T')[0];
+    const gastosHoje=registros.filter(r=>r.tipo==='gasto'&&r.data===hj).reduce((a,r)=>a+r.valor,0);
+    const pct=Math.round(gastosHoje/teto*100);
+    const ok=gastosHoje<=teto;
+    return `<b>🥗 Dieta financeira — hoje:</b><br><br>${ok?'✅ Dentro do limite':'⚠️ Limite ultrapassado'}<br><table class="resp-table"><tr><td style="color:#666">Teto diário</td><td>${fmtD(teto)}</td></tr><tr><td style="color:#666">Gasto hoje</td><td style="color:${ok?'#1D9E75':'#E24B4A'}">${fmtD(gastosHoje)} (${pct}%)</td></tr><tr class="sep"><td style="color:#666">Disponível</td><td style="color:#1D9E75">${fmtD(Math.max(teto-gastosHoje,0))}</td></tr></table>`;
+  }
+
+  // ── HUMOR / PADRÃO ────────────────────────────────────────────────────────
+  if(n.includes('humor')||n.includes('mood')||n.includes('emocao')||n.includes('emocão')){
+    const comHumor=registros.filter(r=>r.humor);
+    if(!comHumor.length) return 'Nenhum registro com humor ainda. Ative o rastreamento de humor em <b>⚙️ Config</b>.';
+    const por={};
+    comHumor.forEach(r=>{const h=r.humor.label;if(!por[h])por[h]={total:0,count:0,emoji:r.humor.emoji};por[h].total+=r.valor;por[h].count++;});
+    const sorted=Object.entries(por).sort((a,b)=>b[1].total-a[1].total);
+    const fmtH=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    const rows=sorted.map(([h,v])=>`<tr><td>${v.emoji} ${h}</td><td style="color:#E24B4A">${fmtH(v.total)}</td><td style="color:#888">${v.count}x</td></tr>`).join('');
+    const top=sorted[0];
+    return `<b>😊 Humor × gastos:</b><br><table class="resp-table"><tr><th>Humor</th><th>Total</th><th>Qtd</th></tr>${rows}</table><br><small style="color:#888">Você gasta mais quando está <b>${top[1].emoji} ${top[0]}</b>.</small>`;
   }
 
   // ── SIMULADOR DE JUROS ──────────────────────────────────────────────────────
@@ -6887,6 +7229,7 @@ setTimeout(verificarVencimentosHoje,1000);
 setTimeout(checkAndNotify,2000);
 setTimeout(verificarRelatorioMensal,1500);
 setTimeout(verificarResumoSemanal,3000);
+setTimeout(inicializarComparativoMes,500);
 registrarServiceWorker();
 driveHandleRedirect(); // processa token do OAuth2 redirect (se houver)
 driveUpdateUI();       // atualiza estado do Drive na tela de Config
