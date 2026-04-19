@@ -5987,7 +5987,7 @@ async function exportarImagem(){
 // ── K: GRÁFICO DE SALDO DIÁRIO ────────────────────────────────────────────────
 function renderChartSaldoDiario(regs){
   const canvas=document.getElementById('chart-saldo-diario');
-  if(!canvas) return;
+  if(!canvas||typeof Chart==='undefined') return;
   const hoje=new Date();
   const ano=hoje.getFullYear(), mes=hoje.getMonth();
   const diasNoMes=new Date(ano,mes+1,0).getDate();
@@ -6042,7 +6042,7 @@ function renderComparativoMes(){
   const selA=document.getElementById('comp-mes-a');
   const selB=document.getElementById('comp-mes-b');
   const res=document.getElementById('comp-mes-resultado');
-  if(!selA||!selB||!res) return;
+  if(!selA||!selB||!res||!selA.options.length||!selB.options.length) return;
   const parse=v=>{const[a,m]=v.split('-').map(Number);return{ano:a,mes:m};};
   const ma=parse(selA.value), mb=parse(selB.value);
   const regsA=registros.filter(r=>{const d=new Date(r.data);return d.getFullYear()===ma.ano&&d.getMonth()===ma.mes;});
