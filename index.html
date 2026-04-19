@@ -3365,7 +3365,7 @@ function renderHistWalletChips(){
       const ativo = carteiraFiltro===c.id;
       const bg = ativo?c.cor:'';
       const style = ativo?`background:${c.cor};color:#fff;border-color:${c.cor}`:'';
-      return `<div class="hwc${ativo?' active':''}" style="${style}" onclick="setCarteiraFiltro('${c.id}')">${c.icon} ${c.nome}</div>`;
+      return `<div class="hwc${ativo?' active':''}" style="${style}" onclick="setCarteiraFiltro('${escapeHtml(c.id)}')">${escapeHtml(c.icon)} ${escapeHtml(c.nome)}</div>`;
     }),
   ];
   wrap.innerHTML = chips.join('');
@@ -4041,7 +4041,7 @@ function deletarCarteira(id){
 
 // ── TRANSFERÊNCIA ──────────────────────────────────────────────────────────────
 function abrirModalTransferencia(){
-  const opts=carteiras.map(c=>`<option value="${c.id}">${c.icon} ${c.nome}</option>`).join('');
+  const opts=carteiras.map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.icon)} ${escapeHtml(c.nome)}</option>`).join('');
   document.getElementById('transfer-de').innerHTML=opts;
   document.getElementById('transfer-para').innerHTML=opts;
   if(carteiras.length>=2)document.getElementById('transfer-para').selectedIndex=1;
@@ -6953,7 +6953,7 @@ function responderConsulta(texto){
       const diff=Math.round((venc-agora2)/(1000*60*60*24));
       const cor=diff<0?'#E24B4A':diff<=3?'#EF9F27':'#666';
       const label=diff<0?`atrasado ${Math.abs(diff)}d`:diff===0?'vence hoje':`em ${diff}d`;
-      return `<tr><td style="color:#666">${r.descricao}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td><td style="color:${cor}">${label}</td></tr>`;
+      return `<tr><td style="color:#666">${escapeHtml(r.descricao)}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td><td style="color:${cor}">${label}</td></tr>`;
     }).join('');
     return `<b>Lançamentos fixos pendentes:</b><br><table class="resp-table">${rows}</table>`;
   }
@@ -6971,7 +6971,7 @@ function responderConsulta(texto){
   if(n.includes('maior')||n.includes('mais caro')||n.includes('top')){
     if(!gastos.length) return `Nenhum gasto registrado ${pStr}.`;
     const sorted=[...gastos].sort((a,b)=>b.valor-a.valor).slice(0,5);
-    const rows=sorted.map((r,i)=>`<tr><td style="color:#888">${i+1}.</td><td style="color:#666">${r.descricao}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    const rows=sorted.map((r,i)=>`<tr><td style="color:#888">${i+1}.</td><td style="color:#666">${escapeHtml(r.descricao)}</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
     return `<b>Maiores gastos ${pStr}:</b><br><table class="resp-table">${rows}</table>`;
   }
 
@@ -6998,10 +6998,10 @@ function responderConsulta(texto){
   if(catMatch&&(n.includes('gast')||n.includes('quanto')||n.includes('total'))){
     const [catKey,cat]=catMatch;
     const filtCat=gastos.filter(r=>r.categoria.key===catKey);
-    if(!filtCat.length) return `Nenhum gasto em <b>${cat.label}</b> ${pStr}.`;
+    if(!filtCat.length) return `Nenhum gasto em <b>${escapeHtml(cat.label)}</b> ${pStr}.`;
     const tot=filtCat.reduce((a,r)=>a+r.valor,0);
-    const rows=filtCat.slice(-5).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
-    return `<b>Gastos em ${cat.label} (${pStr}):</b> ${fmt2(tot)}<br><table class="resp-table">${rows}</table>${filtCat.length>5?`<br><small style="color:#aaa">... e mais ${filtCat.length-5} registro(s)</small>`:''}`;
+    const rows=filtCat.slice(-5).reverse().map(r=>`<tr><td style="color:#666">${escapeHtml(r.descricao)} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    return `<b>Gastos em ${escapeHtml(cat.label)} (${pStr}):</b> ${fmt2(tot)}<br><table class="resp-table">${rows}</table>${filtCat.length>5?`<br><small style="color:#aaa">... e mais ${filtCat.length-5} registro(s)</small>`:''}`;
   }
 
   // ── DIETA FINANCEIRA ─────────────────────────────────────────────────────────
@@ -7025,9 +7025,9 @@ function responderConsulta(texto){
     comHumor.forEach(r=>{const h=r.humor.label;if(!por[h])por[h]={total:0,count:0,emoji:r.humor.emoji};por[h].total+=r.valor;por[h].count++;});
     const sorted=Object.entries(por).sort((a,b)=>b[1].total-a[1].total);
     const fmtH=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-    const rows=sorted.map(([h,v])=>`<tr><td>${v.emoji} ${h}</td><td style="color:#E24B4A">${fmtH(v.total)}</td><td style="color:#888">${v.count}x</td></tr>`).join('');
+    const rows=sorted.map(([h,v])=>`<tr><td>${escapeHtml(v.emoji)} ${escapeHtml(h)}</td><td style="color:#E24B4A">${fmtH(v.total)}</td><td style="color:#888">${v.count}x</td></tr>`).join('');
     const top=sorted[0];
-    return `<b>😊 Humor × gastos:</b><br><table class="resp-table"><tr><th>Humor</th><th>Total</th><th>Qtd</th></tr>${rows}</table><br><small style="color:#888">Você gasta mais quando está <b>${top[1].emoji} ${top[0]}</b>.</small>`;
+    return `<b>😊 Humor × gastos:</b><br><table class="resp-table"><tr><th>Humor</th><th>Total</th><th>Qtd</th></tr>${rows}</table><br><small style="color:#888">Você gasta mais quando está <b>${escapeHtml(top[1].emoji)} ${escapeHtml(top[0])}</b>.</small>`;
   }
 
   // ── SIMULADOR DE JUROS ──────────────────────────────────────────────────────
@@ -7051,8 +7051,8 @@ function responderConsulta(texto){
     const gc={};
     gastos.forEach(r=>{const k=r.categoria.label;gc[k]=(gc[k]||0)+r.valor;});
     const sorted=Object.entries(gc).sort((a,b)=>b[1]-a[1]);
-    const rows=sorted.map(([k,v])=>`<tr><td style="color:#666">${k}</td><td style="color:#E24B4A">-${fmt2(v)}</td></tr>`).join('');
-    return `<b>Gastos por categoria (${pStr}):</b><br><table class="resp-table">${rows}<tr class="sep"><td style="color:#666">Total</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr></table><br>Maior: <b>${sorted[0][0]}</b> com ${fmt2(sorted[0][1])}.`;
+    const rows=sorted.map(([k,v])=>`<tr><td style="color:#666">${escapeHtml(k)}</td><td style="color:#E24B4A">-${fmt2(v)}</td></tr>`).join('');
+    return `<b>Gastos por categoria (${pStr}):</b><br><table class="resp-table">${rows}<tr class="sep"><td style="color:#666">Total</td><td style="color:#E24B4A">-${fmt2(totGas)}</td></tr></table><br>Maior: <b>${escapeHtml(sorted[0][0])}</b> com ${fmt2(sorted[0][1])}.`;
   }
 
   // ── SALDO ────────────────────────────────────────────────────────────────
@@ -7063,14 +7063,14 @@ function responderConsulta(texto){
   // ── GASTOS ───────────────────────────────────────────────────────────────
   if(n.includes('gast')||n.includes('despesa')){
     if(!gastos.length) return `Nenhum gasto registrado ${pStr}.`;
-    const rows=gastos.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
+    const rows=gastos.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${escapeHtml(r.descricao)} (${fmtD2(r.data)})</td><td style="color:#E24B4A">-${fmt2(r.valor)}</td></tr>`).join('');
     return `<b>Gastos ${pStr}:</b> ${fmt2(totGas)}<br><table class="resp-table">${rows}</table>${gastos.length>3?`<br><small style="color:#aaa">... e mais ${gastos.length-3} registro(s)</small>`:''}`;
   }
 
   // ── RECEITAS ─────────────────────────────────────────────────────────────
   if(n.includes('receb')||n.includes('receita')||n.includes('renda')){
     if(!receitas.length) return `Nenhuma receita registrada ${pStr}.`;
-    const rows=receitas.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${r.descricao} (${fmtD2(r.data)})</td><td style="color:#1D9E75">+${fmt2(r.valor)}</td></tr>`).join('');
+    const rows=receitas.slice(-3).reverse().map(r=>`<tr><td style="color:#666">${escapeHtml(r.descricao)} (${fmtD2(r.data)})</td><td style="color:#1D9E75">+${fmt2(r.valor)}</td></tr>`).join('');
     return `<b>Receitas ${pStr}:</b> ${fmt2(totRec)}<br><table class="resp-table">${rows}</table>`;
   }
 
