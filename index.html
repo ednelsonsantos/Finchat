@@ -1733,6 +1733,7 @@ body.dark .hist-swipe-del{background:#C0392B}
         <button onclick="exportarPDF()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a">📄 PDF</button>
         <button onclick="exportarCSV()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a">📊 CSV</button>
         <button onclick="compartilharRelatorio()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a" title="Compartilhar resumo">📤 Share</button>
+        <button onclick="exportarImagem()" style="padding:5px 10px;border-radius:12px;border:1px solid #555;background:#f5f5f3;font-size:12px;cursor:pointer;color:#1a1a1a" title="Exportar como imagem">📸 Imagem</button>
       </div>
     </div>
     <!-- KPIs -->
@@ -5766,6 +5767,108 @@ function exportarPDF(){
   }
 
   doc.save(`finchat_${periodoLabel()}.pdf`);
+}
+
+async function exportarImagem(){
+  function roundRect(c,x,y,w,h,r){
+    c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);
+    c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);
+    c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath();
+  }
+  const regs = getFiltradosPorPeriodo();
+  if(!regs.length){ mostrarToast('Nenhum registro no período'); return; }
+  const fmtV = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const totRec = regs.filter(r=>r.tipo==='receita').reduce((a,r)=>a+r.valor,0);
+  const totGas = regs.filter(r=>r.tipo==='gasto').reduce((a,r)=>a+r.valor,0);
+  const saldo  = totRec - totGas;
+
+  const gc={};
+  regs.filter(r=>r.tipo==='gasto').forEach(r=>{const k=r.categoria.label+' '+r.categoria.icon;gc[k]=(gc[k]||0)+r.valor;});
+  const top5 = Object.entries(gc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const periodoSel = document.getElementById('exp-periodo').value;
+  const periodoLabel = {mes:'Este mês',semana:'Esta semana',todos:'Total geral'}[periodoSel]||'Este mês';
+  const mesNome = new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+  const S=1080;
+  const canvas=document.createElement('canvas');
+  canvas.width=S; canvas.height=S;
+  const ctx=canvas.getContext('2d');
+
+  // fundo
+  const dark = document.body.classList.contains('dark');
+  ctx.fillStyle = dark ? '#0d1f17' : '#ffffff';
+  ctx.fillRect(0,0,S,S);
+
+  // header gradient
+  const grad=ctx.createLinearGradient(0,0,S,0);
+  grad.addColorStop(0,'#1D9E75'); grad.addColorStop(1,'#15755a');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,S,220);
+
+  // título
+  ctx.fillStyle='#fff'; ctx.font='bold 64px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('FinChat',60,100);
+  ctx.font='32px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.fillText(periodoLabel+' · '+mesNome,60,148);
+  ctx.font='24px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.65)';
+  ctx.fillText('Relatório financeiro',60,190);
+
+  // KPI cards
+  const kpis=[['Receitas',fmtV(totRec),'#1D9E75'],['Gastos',fmtV(totGas),'#E24B4A'],['Saldo',fmtV(saldo),saldo>=0?'#1D9E75':'#E24B4A']];
+  const cardW=300, cardH=130, cardY=248, gap=30, startX=(S-3*cardW-2*gap)/2;
+  kpis.forEach(([lbl,val,cor],i)=>{
+    const x=startX+i*(cardW+gap);
+    ctx.fillStyle= dark ? '#1a2e26' : '#f5f5f3';
+    roundRect(ctx,x,cardY,cardW,cardH,18); ctx.fill();
+    ctx.fillStyle=dark?'#aaa':'#888'; ctx.font='26px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(lbl,x+cardW/2,cardY+42);
+    ctx.fillStyle=cor; ctx.font='bold 34px sans-serif';
+    ctx.fillText(val,x+cardW/2,cardY+94);
+  });
+
+  // top categorias
+  const secY=430;
+  ctx.fillStyle= dark?'#e8e8e6':'#1a1a1a'; ctx.font='bold 34px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('🏆 Top categorias de gastos',60,secY);
+
+  if(top5.length){
+    const maxVal=top5[0][1];
+    const barH=68, barGap=12, barX=60, barMaxW=S-120, barStartY=secY+24;
+    top5.forEach(([lbl,val],i)=>{
+      const y=barStartY+i*(barH+barGap);
+      const barW=Math.max(4,Math.round((val/maxVal)*(barMaxW-220)));
+      ctx.fillStyle= dark?'#1a2e26':'#f0f0ee';
+      roundRect(ctx,barX,y,barMaxW,barH,12); ctx.fill();
+      ctx.fillStyle='#1D9E75';
+      roundRect(ctx,barX,y,barW+20,barH,12); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 26px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(lbl,barX+16,y+barH/2+9);
+      ctx.textAlign='right'; ctx.font='26px sans-serif';
+      ctx.fillText(fmtV(val),barX+barMaxW-16,y+barH/2+9);
+    });
+  } else {
+    ctx.fillStyle= dark?'#aaa':'#888'; ctx.font='28px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('Nenhum gasto registrado no período',60,secY+60);
+  }
+
+  // rodapé
+  ctx.fillStyle= dark?'#2a4a36':'#e8e8e8'; ctx.fillRect(0,S-90,S,90);
+  ctx.fillStyle= dark?'#aaa':'#555'; ctx.font='24px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Gerado pelo FinChat · '+new Date().toLocaleDateString('pt-BR'),S/2,S-34);
+
+  canvas.toBlob(async blob=>{
+    const fname=`finchat_${periodoSel}_${new Date().toISOString().slice(0,10)}.png`;
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'x.png',{type:'image/png'})]})){
+      try{
+        await navigator.share({files:[new File([blob],fname,{type:'image/png'})],title:'Relatório FinChat'});
+        return;
+      }catch(e){}
+    }
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=fname; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    mostrarToast('Imagem salva!');
+  },'image/png');
 }
 
 async function compartilharRelatorio(){
