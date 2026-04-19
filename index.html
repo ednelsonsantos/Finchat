@@ -3126,8 +3126,37 @@ function driveAutoBackup(){
   clearTimeout(_driveAutoTimer);
   _driveAutoTimer=setTimeout(()=>driveBackup(),30000); // 30s debounce
 }
+function sanitizarRegistro(r){
+  // valida e higieniza campos críticos vindos de armazenamento externo
+  if(!r||typeof r!=='object') return null;
+  const tipo=r.tipo==='receita'?'receita':'gasto';
+  const valor=parseFloat(r.valor);
+  if(isNaN(valor)||valor<=0||valor>1e8) return null;
+  const dataStr=String(r.data||'');
+  const data=/^\d{4}-\d{2}-\d{2}/.test(dataStr)?dataStr:new Date().toISOString();
+  return{
+    ...r,
+    tipo,
+    valor,
+    data,
+    descricao: String(r.descricao||'Transação').slice(0,300),
+    nota:       r.nota?String(r.nota).slice(0,500):undefined,
+    id:         Number(r.id)||novoId(),
+  };
+}
 function salvar(regs){try{FinStorage.setItem(STORAGE_KEY,JSON.stringify(regs));atualizarLabel(regs.length);driveAutoBackup();}catch(e){alert('Erro ao salvar: '+e.message);}}
-function carregar(){try{const r=FinStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);atualizarLabel(d.length);return d;}}catch{}atualizarLabel(0);return[];}
+function carregar(){
+  try{
+    const r=FinStorage.getItem(STORAGE_KEY);
+    if(r){
+      const d=JSON.parse(r);
+      const sanitized=d.map(sanitizarRegistro).filter(Boolean);
+      atualizarLabel(sanitized.length);
+      return sanitized;
+    }
+  }catch{}
+  atualizarLabel(0);return[];
+}
 function atualizarLabel(n){
   const msg = n===0
     ? 'Nenhum registro ainda'
@@ -3371,16 +3400,16 @@ function histHTML(r,del){
     ?`<span class="cat-num" style="background:${cores.bg};color:${cores.txt}">#${num}</span>`
     :'';
   const cw=carteiras.length>1?carteiraById(r.carteiraId):null;
-  const wBadge=cw?`<span style="font-size:9px;background:${cw.cor}20;color:${cw.cor};border-radius:4px;padding:1px 5px;margin-left:4px">${cw.icon} ${cw.nome}</span>`:'';
+  const wBadge=cw?`<span style="font-size:9px;background:${cw.cor}20;color:${cw.cor};border-radius:4px;padding:1px 5px;margin-left:4px">${cw.icon} ${escapeHtml(cw.nome)}</span>`:'';
   const transferIcon=r.isTransferencia?'↕ ':'';
   return`<div class="hist-swipe-wrap" data-id="${r.id}"><div class="hist-swipe-del" onclick="event.stopPropagation();deletar(${r.id})">🗑</div><div class="hist-item" onclick="abrirModal(${r.id})" title="Toque para editar">
     <div style="flex:1;min-width:0">
       <div class="hist-desc-wrap">
-        <span class="hist-desc">${transferIcon}${r.descricao}</span>${numBadge}${wBadge}
+        <span class="hist-desc">${transferIcon}${escapeHtml(r.descricao)}</span>${numBadge}${wBadge}
       </div>
-      <div class="hist-cat">${r.categoria.label} · ${fmtD(r.data)}</div>
-      ${r.tags&&r.tags.length?`<div class="hist-tags" onclick="event.stopPropagation()">${r.tags.map(t=>`<span class="hist-tag" onclick="filtrarPorTag('${t}')">#${t}</span>`).join('')}</div>`:''}
-      ${r.nota?`<div class="hist-nota">📝 ${r.nota}</div>`:''}
+      <div class="hist-cat">${escapeHtml(r.categoria.label)} · ${fmtD(r.data)}</div>
+      ${r.tags&&r.tags.length?`<div class="hist-tags" onclick="event.stopPropagation()">${r.tags.map(t=>`<span class="hist-tag" onclick="filtrarPorTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('')}</div>`:''}
+      ${r.nota?`<div class="hist-nota">📝 ${escapeHtml(r.nota)}</div>`:''}
     </div>
     <div class="hist-right">
       <span class="hist-val" style="color:${s?'#1D9E75':'#E24B4A'}">${s?'+':'−'} ${fmt(r.valor)}</span>
@@ -4760,9 +4789,9 @@ function renderAtalhosHome(){
     const desc = r.descricao.split(' ').slice(0,2).join(' ');
     const val  = r.valor.toLocaleString('pt-BR',{maximumFractionDigits:0});
     const sinal = r.tipo==='receita'?'+':'-';
-    return `<div class="home-atalho" onclick="preencherAtalho('${r.tipo}','${r.descricao}','${r.categoria.key}',${r.valor})" title="Usar como base">
+    return `<div class="home-atalho" data-rid="${r.id}" title="Usar como base" onclick="preencherAtalhoId(${r.id})">
       <span class="at-icon">${ico}</span>
-      <span>${desc}</span>
+      <span>${escapeHtml(desc)}</span>
       <span style="font-size:11px;color:#aaa">${sinal}R$${val}</span>
     </div>`;
   }).join('');
@@ -4797,6 +4826,10 @@ function preencherAtalho(tipo,desc,catKey,valor){
   const frase = (tipo==='gasto'?'gasto ':'recebi ') + valor + ' ' + desc;
   const inp=document.getElementById('inp');
   if(inp){ inp.value=frase; inp.dispatchEvent(new Event('input')); inp.focus(); }
+}
+function preencherAtalhoId(id){
+  const r=registros.find(r=>r.id===id);
+  if(r) preencherAtalho(r.tipo,r.descricao,r.categoria.key,r.valor);
 }
 
 // controlar visibilidade da home vs tabs

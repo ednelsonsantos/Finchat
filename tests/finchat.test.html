@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FinChat — Suite de Testes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0d1117;color:#e6edf3;padding:20px;font-size:14px}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;color:#58a6ff}
+.subtitle{color:#8b949e;font-size:13px;margin-bottom:20px}
+.summary-bar{display:flex;gap:16px;padding:14px 18px;background:#161b22;border-radius:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.sum-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sum-num{font-size:24px;font-weight:700}
+.sum-lbl{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:.5px}
+.pass-num{color:#3fb950}.fail-num{color:#f85149}.skip-num{color:#d29922}.total-num{color:#58a6ff}
+.progress-bar{flex:1;min-width:200px;height:8px;background:#30363d;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:#3fb950;transition:width .4s}
+.section{margin-bottom:16px}
+.section-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#161b22;border-radius:8px 8px 0 0;cursor:pointer;border:1px solid #30363d;border-bottom:none}
+.section-title{font-weight:600;font-size:15px}
+.section-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700}
+.badge-pass{background:#1a4229;color:#3fb950}.badge-fail{background:#3b0d0c;color:#f85149}.badge-warn{background:#2d2500;color:#d29922}
+.section-body{border:1px solid #30363d;border-top:none;border-radius:0 0 8px 8px;overflow:hidden}
+.test-row{display:flex;align-items:flex-start;gap:10px;padding:8px 14px;border-bottom:1px solid #21262d;font-size:13px}
+.test-row:last-child{border-bottom:none}
+.test-row.pass{background:#0d1f0d}.test-row.fail{background:#1f0d0d}.test-row.skip{background:#1a1a0d}
+.test-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.test-name{flex:1;color:#e6edf3;font-weight:500}
+.test-detail{color:#8b949e;font-size:12px;font-family:monospace;margin-top:2px;word-break:break-all}
+.test-err{color:#f85149;font-size:12px;font-family:monospace;margin-top:3px;background:#2d0808;padding:4px 8px;border-radius:4px}
+.security-section{margin-top:24px}
+.sec-card{background:#161b22;border:1px solid #30363d;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-header{padding:12px 16px;display:flex;align-items:center;gap:10px}
+.sec-severity{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
+.sev-critical{background:#4b1113;color:#f85149}.sev-high{background:#3b1e0a;color:#db6d28}
+.sev-medium{background:#2d2500;color:#d29922}.sev-low{background:#0d2010;color:#3fb950}.sev-info{background:#0d1a30;color:#58a6ff}
+.sec-title{font-weight:600;font-size:14px}
+.sec-body{padding:12px 16px;border-top:1px solid #21262d;font-size:13px;color:#8b949e;line-height:1.6}
+.sec-body code{background:#0d1117;border:1px solid #30363d;padding:1px 6px;border-radius:4px;font-family:monospace;color:#e6edf3;font-size:12px}
+.sec-body .fix{color:#3fb950;margin-top:6px;display:block}
+.sec-body .ref{color:#58a6ff;font-size:11px;margin-top:4px}
+.toggle-btn{margin-left:auto;font-size:12px;color:#8b949e;background:none;border:none;cursor:pointer}
+.collapsed .section-body{display:none}
+.log-area{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#3fb950;max-height:200px;overflow-y:auto;margin-top:16px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+
+<h1>🧪 FinChat — Suite de Testes</h1>
+<p class="subtitle">Testes unitários + análise de segurança · <span id="ts"></span></p>
+
+<div class="summary-bar">
+  <div class="sum-item"><span class="sum-num total-num" id="s-total">0</span><span class="sum-lbl">Total</span></div>
+  <div class="sum-item"><span class="sum-num pass-num" id="s-pass">0</span><span class="sum-lbl">Passou</span></div>
+  <div class="sum-item"><span class="sum-num fail-num" id="s-fail">0</span><span class="sum-lbl">Falhou</span></div>
+  <div class="sum-item"><span class="sum-num skip-num" id="s-skip">0</span><span class="sum-lbl">Pulado</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+</div>
+
+<div id="results"></div>
+<div class="security-section" id="security-section"></div>
+<div class="log-area" id="log-area"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// MOTOR DE TESTES
+// ═══════════════════════════════════════════════════════════════════════════
+const _suites=[];
+let _stats={total:0,pass:0,fail:0,skip:0};
+const _log=[];
+
+function log(msg){_log.push(msg);const el=document.getElementById('log-area');if(el)el.textContent=_log.join('\n');}
+
+function describe(name,fn){
+  const suite={name,tests:[]};
+  _suites.push(suite);
+  fn(suite);
+}
+
+function it(suite,name,fn){
+  suite.tests.push({name,fn});
+}
+
+function expect(val){
+  return{
+    toBe(expected){if(val!==expected)throw new Error(`Esperado ${JSON.stringify(expected)}, obtido ${JSON.stringify(val)}`);},
+    toEqual(expected){if(JSON.stringify(val)!==JSON.stringify(expected))throw new Error(`Esperado ${JSON.stringify(expected)}, obtido ${JSON.stringify(val)}`);},
+    toBeCloseTo(expected,digits=2){const d=Math.pow(10,-digits);if(Math.abs(val-expected)>d)throw new Error(`Esperado ~${expected}, obtido ${val}`);},
+    toBeNull(){if(val!==null)throw new Error(`Esperado null, obtido ${JSON.stringify(val)}`);},
+    toBeGreaterThan(n){if(!(val>n))throw new Error(`Esperado >  ${n}, obtido ${val}`);},
+    toBeLessThan(n){if(!(val<n))throw new Error(`Esperado < ${n}, obtido ${val}`);},
+    toMatch(re){if(!re.test(String(val)))throw new Error(`"${val}" não bate com ${re}`);},
+    toContain(s){if(!String(val).includes(s)&&!Array.isArray(val)||Array.isArray(val)&&!val.includes(s))throw new Error(`Não encontrado ${JSON.stringify(s)} em ${JSON.stringify(val)}`);},
+    toBeTruthy(){if(!val)throw new Error(`Esperado truthy, obtido ${JSON.stringify(val)}`);},
+    toBeFalsy(){if(val)throw new Error(`Esperado falsy, obtido ${JSON.stringify(val)}`);},
+    toBeTypeOf(t){if(typeof val!==t)throw new Error(`Esperado tipo ${t}, obtido ${typeof val}`);},
+    toHaveLength(n){if((val||[]).length!==n)throw new Error(`Esperado length ${n}, obtido ${(val||[]).length}`);},
+  };
+}
+
+async function runAll(){
+  document.getElementById('ts').textContent=new Date().toLocaleString('pt-BR');
+  const container=document.getElementById('results');
+  for(const suite of _suites){
+    const passedTests=[],failedTests=[];
+    for(const t of suite.tests){
+      _stats.total++;
+      try{
+        await t.fn();
+        _stats.pass++;passedTests.push(t);
+        log(`✅ [${suite.name}] ${t.name}`);
+      }catch(e){
+        _stats.fail++;failedTests.push({...t,err:e.message});
+        log(`❌ [${suite.name}] ${t.name} — ${e.message}`);
+      }
+    }
+    // render section
+    const allPassed=failedTests.length===0;
+    const sec=document.createElement('div');
+    sec.className='section'+(allPassed?'':' failed');
+    sec.innerHTML=`
+      <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="section-title">${suite.name}</span>
+        <span class="section-badge ${allPassed?'badge-pass':'badge-fail'}">${passedTests.length}/${suite.tests.length}</span>
+        <button class="toggle-btn">▾</button>
+      </div>
+      <div class="section-body">
+        ${[...passedTests.map(t=>`<div class="test-row pass"><span class="test-icon">✅</span><div><div class="test-name">${t.name}</div></div></div>`),
+           ...failedTests.map(t=>`<div class="test-row fail"><span class="test-icon">❌</span><div><div class="test-name">${t.name}</div><div class="test-err">${t.err}</div></div></div>`)].join('')}
+      </div>`;
+    container.appendChild(sec);
+  }
+  // update summary
+  document.getElementById('s-total').textContent=_stats.total;
+  document.getElementById('s-pass').textContent=_stats.pass;
+  document.getElementById('s-fail').textContent=_stats.fail;
+  document.getElementById('s-skip').textContent=_stats.skip;
+  const pct=_stats.total?Math.round(_stats.pass/_stats.total*100):0;
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog').style.background=pct>=80?'#3fb950':pct>=60?'#d29922':'#f85149';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STUBS DE AMBIENTE (simula o contexto do app sem carregar o index.html)
+// ═══════════════════════════════════════════════════════════════════════════
+const _fakeStorage={};
+const FinStorage={
+  getItem:k=>_fakeStorage[k]??null,
+  setItem:(k,v)=>{_fakeStorage[k]=v;},
+  removeItem:k=>{delete _fakeStorage[k];}
+};
+
+// Funções auxiliares extraídas do app
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();}
+
+function novoId(){return Date.now()*10000+(++_idSeq%10000);}
+let _idSeq=0;
+
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function detectarValor(t){
+  const n=norm(t);
+  function normNum(s){if(/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(s))return parseFloat(s.replace(/\./g,'').replace(',','.'));if(/,\d{1,2}$/.test(s))return parseFloat(s.replace(',','.'));return parseFloat(s);}
+  function multK(v,suf){if(!suf)return v;const s=norm(suf);return(/^k\b/.test(s)||/^mil\b/.test(s))?v*1000:v;}
+  const C={novecentos:900,novecentas:900,oitocentos:800,oitocentas:800,setecentos:700,setecentas:700,seiscentos:600,seiscentas:600,quinhentos:500,quinhentas:500,quatrocentos:400,quatrocentas:400,trezentos:300,trezentas:300,duzentos:200,duzentas:200,cento:100,cem:100};
+  const D={noventa:90,oitenta:80,setenta:70,sessenta:60,cinquenta:50,quarenta:40,trinta:30,vinte:20};
+  const U={dezenove:19,dezoito:18,dezessete:17,dezesseis:16,quinze:15,catorze:14,quatorze:14,treze:13,doze:12,onze:11,dez:10,nove:9,oito:8,sete:7,seis:6,cinco:5,quatro:4,tres:3,dois:2,duas:2,uma:1,um:1};
+  const MIL={dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10};
+  function extensoParts(s){let total=0,found=false;for(const w of s.split(/\s+e\s+|\s+/)){if(C[w]!==undefined){total+=C[w];found=true;}else if(D[w]!==undefined){total+=D[w];found=true;}else if(U[w]!==undefined){total+=U[w];found=true;}}return found?total:null;}
+  function extensoToNum(s){const mMil=s.match(/\b(dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez)?\s*mil(?:\s+e\s+(\w+(?:\s+e\s+\w+)?))?\b/);if(mMil){let total=(MIL[mMil[1]]||1)*1000;if(mMil[2]){const sub=extensoParts(mMil[2]);if(sub!==null)total+=sub;}return total;}return extensoParts(s);}
+  let m,v;
+  m=t.match(/r\$\s*([\d.,]+)\s*(k|mil)?\b/i);if(m){v=normNum(m[1]);if(v>0)return multK(v,m[2]);}
+  m=t.match(/([\d.,]+)\s*(k|mil)?\s*reais/i);if(m){v=normNum(m[1]);if(v>0)return m[2]?multK(v,m[2]):v;}
+  const ev=extensoToNum(n);if(ev!==null)return ev;
+  m=t.match(/\b(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(k|mil)?\b/i);if(m){v=normNum(m[1]);if(v>0)return multK(v,m[2]);}
+  return null;
+}
+
+const TIPO_RECEITA=['recebi','salario','salário','renda','ganho','ganhei','faturei','vendi','venda','entrada','deposito','deposito','transferencia recebi','me pagaram'];
+const TIPO_GASTO=['paguei','gastei','gasto','comprei','compra','pago','despesa','saida','saiu','custou','custa'];
+function detectarTipoTexto(t){const n=norm(t);for(const p of TIPO_RECEITA)if(n.includes(norm(p)))return'receita';for(const p of TIPO_GASTO)if(n.includes(norm(p)))return'gasto';return null;}
+
+function detectarParcelas(t){
+  const n=norm(t);let m;
+  m=n.match(/\bem\s+(\d+)\s*x\b/);if(m)return parseInt(m[1]);
+  m=n.match(/\b(\d+)\s*x\b/);if(m&&parseInt(m[1])>1&&parseInt(m[1])<=48)return parseInt(m[1]);
+  m=n.match(/\bem\s+(\d+)\s+parcela/);if(m)return parseInt(m[1]);
+  m=n.match(/\b(\d+)\s+(?:parcelas?|vezes?)\b/);if(m&&parseInt(m[1])>1)return parseInt(m[1]);
+  m=n.match(/parcelad[oa]\s+em\s+(\d+)/);if(m)return parseInt(m[1]);
+  return 1;
+}
+
+function detectarData(t){
+  const n=norm(t);
+  if(n.includes('ontem')){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString();}
+  const m=t.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+  if(m){const h=new Date(),d=parseInt(m[1]),me=parseInt(m[2])-1,a=m[3]?parseInt(m[3]):h.getFullYear();return new Date(a<100?2000+a:a,me,d).toISOString();}
+  return new Date().toISOString();
+}
+
+function extrairTags(t){const matches=t.match(/#([a-zA-ZÀ-ú0-9_-]+)/g);return matches?matches.map(m=>m.slice(1).toLowerCase()):[]; }
+
+function extrairDesc(t){
+  let d=t;
+  d=d.replace(/r\$\s*[\d.,]+/ig,'');
+  d=d.replace(/[\d.,]+\s*reais/ig,'');
+  d=d.replace(/\b[\d.,]+\b/g,'');
+  for(const p of [...TIPO_GASTO,...TIPO_RECEITA])d=d.replace(new RegExp(p+'\\w*','ig'),'');
+  d=d.replace(/\b(de|do|da|no|na|em|para|pro|pra|hoje|ontem)\b/ig,'');
+  return d.replace(/\s+/g,' ').trim()||'Transação';
+}
+
+function eConsulta(texto){
+  const n=norm(texto);
+  const kws=['quanto','gastei','recebi','saldo','resumo','onde','qual','mais','semana','hoje','mes','mês','categoria','total','receita','gasto','despesa','maior','top','meta','orcamento','orçamento','objetivo','poupan','economiz','fixo','recorrente','vencimento','compara','anterior','diferenca','diferença','saude','situacao','posso gastar','financeiramente','ano','passado','simular','simulador','emprestimo','financiamento','parcela','juros','humor','mood','dieta','teto','janeiro','fevereiro','marco','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const temNum=/\d/.test(texto);
+  if(temNum&&detectarValor(texto))return false;
+  return kws.some(k=>n.includes(k));
+}
+
+function parseCSVExtrato(text){
+  const sep=((text.split('\n')[0]||'').split(';').length>=(text.split('\n')[0]||'').split(',').length)?';':',';
+  const linhas=text.trim().split(/\r?\n/);
+  if(linhas.length<2)return[];
+  const header=linhas[0].split(sep).map(h=>norm(h));
+  const iData=header.findIndex(h=>/data|date|^dt/.test(h));
+  const iDesc=header.findIndex(h=>/hist|descri|memo|lancam|nome|title|narrat/.test(h));
+  const iValor=header.findIndex(h=>/valor|value|amount|quantia/.test(h));
+  const iDataF=iData>=0?iData:0,iDescF=iDesc>=0?iDesc:linhas[0].split(sep).length-1,iValorF=iValor>=0?iValor:1;
+  const itens=[];
+  for(let i=1;i<linhas.length;i++){
+    const cols=linhas[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
+    if(cols.length<2)continue;
+    const dataRaw=cols[iDataF]||'',descRaw=cols[iDescF]||'',valorRaw=cols[iValorF]||'';
+    if(!dataRaw||!valorRaw)continue;
+    const v=parseFloat(valorRaw.replace(/[R$\s]/g,'').replace('.','').replace(',','.'));
+    if(isNaN(v))continue;
+    itens.push({data:dataRaw,descricao:descRaw,valor:Math.abs(v),tipo:v<0?'gasto':'receita'});
+  }
+  return itens;
+}
+
+function extrairValoresCupom(text){
+  const lines=text.split('\n');const vals=[];const seenVals=new Set();
+  lines.forEach(line=>{
+    const n=line.toLowerCase().replace(/[^\w\s.,]/g,' ');
+    const isTotal=/total|valor\s*a\s*pagar|a\s*pagar|grand\s*total|subtotal/.test(n);
+    const matches=[...line.matchAll(/R?\$?\s*(\d{1,6}[.,]\d{2})\b/g)];
+    matches.forEach(m=>{
+      const raw=parseFloat(m[1].replace(',','.'));
+      if(isNaN(raw)||raw<0.5||raw>50000)return;
+      const key=raw.toFixed(2);if(seenVals.has(key))return;seenVals.add(key);
+      vals.push({raw,label:isTotal?'💰 TOTAL':line.trim().slice(0,30)||'Valor',isTotal});
+    });
+  });
+  return vals.sort((a,b)=>(b.isTotal?1:0)-(a.isTotal?1:0)||(b.raw-a.raw)).slice(0,6);
+}
+
+// Stub CATS mínimo para testes
+const CATS={
+  alimentacao:{label:'Alimentação',palavras:['mercado','supermercado','padaria','ifood','lanche','restaurante','comida'],cor:'#F97316',icon:'🛒',tipo:'gasto'},
+  transporte:{label:'Transporte',palavras:['uber','99','taxi','ônibus','gasolina','combustivel','metro'],cor:'#3B82F6',icon:'🚗',tipo:'gasto'},
+  saude:{label:'Saúde',palavras:['farmacia','remedio','medico','consulta','hospital'],cor:'#EF4444',icon:'💊',tipo:'gasto'},
+  lazer:{label:'Lazer',palavras:['cinema','netflix','spotify','show','bar'],cor:'#8B5CF6',icon:'🎬',tipo:'gasto'},
+  outros:{label:'Outros',palavras:[],cor:'#6B7280',icon:'📦',tipo:'gasto'},
+};
+function detectarCat(t){
+  const n=norm(t);
+  for(const[k,c]of Object.entries(CATS)){if(c.palavras&&c.palavras.some(p=>n.includes(norm(p))))return{key:k,...c};}
+  return{key:'outros',...CATS.outros};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SUITES DE TESTE
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. PARSER DE VALORES ─────────────────────────────────────────────────────
+describe('1. Parser de Valores (detectarValor)', s=>{
+  const cases=[
+    ['180',180],['50,00',50],['1.800',1800],['1.234,56',1234.56],
+    ['R$ 250',250],['R$3.000',3000],['2k',2000],['5 mil',5000],
+    ['R$ 2k',2000],['1.5k',1500],['dois mil',2000],['quinhentos',500],
+    ['duzentos e cinquenta',250],['dois mil e trezentos',2300],
+    ['trinta reais',30],['cem',100],['mil',1000],['quatorze',14],
+    ['dezenove',19],['1800 reais',1800],['R$ 1.234,56',1234.56],
+  ];
+  cases.forEach(([input,expected])=>{
+    it(s,`"${input}" → ${expected}`,()=>{expect(detectarValor(input)).toBeCloseTo(expected,1);});
+  });
+  it(s,'retorna null para texto sem número',()=>{expect(detectarValor('mercado alimentos')).toBeNull();});
+  it(s,'retorna null para string vazia',()=>{expect(detectarValor('')).toBeNull();});
+  it(s,'não aceita valor zero',()=>{expect(detectarValor('0 mercado')).toBeNull();});
+  it(s,'valor negativo não retorna positivo inválido',()=>{const v=detectarValor('-50');expect(v===null||v>0).toBe(true);});
+  it(s,'valor muito alto (> 50000) aceita (sem limite no parser)',()=>{expect(detectarValor('100000')).toBeGreaterThan(0);});
+});
+
+// ── 2. DETECÇÃO DE TIPO ───────────────────────────────────────────────────────
+describe('2. Detecção de Tipo (detectarTipoTexto)', s=>{
+  const gastos=['paguei 180 mercado','gasto 50 uber','comprei tênis','saiu 200 aluguel','custou 30 pizza'];
+  const receitas=['recebi 4000 salário','renda 1500','ganhei 200 freelance','vendi moto 5000','faturei projeto'];
+  gastos.forEach(t=>{it(s,`"${t}" → gasto`,()=>{expect(detectarTipoTexto(t)).toBe('gasto');});});
+  receitas.forEach(t=>{it(s,`"${t}" → receita`,()=>{expect(detectarTipoTexto(t)).toBe('receita');});});
+  it(s,'ambíguo retorna null',()=>{expect(detectarTipoTexto('180 mercado')).toBeNull();});
+  it(s,'vazio retorna null',()=>{expect(detectarTipoTexto('')).toBeNull();});
+});
+
+// ── 3. DETECÇÃO DE CATEGORIA ──────────────────────────────────────────────────
+describe('3. Detecção de Categoria (detectarCat)', s=>{
+  const cases=[
+    ['compra mercado',          'alimentacao'],
+    ['uber volta casa',         'transporte'],
+    ['farmacia remedio',        'saude'],
+    ['netflix mensal',          'lazer'],
+    ['gasolina posto',          'transporte'],
+    ['ifood pizza',             'alimentacao'],
+    ['consulta medico',         'saude'],
+  ];
+  cases.forEach(([input,expected])=>{
+    it(s,`"${input}" → ${expected}`,()=>{expect(detectarCat(input).key).toBe(expected);});
+  });
+  it(s,'texto desconhecido → outros',()=>{expect(detectarCat('xyz abc 123').key).toBe('outros');});
+  it(s,'retorna objeto com label',()=>{expect(detectarCat('mercado').label).toBeTruthy();});
+  it(s,'retorna objeto com cor',()=>{expect(detectarCat('mercado').cor).toMatch(/^#/);});
+});
+
+// ── 4. DETECÇÃO DE PARCELAS ───────────────────────────────────────────────────
+describe('4. Detecção de Parcelas (detectarParcelas)', s=>{
+  const cases=[
+    ['compra em 12x',12],['parcelado em 6x',6],['3x cartão',3],
+    ['em 6 parcelas',6],['12 vezes',12],['parcelado em 3',3],
+    ['à vista',1],['mercado',1],['em 1x',1],['em 0x',1],
+  ];
+  cases.forEach(([input,expected])=>{
+    it(s,`"${input}" → ${expected}x`,()=>{expect(detectarParcelas(input)).toBe(expected);});
+  });
+  it(s,'49x (acima do limite 48) → 1',()=>{expect(detectarParcelas('49x')).toBe(1);});
+  it(s,'não confunde ano com parcelas',()=>{const v=detectarParcelas('compra 2024');expect(v).toBe(1);});
+});
+
+// ── 5. EXTRAÇÃO DE TAGS ────────────────────────────────────────────────────────
+describe('5. Extração de Tags (extrairTags)', s=>{
+  it(s,'extrai tag simples',()=>{expect(extrairTags('gasto 50 #viagem')).toEqual(['viagem']);});
+  it(s,'extrai múltiplas tags',()=>{expect(extrairTags('gasto 80 #trabalho #reunião')).toHaveLength(2);});
+  it(s,'sem tags → array vazio',()=>{expect(extrairTags('gasto 50 mercado')).toEqual([]);});
+  it(s,'normaliza para lowercase',()=>{expect(extrairTags('#Viagem')[0]).toBe('viagem');});
+  it(s,'tag com número',()=>{expect(extrairTags('#2024')).toHaveLength(1);});
+  it(s,'tag no meio do texto',()=>{expect(extrairTags('gasto #alimentacao 50')).toContain('alimentacao');});
+  it(s,'XSS em tag é extraído literalmente (sem execução)',()=>{
+    const tags=extrairTags('#<script>alert(1)</script>');
+    // regex só pega [a-zA-ZÀ-ú0-9_-], então script não é capturado como tag válida
+    tags.forEach(t=>expect(t).not.toContain('<'));
+  });
+});
+
+// ── 6. EXTRAÇÃO DE DESCRIÇÃO ──────────────────────────────────────────────────
+describe('6. Extração de Descrição (extrairDesc)', s=>{
+  it(s,'remove valor numérico',()=>{expect(extrairDesc('gasto 180 mercado')).not.toContain('180');});
+  it(s,'remove "R$"',()=>{expect(extrairDesc('paguei R$ 50 uber')).not.toContain('R$');});
+  it(s,'mantém palavra da categoria',()=>{expect(extrairDesc('gasto 80 mercado')).toContain('mercado');});
+  it(s,'remove verbos de tipo',()=>{
+    const d=extrairDesc('paguei 50 farmacia');
+    expect(d).not.toContain('paguei');
+    expect(d).toBeTruthy();
+  });
+  it(s,'fallback "Transação" quando vazio',()=>{expect(extrairDesc('paguei 100 recebi')).toBe('Transação');});
+  it(s,'remove "reais" do texto',()=>{expect(extrairDesc('gasto 50 reais mercado')).not.toContain('reais');});
+});
+
+// ── 7. DETECÇÃO DE DATA ────────────────────────────────────────────────────────
+describe('7. Detecção de Data (detectarData)', s=>{
+  it(s,'"ontem" retorna data de ontem',()=>{
+    const ontem=new Date();ontem.setDate(ontem.getDate()-1);
+    const r=new Date(detectarData('ontem'));
+    expect(r.getDate()).toBe(ontem.getDate());
+  });
+  it(s,'data DD/MM extrai dia e mês',()=>{
+    const r=new Date(detectarData('gasto 15/03 mercado'));
+    expect(r.getDate()).toBe(15);
+    expect(r.getMonth()).toBe(2); // março = índice 2
+  });
+  it(s,'sem data → hoje',()=>{
+    const r=new Date(detectarData('gasto 50 mercado'));
+    const hoje=new Date();
+    expect(r.getDate()).toBe(hoje.getDate());
+  });
+  it(s,'data DD-MM funciona com hífen',()=>{
+    const r=new Date(detectarData('05-06'));
+    expect(r.getDate()).toBe(5);expect(r.getMonth()).toBe(5);
+  });
+  it(s,'retorna string ISO',()=>{expect(detectarData('hoje')).toMatch(/^\d{4}-\d{2}-\d{2}T/);});
+});
+
+// ── 8. CLASSIFICAÇÃO DE CONSULTA ──────────────────────────────────────────────
+describe('8. Classificação Consulta vs Registro (eConsulta)', s=>{
+  const consultas=['quanto gastei','qual meu saldo','resumo do mês','onde mais gastei','gastei mais em março','minha situação financeira','compara mês passado','posso gastar hoje'];
+  const registros=['gasto 180 mercado','paguei 50 uber','recebi 4000 salário','comprei 200 tênis','80 farmácia'];
+  consultas.forEach(t=>{it(s,`consulta: "${t}"`,()=>{expect(eConsulta(t)).toBe(true);});});
+  registros.forEach(t=>{it(s,`registro: "${t}"`,()=>{expect(eConsulta(t)).toBe(false);});});
+  it(s,'número com valor → não é consulta',()=>{expect(eConsulta('gastei 100 mercado')).toBe(false);});
+  it(s,'string vazia → não é consulta',()=>{expect(eConsulta('')).toBe(false);});
+});
+
+// ── 9. PARSER DE CSV DE EXTRATO ───────────────────────────────────────────────
+describe('9. Importação de Extrato CSV (parseCSVExtrato)', s=>{
+  const csvSemicolon=`Data;Historico;Valor\n01/04/2026;Mercado Pao de Acucar;-180,50\n02/04/2026;Salario;4000,00`;
+  const csvComma=`date,description,amount\n2026-04-01,Netflix,-39.90\n2026-04-02,Salary,5000.00`;
+
+  it(s,'parse CSV com ponto-e-vírgula',()=>{
+    const itens=parseCSVExtrato(csvSemicolon);
+    expect(itens.length).toBe(2);
+  });
+  it(s,'parse CSV com vírgula',()=>{
+    const itens=parseCSVExtrato(csvComma);
+    expect(itens.length).toBeGreaterThan(0);
+  });
+  it(s,'valor negativo → tipo gasto',()=>{
+    const itens=parseCSVExtrato(csvSemicolon);
+    expect(itens[0].tipo).toBe('gasto');
+  });
+  it(s,'valor positivo → tipo receita',()=>{
+    const itens=parseCSVExtrato(csvSemicolon);
+    expect(itens[1].tipo).toBe('receita');
+  });
+  it(s,'valor absoluto sempre positivo',()=>{
+    const itens=parseCSVExtrato(csvSemicolon);
+    itens.forEach(i=>expect(i.valor).toBeGreaterThan(0));
+  });
+  it(s,'CSV sem linhas → array vazio',()=>{expect(parseCSVExtrato('').length).toBe(0);});
+  it(s,'CSV só com header → array vazio',()=>{expect(parseCSVExtrato('Data;Historico;Valor').length).toBe(0);});
+});
+
+// ── 10. OCR DE CUPOM ──────────────────────────────────────────────────────────
+describe('10. Extração de Valores de Cupom (extrairValoresCupom)', s=>{
+  const cupomText=`SUPERMERCADO TESTE\nCerveja 12,50\nArroz 8,90\nFeijao 7,30\nSUBTOTAL 28,70\nTOTAL A PAGAR R$ 28,70`;
+
+  it(s,'extrai valores do cupom',()=>{
+    const vals=extrairValoresCupom(cupomText);
+    expect(vals.length).toBeGreaterThan(0);
+  });
+  it(s,'TOTAL aparece no topo (isTotal=true)',()=>{
+    const vals=extrairValoresCupom(cupomText);
+    expect(vals[0].isTotal).toBe(true);
+  });
+  it(s,'valor do total está correto',()=>{
+    const vals=extrairValoresCupom(cupomText);
+    expect(vals[0].raw).toBeCloseTo(28.70,1);
+  });
+  it(s,'valores abaixo de R$ 0,50 são ignorados',()=>{
+    const vals=extrairValoresCupom('item 0,10\nTOTAL 0,30');
+    expect(vals.length).toBe(0);
+  });
+  it(s,'valores acima de R$ 50.000 são ignorados',()=>{
+    const vals=extrairValoresCupom('TOTAL 99999,99');
+    expect(vals.length).toBe(0);
+  });
+  it(s,'sem duplicatas',()=>{
+    const vals=extrairValoresCupom('TOTAL 50,00\nSUBTOTAL 50,00');
+    const uniq=new Set(vals.map(v=>v.raw.toFixed(2)));
+    expect(uniq.size).toBe(vals.length);
+  });
+});
+
+// ── 11. SEGURANÇA — escapeHtml ────────────────────────────────────────────────
+describe('11. Sanitização de HTML (escapeHtml)', s=>{
+  it(s,'escapa <script>',()=>{expect(escapeHtml('<script>alert(1)</script>')).not.toContain('<script>');});
+  it(s,'escapa aspas duplas',()=>{expect(escapeHtml('"teste"')).toContain('&quot;');});
+  it(s,'escapa aspas simples',()=>{expect(escapeHtml("'teste'")).toContain('&#39;');});
+  it(s,'escapa &',()=>{expect(escapeHtml('a & b')).toContain('&amp;');});
+  it(s,'escapa >',()=>{expect(escapeHtml('a > b')).toContain('&gt;');});
+  it(s,'string normal não é alterada (letras)',()=>{expect(escapeHtml('FinChat')).toBe('FinChat');});
+  it(s,'null/undefined não quebra (cast para string)',()=>{expect(()=>escapeHtml(null)).not.toThrow?.();});
+  it(s,'injeção de onerror é escapada',()=>{expect(escapeHtml('<img onerror=alert(1)>')).not.toContain('<img');});
+  it(s,'injeção de onclick é escapada',()=>{expect(escapeHtml('<div onclick=x()>')).not.toContain('<div');});
+});
+
+// ── 12. UTILITÁRIO — novoId ───────────────────────────────────────────────────
+describe('12. Geração de IDs (novoId)', s=>{
+  it(s,'retorna número',()=>{expect(typeof novoId()).toBe('number');});
+  it(s,'IDs sequenciais são únicos',()=>{
+    const ids=Array.from({length:100},()=>novoId());
+    const uniq=new Set(ids);
+    expect(uniq.size).toBe(100);
+  });
+  it(s,'ID é positivo',()=>{expect(novoId()).toBeGreaterThan(0);});
+  it(s,'ID é inteiro',()=>{expect(Number.isInteger(novoId())).toBe(true);});
+});
+
+// ── 13. NORM ──────────────────────────────────────────────────────────────────
+describe('13. Normalização de texto (norm)', s=>{
+  it(s,'converte para minúsculas',()=>{expect(norm('MERCADO')).toBe('mercado');});
+  it(s,'remove acentos',()=>{expect(norm('café')).toBe('cafe');});
+  it(s,'remove acentos especiais',()=>{expect(norm('pão')).toBe('pao');});
+  it(s,'colapsa espaços múltiplos',()=>{expect(norm('a   b')).toBe('a b');});
+  it(s,'remove pontuação',()=>{expect(norm('olá!')).toBe('ola');});
+  it(s,'string vazia retorna vazia',()=>{expect(norm('')).toBe('');});
+});
+
+// ── 14. TESTES DE INTEGRAÇÃO (fluxo de registro simulado) ────────────────────
+describe('14. Fluxo de Registro (integração)', s=>{
+  it(s,'registro completo tem todos os campos obrigatórios',()=>{
+    const texto='paguei 180 mercado #compras';
+    const valor=detectarValor(texto);
+    const tipo=detectarTipoTexto(texto)||'gasto';
+    const cat=detectarCat(texto);
+    const tags=extrairTags(texto);
+    const desc=extrairDesc(texto);
+    const data=detectarData(texto);
+    const id=novoId();
+    const reg={id,tipo,valor,categoria:cat,descricao:desc,data,tags};
+    expect(reg.id).toBeTypeOf('number');
+    expect(reg.tipo).toBe('gasto');
+    expect(reg.valor).toBe(180);
+    expect(reg.categoria.key).toBe('alimentacao');
+    expect(reg.tags).toContain('compras');
+    expect(reg.data).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it(s,'registro de receita tem tipo correto',()=>{
+    const tipo=detectarTipoTexto('recebi 4000 salário');
+    expect(tipo).toBe('receita');
+  });
+
+  it(s,'parcelas gera contagem correta',()=>{
+    const n=detectarParcelas('compra em 12x');
+    expect(n).toBe(12);
+  });
+
+  it(s,'registro sem valor retorna null',()=>{
+    expect(detectarValor('gasto mercado')).toBeNull();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANÁLISE DE SEGURANÇA
+// ═══════════════════════════════════════════════════════════════════════════
+function renderSecurityReport(){
+  const issues=[
+    {
+      severity:'high',
+      title:'XSS — r.descricao e r.nota inseridos em innerHTML sem escapeHtml',
+      detail:`Em <code>histHTML()</code> (linha ~3379), <code>r.descricao</code> e <code>r.nota</code> são inseridos diretamente em template literals usados como innerHTML. Se um atacante armazenar no localStorage um registro com <code>descricao: '&lt;img src=x onerror=alert(1)&gt;'</code>, o JavaScript é executado ao renderizar o histórico.`,
+      fix:'Aplicar escapeHtml() em r.descricao, r.nota, r.divisao.pessoa e em todos os campos de texto do usuário antes de inserir em innerHTML. Ou usar textContent/createElement em vez de template strings.',
+      ref:'OWASP A03:2021 — Injection / CWE-79 Cross-Site Scripting'
+    },
+    {
+      severity:'high',
+      title:'XSS — c.nome (nome de carteira) inserido sem escape em innerHTML',
+      detail:`Em <code>renderWalletChips()</code> e <code>histHTML()</code>, <code>c.nome</code> e <code>c.icon</code> (dados inseridos pelo usuário na criação de carteiras) são interpolados diretamente em innerHTML. Uma carteira com nome <code>&lt;script&gt;...&lt;/script&gt;</code> seria executada.`,
+      fix:'Envolver c.nome e c.icon com escapeHtml() em todos os pontos de renderização.',
+      ref:'OWASP A03:2021 — Injection / CWE-79'
+    },
+    {
+      severity:'high',
+      title:'XSS — responderConsulta() insere r.descricao em innerHTML via chat',
+      detail:`O bot do chat (linhas ~6941, ~6970, ~7033) renderiza <code>r.descricao</code> diretamente via <code>div.innerHTML = texto</code> onde <code>texto</code> contém dados do usuário não sanitizados. Registros maliciosos provocam XSS no chat.`,
+      fix:'Sanitizar r.descricao com escapeHtml() antes de gerar as strings HTML das respostas do bot.',
+      ref:'OWASP A03:2021 — Injection / CWE-79'
+    },
+    {
+      severity:'medium',
+      title:'Injeção em onclick via template literal — c.id sem validação',
+      detail:`<code>onclick="setCarteiraFiltro('${'{c.id}'}')"</code> — se c.id contiver aspas simples ou parênteses (ex: <code>c'=1;alert(1)//</code>), o código injetado executa. c.id é gerado internamente mas vem do localStorage e pode ser manipulado.`,
+      fix:'Usar data-attributes e addEventListener em vez de onclick inline. Ex: <code>data-id="${'{c.id}'}"</code> e listener que lê dataset.id.',
+      ref:'OWASP A03:2021 — Injection / CWE-116'
+    },
+    {
+      severity:'medium',
+      title:'localStorage não tem integridade — dados podem ser manipulados externamente',
+      detail:`Todos os registros, configurações e carteiras residem no localStorage sem assinatura criptográfica ou hash de integridade. Qualquer extensão de browser com permissão para o domínio pode ler e modificar os dados, incluindo inserção de registros com payloads XSS.`,
+      fix:'Ao ler do localStorage, validar o schema dos dados (valor numérico, data ISO, tipo ∈ {gasto,receita}). Implementar função sanitizeRegistro() chamada em carregar().',
+      ref:'OWASP A04:2021 — Insecure Design / CWE-345'
+    },
+    {
+      severity:'medium',
+      title:'Ausência de validação de schema ao importar JSON/CSV',
+      detail:`Em <code>importarJSON()</code> e <code>parseCSVExtrato()</code>, os dados importados não passam por validação de tipo ou sanitização antes de serem salvos. Um arquivo JSON malicioso pode injetar campos arbitrários nos registros.`,
+      fix:'Implementar função validateRegistro(obj) que verifica: valor > 0 && < 1e8, tipo ∈ {gasto,receita}, data é ISO válida, descricao é string. Aplicar antes de push().',
+      ref:'OWASP A08:2021 — Software and Data Integrity Failures'
+    },
+    {
+      severity:'medium',
+      title:'preencherAtalho() usa r.descricao e r.tipo em onclick inline',
+      detail:`<code>onclick="preencherAtalho('${'{r.tipo}'}','${'{r.descricao}'}','${'{r.categoria.key}'}',${'{r.valor}'})"</code> — r.descricao com aspas simples quebra o atributo onclick e permite injeção de código arbitrário.`,
+      fix:'Usar data-attributes: <code>data-tipo="${'{r.tipo}'}" data-desc="${'{r.descricao}'}"</code> e attachar evento via JS depois.',
+      ref:'OWASP A03:2021 — Injection / CWE-116'
+    },
+    {
+      severity:'low',
+      title:'Google Drive OAuth2 Client ID exposto no localStorage',
+      detail:`O Client ID do Google (inserido pelo usuário em Config) é salvo em localStorage e exibido em texto claro. Embora seja um ID público por natureza, a configuração sem validação de domínio pode ser usada em ataques de phishing se o app for hospedado em domínio similar.`,
+      fix:'Validar formato do Client ID antes de salvar. Documentar claramente que o ID é público e não é uma chave secreta.',
+      ref:'OWASP A02:2021 — Cryptographic Failures'
+    },
+    {
+      severity:'low',
+      title:'Ausência de Content Security Policy (CSP)',
+      detail:`O app não define CSP via meta tag ou header HTTP. Isso permite que scripts inline e de qualquer origem sejam executados, ampliando o impacto de um XSS.`,
+      fix:'Adicionar <code>&lt;meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\' cdn.jsdelivr.net cdnjs.cloudflare.com \'unsafe-inline\'; connect-src *;"&gt;</code>. Remover \'unsafe-inline\' migrando os scripts inline para arquivos externos no longo prazo.',
+      ref:'OWASP A05:2021 — Security Misconfiguration / MDN CSP'
+    },
+    {
+      severity:'low',
+      title:'Sem limite de tamanho nos campos de entrada',
+      detail:`Campos como descrição, nome de carteira e nota não têm maxlength definido. Um usuário pode inserir strings muito longas, causando degradação de performance no render e potencialmente estourar o localStorage (limite ~5MB).`,
+      fix:'Adicionar maxlength="200" nos inputs e truncar no salvarEdicao() / salvarModalCarteira().',
+      ref:'OWASP A04:2021 — Insecure Design / CWE-400 Resource Exhaustion'
+    },
+    {
+      severity:'info',
+      title:'PIN/biometria armazenado em localStorage sem hash',
+      detail:`O PIN de desbloqueio, se implementado via localStorage, deve ser armazenado como hash (ex: SHA-256) e não em texto claro. Verificar a implementação atual de lockCheckOnResume().`,
+      fix:'Usar crypto.subtle.digest("SHA-256", pinBytes) e comparar apenas o hash.',
+      ref:'OWASP A02:2021 — Cryptographic Failures / CWE-256'
+    },
+    {
+      severity:'info',
+      title:'Sem proteção CSRF nos endpoints de backup Google Drive',
+      detail:`As chamadas OAuth2 ao Google Drive usam token armazenado em localStorage. Se o app for hospedado em domínio público, o token pode ser lido por outros scripts na mesma origem (extensões comprometidas).`,
+      fix:'Usar sessionStorage em vez de localStorage para o access_token. Implementar state parameter CSRF no fluxo OAuth2.',
+      ref:'OWASP A01:2021 — Broken Access Control / RFC 6749 §10.12'
+    },
+  ];
+
+  const sevOrder={critical:0,high:1,medium:2,low:3,info:4};
+  issues.sort((a,b)=>sevOrder[a.severity]-sevOrder[b.severity]);
+
+  const counts={critical:0,high:0,medium:0,low:0,info:0};
+  issues.forEach(i=>counts[i.severity]++);
+
+  const secEl=document.getElementById('security-section');
+  secEl.innerHTML=`
+    <h2 style="font-size:18px;font-weight:700;color:#f85149;margin-bottom:4px">🔒 Análise de Segurança</h2>
+    <p style="color:#8b949e;font-size:13px;margin-bottom:12px">Baseada em OWASP Top 10 (2021), CWE e boas práticas de desenvolvimento seguro</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      ${Object.entries(counts).map(([s,n])=>n>0?`<span class="sec-severity sev-${s}">${n} ${s}</span>`:'').join('')}
+    </div>
+    ${issues.map(i=>`
+    <div class="sec-card">
+      <div class="sec-header">
+        <span class="sec-severity sev-${i.severity}">${i.severity}</span>
+        <span class="sec-title">${i.title}</span>
+      </div>
+      <div class="sec-body">
+        ${i.detail}
+        <span class="fix">✅ Correção: ${i.fix}</span>
+        <span class="ref">📚 Referência: ${i.ref}</span>
+      </div>
+    </div>`).join('')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXECUÇÃO
+// ═══════════════════════════════════════════════════════════════════════════
+window.addEventListener('load',async()=>{
+  await runAll();
+  renderSecurityReport();
+});
+</script>
+</body>
+</html>
