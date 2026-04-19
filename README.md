@@ -6,7 +6,6 @@
 
 [![HTML](https://img.shields.io/badge/HTML-único%20arquivo-orange?style=flat-square&logo=html5)](https://ednelsonsantos.github.io/Finchat/)
 [![PWA](https://img.shields.io/badge/PWA-instalável-5A0FC8?style=flat-square&logo=pwa)](https://ednelsonsantos.github.io/Finchat/)
-[![Tamanho](https://img.shields.io/badge/tamanho-321kb-brightgreen?style=flat-square)](#)
 [![License](https://img.shields.io/badge/licença-MIT-green?style=flat-square)](LICENSE)
 [![Zero backend](https://img.shields.io/badge/backend-zero-brightgreen?style=flat-square)](#)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ativo-2088FF?style=flat-square&logo=github)](https://ednelsonsantos.github.io/Finchat/)
@@ -57,7 +56,7 @@ O app entende, categoriza e registra. Funciona offline, instala no celular como 
 │  │ "gasto 80 farmácia"...      ││  ← input sempre visível
 │  └──────────────────────[ → ] ┘│
 │                                 │
-│  [🏠][📊][📋][🎯][🔁][⚙️]      │  ← bottom nav
+│  [🏠][📊][📋][🎯][🔁][⭐][📈][⚙️] │  ← bottom nav
 └─────────────────────────────────┘
 ```
 
@@ -66,15 +65,13 @@ O app entende, categoriza e registra. Funciona offline, instala no celular como 
 | Ícone | Tela | O que tem |
 |---|---|---|
 | 🏠 | Home | Input + card do dia + atalhos rápidos |
-| 📊 | Dashboard | KPIs + 4 gráficos + score financeiro + exportação PDF/CSV |
-| 📋 | Histórico | Lista com busca em tempo real, swipe para excluir e edição |
+| 📊 | Dashboard | KPIs + 7 gráficos + score + exportação PDF/CSV/imagem |
+| 📋 | Histórico | Lista com busca, filtro por valor, swipe e edição |
 | 🎯 | Metas | Limites mensais por categoria com alertas |
 | 🔁 | Fixos | Recorrentes com controle de vencimento |
 | ⭐ | Sonhos | Objetivos de poupança de longo prazo |
-| 📈 | Categorias | Barras de gastos com contagem |
+| 📈 | Categorias | Barras de gastos com tendência vs mês anterior |
 | ⚙️ | Config | Perfil, modo escuro, backup, categorias personalizadas |
-
-Cada tela tem um botão `←` para voltar à home.
 
 ---
 
@@ -85,6 +82,7 @@ Cada tela tem um botão `←` para voltar à home.
 - **Saldo em destaque** — pill clicável leva ao dashboard
 - **Atalhos rápidos** — últimas categorias usadas viram botões que pré-preenchem o input
 - **Undo** — toast com botão "Desfazer" por 5s após cada registro
+- **📷 Scanner de cupom** — escaneia cupom fiscal via câmera (OCR Tesseract.js)
 
 ### 📝 Parser em linguagem natural (100% local, sem IA externa)
 - Detecta tipo, valor, categoria e data automaticamente
@@ -94,47 +92,52 @@ Cada tela tem um botão `←` para voltar à home.
 - Para profissionais ambíguos (eletricista, dev), pergunta se pagou ou recebeu
 - Validação anti-registro sem contexto (bloqueia entradas como "aaa 123")
 - Preview do número sequencial antes de registrar
-
-### 💡 Hints contextuais inteligentes
-- Exemplos clicáveis específicos por categoria e profissional
-- Modo claro: fundo branco com letras pretas
-- Modo escuro: fundo preto com letras brancas — máximo contraste
-
-### 📊 Dashboard visual
-- **Gráfico de linha** — evolução do saldo no mês
-- **Gráfico de rosca** — gastos por categoria com percentuais
-- **Gráfico de barras** — entradas vs saídas nos últimos 7 dias
-- **Gráfico comparativo** — receitas e gastos dos últimos 6 meses
-- **Gráfico de tendência** — gastos acumulados: mês atual vs mês anterior (linha)
-- **Score financeiro** — pontuação 0–100 baseada em poupança, metas e contas em dia
-- **Previsão de fechamento** — projeção de gasto total com base no ritmo atual
-- Filtro por mês com navegação `‹ Abr 2026 ›`
-- Exportação PDF e CSV no header do dashboard
+- Parcelamento automático: *"comprei tênis 600 em 6x"*
 
 ### 💬 Chat financeiro local
 - Detecta automaticamente se é registro ou consulta
-- Consultas locais: *"quanto gastei essa semana?"*, *"resumo do mês"*, *"top categorias"*
-- Funciona 100% offline
+- Consultas: *"quanto gastei essa semana?"*, *"resumo do mês"*, *"top categorias"*, *"fixos pendentes"*
+- Funciona 100% offline, sem IA externa
+
+### 📊 Dashboard visual
+- **Gráfico de linha** — evolução do saldo no mês atual
+- **Gráfico de rosca** — gastos por categoria com percentuais
+- **Gráfico de barras** — entradas vs saídas nos últimos 7 dias
+- **Gráfico comparativo** — receitas e gastos dos últimos 6 meses
+- **Gráfico de tendência** — gastos acumulados: mês atual vs mês anterior
+- **Gráfico de saldo diário** — evolução acumulada dia a dia
+- **Comparativo mês a mês** — escolha dois meses e compare lado a lado
+- **Score financeiro** — pontuação 0–100 baseada em poupança, metas e contas em dia
+- **Previsão de fechamento** — projeção de gasto total com base no ritmo atual
+- **Padrões recorrentes detectados** — sugere gastos frequentes para adicionar como fixos
+- **Insights automáticos** — dia mais caro, maior gasto, alertas de comportamento
+- **Dieta financeira** — teto diário com alerta ao ultrapassar
+- Filtro por mês com navegação `‹ Abr 2026 ›`
+- Exportação PDF, CSV e 📸 imagem 1080×1080 para redes sociais
 
 ### 🎯 Metas por categoria
 - Limites mensais com barra de progresso e alertas automáticos (80% e 100%)
+- Desafio de economia — gamificação com progresso visual
 
 ### 🔁 Lançamentos fixos/recorrentes
 - Cadastre uma vez, controle vencimento, registre com um toque
-- Alertas: vence hoje, em atraso, aviso prévio (1–3 dias)
+- Alertas: vence hoje, em atraso, aviso prévio configurável
+- Repetir qualquer transação do histórico com um toque
 
 ### ⭐ Objetivos de poupança
 - Metas de longo prazo com cálculo automático de aporte mensal
+- Projeção de reserva de emergência
 
 ### 💳 Carteiras múltiplas
 - Nubank, dinheiro, cartão — cada uma com ícone e cor personalizados
 - Limite de cartão com alerta ao atingir 80% e 100%
 - Transferência entre carteiras
+- Filtro por carteira no histórico
 
 ### ÷ Divisão de gastos
 - Divida qualquer gasto igualmente ou com valor livre
 - Painel "A receber" com total por pessoa
-- Botão **WhatsApp** para cobrar diretamente: *"Olá João! Você me deve R$ 50,00 💸"*
+- Botão **WhatsApp** para cobrar diretamente
 
 ### 🏷️ Tags personalizadas
 - Marque transações com `#viagem`, `#trabalho`, `#festa`...
@@ -142,33 +145,44 @@ Cada tela tem um botão `←` para voltar à home.
 
 ### 📦 Categorias personalizadas
 - Crie suas próprias categorias além das 13 padrão (emoji + nome + palavras-chave)
-- Detectadas automaticamente pelo parser e disponíveis no modal de edição
+- Detectadas automaticamente pelo parser
 
 ### 📆 Resumos automáticos
 - **Relatório mensal**: ao virar o mês, mostra resumo de receitas, gastos, metas e top categoria
 - **Resumo semanal**: todo domingo, total da semana vs semana anterior + top 3 categorias
 
-### 🔢 Numeração por categoria
-- `escola #001`, `inglês #002` — sequência global por categoria
-
-### 🔍 Busca e edição
-- Busca em tempo real no histórico
-- **Swipe para excluir** — deslize o item para a esquerda no mobile
-- Toque para editar qualquer registro — modal com nota e tags
+### 📈 Tendência por categoria
+- Indicador ↑ / ↓ / ≈ comparando cada categoria com o mês anterior
 
 ### 📄 Exportação
-- **PDF** — relatório completo com métricas e gráficos
+- **PDF** — relatório completo com métricas
 - **CSV/Excel** — BOM UTF-8 para Excel brasileiro
 - **JSON** — backup completo com restore
+- **Imagem** — card 1080×1080 para redes sociais (Canvas API)
 
 ### ☁️ Backup Google Drive
 - Sincronização manual ou automática (toggle em Config)
 - Merge bidirecional: une dados locais com dados do Drive sem duplicar
 - Modo grupo/casal: compartilhe dados via código de grupo
 
+### 📥 Importação de extrato
+- CSV (padrão banco) e OFX — categorização automática
+
+### 🔢 Numeração por categoria
+- `escola #001`, `inglês #002` — sequência global por categoria
+
+### 🔍 Busca e edição
+- Busca em tempo real no histórico
+- Filtro por valor mínimo e máximo
+- **Swipe para excluir** — deslize o item para a esquerda no mobile
+- Toque para editar qualquer registro — modal com nota, tags e humor
+
+### 😊 Rastreamento de humor financeiro
+- Registre como se sentiu após cada gasto (opcional)
+- Visualização no histórico com emoji
+
 ### 🌙 Modo escuro
 - Toggle nas configurações, preferência salva entre sessões
-- Hints: fundo preto, letras brancas — máximo contraste
 
 ### 📱 Mobile e PWA
 - Bottom navigation visível em qualquer tamanho de tela
@@ -178,8 +192,16 @@ Cada tela tem um botão `←` para voltar à home.
 - Onboarding de primeiro uso (3 passos: nome → meta → notificações)
 
 ### 🔒 Segurança
-- PIN de 4 dígitos para proteger o app
+- PIN de 4 dígitos com hash SHA-256 (nunca armazena o PIN em texto claro)
 - Biometria (impressão digital / Face ID) via Capacitor
+- Content Security Policy (CSP) — bloqueia scripts externos não autorizados
+- `escapeHtml()` em todos os contextos `innerHTML` com dados do usuário (sem XSS)
+- OAuth token em `sessionStorage` — some ao fechar a aba
+- `maxlength` em todos os inputs de texto
+- Validação de schema ao carregar dados do storage
+
+### ⚡ Modo quiosque
+- Botão flutuante para registro rápido sem sair de nenhuma tela
 
 ---
 
@@ -213,9 +235,11 @@ Zero dependências de backend. Zero build step.
 | Tecnologia | Uso | Versão |
 |---|---|---|
 | HTML5 / CSS3 / JS | Base completa | Vanilla |
-| [Chart.js](https://chartjs.org) | 5 gráficos | 4.4.1 (CDN) |
+| [Chart.js](https://chartjs.org) | 7 gráficos | 4.4.1 (CDN) |
 | [jsPDF](https://github.com/parallax/jsPDF) | Exportação PDF | 2.5.1 (CDN) |
 | [jsPDF-AutoTable](https://github.com/simonbengtsson/jsPDF-AutoTable) | Tabelas no PDF | 3.8.2 (CDN) |
+| [Tesseract.js](https://tesseract.projectnaptha.com) | OCR de cupons fiscais | 5 (CDN, lazy) |
+| Canvas API | Exportação de imagem social | Nativo |
 | localStorage / SQLite | Persistência | Nativo |
 | Service Worker | Cache offline + PWA | Nativo |
 
@@ -233,6 +257,9 @@ finchat_cats_custom_v1   → categorias personalizadas
 finchat_config_v1        → configurações
 finchat_dark             → preferência de tema
 finchat_notif_log        → controle de notificações enviadas
+finchat_pin_hash         → hash SHA-256 do PIN (nunca o PIN em texto claro)
+finchat_drive_client_id  → Client ID do Google Drive (localStorage)
+sessionStorage           → token OAuth Drive (ephemeral — some ao fechar a aba)
 ```
 
 ---
@@ -269,23 +296,6 @@ python -m http.server 8080
 
 **Chrome DevTools** — `F12` → ícone de celular → escolha o dispositivo
 
-**BlueStacks** (emulador Android):
-```bash
-# 1. Baixe em bluestacks.com
-# 2. Sirva o arquivo
-python -m http.server 8080
-# 3. Descubra seu IP local
-ipconfig    # Windows — copie o IPv4
-# 4. No Chrome do BlueStacks acesse:
-# http://SEU_IP:8080
-```
-
-**Android Studio AVD:**
-```bash
-# IP especial do emulador para acessar o localhost da máquina
-http://10.0.2.2:8080
-```
-
 **Celular físico** (mesma rede Wi-Fi):
 ```bash
 python -m http.server 8080
@@ -293,7 +303,12 @@ python -m http.server 8080
 # Banner de instalação PWA aparece automaticamente no Chrome Android
 ```
 
-> Dica: para testar sem configurar nada, use diretamente o GitHub Pages em qualquer dispositivo: [https://ednelsonsantos.github.io/Finchat/](https://ednelsonsantos.github.io/Finchat/)
+**Android Studio AVD:**
+```bash
+http://10.0.2.2:8080
+```
+
+> Dica: para testar sem configurar nada, use diretamente o GitHub Pages: [https://ednelsonsantos.github.io/Finchat/](https://ednelsonsantos.github.io/Finchat/)
 
 ---
 
@@ -317,144 +332,93 @@ npm run electron          # abre o app direto
 npm run electron:build    # gera instalador em dist-electron/
 ```
 
-O build gera um instalador `.exe` (Windows), `.dmg` (macOS) ou `.AppImage` (Linux).
-
 ---
 
 ## 📲 Capacitor — APK Android
 
-Transforma o app em APK para instalar diretamente no celular.
-
-**Pré-requisitos:**
-- [Android Studio](https://developer.android.com/studio) instalado
-- JDK 17+ no PATH
-
 ```bash
 npm install
-
-# Primeira vez — adiciona a plataforma Android
-npx cap add android
-
-# A cada mudança no index.html
-npx cap sync
-
-# Abre o Android Studio para build/emulador
-npm run cap:android
+npx cap add android       # primeira vez
+npx cap sync              # a cada mudança no index.html
+npm run cap:android       # abre o Android Studio
 ```
 
 No Android Studio: **Run ▶** para emulador ou **Build → Build Bundle/APK** para gerar o APK.
 
-> iOS requer macOS + Xcode. No Windows só Android é suportado.
-
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap — Implementado ✅
 
-### Implementado ✅
-
-- [x] Parser de linguagem natural (100% local, sem IA externa)
-- [x] Dashboard com 5 gráficos (linha, rosca, barras, comparativo 6 meses, tendência)
-- [x] Score financeiro (pontuação 0–100)
+- [x] Parser de linguagem natural (100% local)
+- [x] Dashboard com 7 gráficos
+- [x] Score financeiro (0–100)
 - [x] Previsão de fechamento do mês
+- [x] Saldo diário acumulado (gráfico de linha)
+- [x] Comparativo mês a mês
+- [x] Tendência por categoria (↑ ↓ ≈ vs mês anterior)
+- [x] **Padrões recorrentes detectados** — sugere fixos automaticamente
 - [x] Metas por categoria com alertas
+- [x] Desafio de economia (gamificação)
 - [x] Lançamentos fixos/recorrentes com notificações de vencimento
-- [x] Objetivos de poupança
+- [x] Repetir transação do histórico
+- [x] Objetivos de poupança + reserva de emergência
 - [x] Carteiras múltiplas com limite e alertas
 - [x] Transferência entre carteiras
 - [x] Divisão de gastos com cobrança via WhatsApp
 - [x] Tags personalizadas (`#viagem`, `#trabalho`...)
 - [x] Categorias personalizadas (emoji + palavras-chave)
 - [x] Relatório mensal automático ao virar o mês
-- [x] Resumo semanal automático (todo domingo)
-- [x] Undo do último registro (5 segundos)
-- [x] Swipe para excluir no histórico (mobile)
-- [x] Busca em tempo real com filtro por tag
-- [x] Exportação PDF, CSV e JSON backup
-- [x] Backup Google Drive (manual e automático)
-- [x] Modo casal/grupo via código compartilhado no Drive
+- [x] Resumo semanal automático
+- [x] Modo dieta financeira (teto diário)
+- [x] Rastreamento de humor financeiro
+- [x] OCR de cupom fiscal (câmera → Tesseract.js)
 - [x] Importação de extrato CSV/OFX
+- [x] Filtro por valor mínimo/máximo no histórico
+- [x] Chat com consultas inteligentes offline
+- [x] Insights automáticos no dashboard
+- [x] Simulador de juros/empréstimo
+- [x] Parcelamento automático
+- [x] Undo do último registro
+- [x] Swipe para excluir (mobile)
+- [x] Busca em tempo real com filtro por tag
+- [x] Exportação PDF, CSV, JSON e 📸 imagem social
+- [x] Backup Google Drive (manual e automático)
+- [x] Modo casal/grupo via código compartilhado
 - [x] Dark mode
 - [x] PWA instalável + Service Worker offline
 - [x] Onboarding de primeiro uso
-- [x] PIN e biometria (Capacitor)
-- [x] Capacitor — APK Android
+- [x] PIN (SHA-256) e biometria (Capacitor)
+- [x] Modo quiosque (registro rápido flutuante)
+- [x] Lembrete diário por horário
 - [x] Electron — app desktop
-
-### Implementado recentemente ✅
-
-- [x] Busca por voz (Web Speech API)
-- [x] Alertas de limite no chat ao registrar
-- [x] Categorias personalizadas com emoji picker
-- [x] Editar lançamentos fixos
-- [x] Filtro por carteira no histórico
-
-### Implementado recentemente ✅ (2ª leva)
-
-- [x] Parcelamento automático ("comprei tênis 600 em 6x")
-- [x] Insights automáticos no dashboard (dia mais caro, maior gasto, comparativo meses)
-- [x] Alerta de padrão incomum ao registrar
-- [x] Simulador de juros / empréstimo (modal + comando no chat)
-- [x] Desafio de economia (gamificação na aba Metas)
-- [x] Modo quiosque ⚡ (botão flutuante para registro rápido sem sair da tela)
-- [x] Lembrete diário por horário (Config → toggle + seletor de hora)
-- [x] Projeção de reserva de emergência (aba Objetivos)
-
-### Próximas melhorias 🚧
-
-- [ ] Exportar relatório em imagem para redes sociais
+- [x] Capacitor — APK Android
+- [x] CSP, XSS protection, maxlength, OAuth sessionStorage
 
 ---
 
 ## 🤝 Contribuindo
 
 ```bash
-# 1. Clique em "Fork" no GitHub (canto superior direito do repositório)
-# 2. Clone o seu fork
-git clone https://github.com/SEU_USUARIO/Finchat.git
+git clone https://github.com/ednelsonsantos/Finchat.git
 cd Finchat
 git checkout -b minha-melhoria
-
-# 3. Edite o arquivo principal
 # edite index.html
-
-# 4. Commit e push
 git commit -am "feat: minha melhoria"
 git push origin minha-melhoria
-
-# 5. Abra um Pull Request no GitHub
-```
-
-### Adicionar palavras ao dicionário
-
-```javascript
-// Nova palavra numa categoria:
-alimentacao: { palavras: ['mercado', 'SUA_PALAVRA', ...] }
-
-// Novo profissional:
-{
-  palavras: ['nome'], icon: '🔨', label: 'Nome',
-  cat: 'Serviços', badge: 'bg-amber',
-  tipo: null, ambiguo: true,
-  sub: 'Serviço — pagou ou recebeu?',
-  exemplos: [
-    {t: 'paguei 300 nome', d: 'contratei'},
-    {t: 'recebi 300 nome', d: 'prestei'},
-  ],
-  tip: 'Dica aqui.'
-}
+# Abra um Pull Request no GitHub
 ```
 
 ---
 
 ## 📄 Licença
 
-MIT © 2026
+MIT © 2026 Ednelson Santos
 
 ---
 
 <div align="center">
 
-**FinChat · 321kb · um único arquivo HTML · zero backend · zero rastreamento**
+**FinChat · um único arquivo HTML · zero backend · zero rastreamento**
 
 Seus dados são seus.
 

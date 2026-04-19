@@ -33,3 +33,11 @@ package-lock.json
 # Assets duplicados na raiz
 iconefinchat.png
 logofinchat.png
+
+# Diretórios de build/saída
+/www/
+dist/
+dist-electron/
+
+# Testes locais gerados
+tests/*.log

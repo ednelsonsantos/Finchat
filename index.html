@@ -6,7 +6,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; font-src 'self' data:"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://accounts.google.com https://www.googleapis.com; img-src 'self' data: blob:; font-src 'self' data:; worker-src blob:"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#1D9E75"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -1483,6 +1483,16 @@ body.dark .dieta-alert{background:#2d2200;border-color:#b45309;color:#fcd34d}
 body.dark .dieta-ok{background:#0d2e1f;border-color:#1D9E75;color:#6ee7b7}
 .dieta-badge-ok{background:#1D9E75}
 
+/* ── PADRÕES RECORRENTES ────────────────────────────────────── */
+.padrao-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--color-border)}
+.padrao-item:last-child{border-bottom:none}
+.padrao-icon{font-size:22px;min-width:28px;text-align:center}
+.padrao-info{flex:1;min-width:0}
+.padrao-desc{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.padrao-meta{font-size:12px;color:var(--color-text-sec);margin-top:2px}
+.padrao-add-btn{padding:6px 12px;border:none;border-radius:20px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.padrao-add-btn:hover{background:#178a65}
+
 /* ── COMPARATIVO MÊS A MÊS ─────────────────────────────────── */
 .comp-selectors{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .comp-sel{flex:1;min-width:120px;padding:6px 10px;border-radius:20px;border:1px solid #ddd;font-size:13px;background:#f5f5f3;color:#1a1a1a;outline:none}
@@ -1626,7 +1636,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
         </div>
         <div style="padding:20px 24px">
           <div class="edit-label" style="margin-bottom:6px">Como quer ser chamado?</div>
-          <input class="edit-input" id="ob-nome" type="text" placeholder="Seu nome" style="margin-bottom:16px"/>
+          <input class="edit-input" id="ob-nome" type="text" placeholder="Seu nome" maxlength="50" style="margin-bottom:16px"/>
           <div class="edit-label" style="margin-bottom:6px">Qual sua renda mensal? (opcional)</div>
           <input class="edit-input" id="ob-renda" type="number" placeholder="Ex: 4000" inputmode="decimal" style="margin-bottom:20px"/>
           <button onclick="obProximo(1)" style="width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">Próximo →</button>
@@ -1744,7 +1754,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
       <div class="home-input-row">
         <input id="inp" type="text"
           placeholder='"gasto 80 farmácia" ou "recebi 4000 salário"'
-          autocomplete="off"/>
+          maxlength="200" autocomplete="off"/>
         <button class="home-mic-btn" id="ocr-btn" onclick="document.getElementById('cupom-file-input').click()" title="Escanear cupom fiscal">📷</button>
         <input type="file" id="cupom-file-input" accept="image/*" capture="environment" style="display:none" onchange="abrirModalCupom(event)"/>
         <button class="home-mic-btn" id="mic-btn" onclick="iniciarVoz()" title="Falar para registrar">🎤</button>
@@ -1927,6 +1937,12 @@ body.dark .cat-trend-eq{background:#1a2e26}
       <div id="dieta-status"></div>
     </div>
 
+    <!-- Padrões recorrentes detectados -->
+    <div id="card-padroes" class="dash-card-full" style="display:none;margin-bottom:12px">
+      <div class="dash-title">🔁 Padrões recorrentes detectados</div>
+      <div id="padroes-lista"></div>
+    </div>
+
     <!-- Insights automáticos -->
     <div id="card-insights" class="dash-card-full" style="display:none;margin-bottom:12px">
       <div class="dash-title">💡 Insights do mês</div>
@@ -1953,7 +1969,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
       <div class="hist-search-wrap">
         <span class="hist-search-icon">🔍</span>
         <input type="text" id="hist-search" placeholder="Buscar por descrição, categoria, valor..."
-          oninput="buscarHistorico(this.value)" autocomplete="off"/>
+          maxlength="100" oninput="buscarHistorico(this.value)" autocomplete="off"/>
         <button class="hist-search-clear" id="hist-search-clear" onclick="limparBusca()">×</button>
       </div>
       <div class="hist-wallet-chips" id="hist-wallet-chips"></div>
@@ -2044,7 +2060,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     <div class="rec-form">
       <div class="rec-form-title">Novo lançamento fixo</div>
       <div class="rec-form-grid">
-        <input id="rec-desc" type="text" placeholder="Descrição (ex: Aluguel, Netflix...)"/>
+        <input id="rec-desc" type="text" placeholder="Descrição (ex: Aluguel, Netflix...)" maxlength="100"/>
         <input id="rec-val" type="number" placeholder="Valor R$" min="1" step="0.01" inputmode="decimal"/>
         <select id="rec-tipo">
           <option value="gasto">💸 Gasto fixo</option>
@@ -2087,7 +2103,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     <div class="obj-form">
       <div class="obj-form-title">Novo objetivo de poupança</div>
       <div class="obj-form-grid">
-        <input id="obj-nome" type="text" placeholder="Nome do objetivo (ex: Viagem, Carro...)"/>
+        <input id="obj-nome" type="text" placeholder="Nome do objetivo (ex: Viagem, Carro...)" maxlength="80"/>
         <input id="obj-meta" type="number" placeholder="Valor total R$" min="1" step="1" inputmode="numeric" pattern="[0-9]*"/>
         <input id="obj-inicial" type="number" placeholder="Já tenho R$ (opcional)" min="0" step="1" inputmode="numeric" pattern="[0-9]*"/>
         <input id="obj-prazo" type="number" placeholder="Prazo em dias (ex: 365 = 1 ano)" min="1" step="1" inputmode="numeric" pattern="[0-9]*"/>
@@ -2128,7 +2144,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
       </div>
       <div class="cfg-row" style="flex-direction:column;align-items:stretch;gap:8px">
         <div class="edit-label" style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em">Seu nome</div>
-        <input class="cfg-input" id="cfg-nome" type="text" placeholder="Como quer ser chamado?" style="width:100%;text-align:left" oninput="salvarConfig()"/>
+        <input class="cfg-input" id="cfg-nome" type="text" placeholder="Como quer ser chamado?" maxlength="50" style="width:100%;text-align:left" oninput="salvarConfig()"/>
       </div>
       <div class="cfg-stat-row" style="margin-top:8px">
         <div class="cfg-stat"><div class="cs-val" id="cfg-stat-regs">0</div><div class="cs-lbl">Registros</div></div>
@@ -2313,7 +2329,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
           <div style="margin-top:8px">
             <div style="color:#aaa;font-size:11px;margin-bottom:6px">Defina um código e compartilhe com seu parceiro(a). Ambos conectados ao Drive com o mesmo código sincronizam os mesmos dados.</div>
             <div style="display:flex;gap:6px">
-              <input class="cfg-input" id="cfg-grupo-code" type="text" placeholder="Ex: familia-santos-2026" style="flex:1;font-size:12px" oninput="atualizarGrupoUI()"/>
+              <input class="cfg-input" id="cfg-grupo-code" type="text" placeholder="Ex: familia-santos-2026" maxlength="50" style="flex:1;font-size:12px" oninput="atualizarGrupoUI()"/>
               <button class="cfg-btn" onclick="salvarGrupoCode()" style="padding:6px 12px">Salvar</button>
             </div>
             <div style="font-size:11px;color:#aaa;margin-top:4px" id="cfg-grupo-status"></div>
@@ -2323,7 +2339,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
         <details style="width:100%;font-size:12px">
           <summary style="color:#888;cursor:pointer">Configuração avançada (Client ID)</summary>
           <div style="margin-top:8px;display:flex;gap:6px">
-            <input id="cfg-drive-client-id" class="cfg-input" type="text" placeholder="OAuth 2.0 Client ID do Google Cloud Console" style="flex:1;font-size:11px" oninput="driveSaveClientId()"/>
+            <input id="cfg-drive-client-id" class="cfg-input" type="text" placeholder="OAuth 2.0 Client ID do Google Cloud Console" maxlength="200" style="flex:1;font-size:11px" oninput="driveSaveClientId()"/>
           </div>
           <div style="color:#aaa;font-size:11px;margin-top:4px">
             Crie em <em>console.cloud.google.com → APIs → Credenciais → OAuth 2.0</em>.<br>
@@ -2381,7 +2397,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     <div class="modal-title">Editar registro</div>
     <div class="edit-field">
       <div class="edit-label">Descrição</div>
-      <input class="edit-input" id="edit-desc" type="text" placeholder="Descrição"/>
+      <input class="edit-input" id="edit-desc" type="text" placeholder="Descrição" maxlength="200"/>
     </div>
     <div class="edit-row">
       <div class="edit-field">
@@ -2422,11 +2438,11 @@ body.dark .cat-trend-eq{background:#1a2e26}
     </div>
     <div class="edit-field">
       <div class="edit-label">Tags (opcional)</div>
-      <input class="edit-input" id="edit-tags" type="text" placeholder='Ex: #viagem #trabalho #festa'/>
+      <input class="edit-input" id="edit-tags" type="text" placeholder='Ex: #viagem #trabalho #festa' maxlength="200"/>
     </div>
     <div class="edit-field">
       <div class="edit-label">Nota / observação (opcional)</div>
-      <input class="edit-input" id="edit-nota" type="text" placeholder='Ex: "parcela 2/6", "pago com cartão"...'/>
+      <input class="edit-input" id="edit-nota" type="text" placeholder='Ex: "parcela 2/6", "pago com cartão"...' maxlength="300"/>
     </div>
     <div class="modal-actions">
       <button class="modal-btn-delete" onclick="deletarDoModal()">Excluir</button>
@@ -2453,7 +2469,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     </div>
     <div class="edit-field">
       <div class="edit-label">Palavras-chave (separe por vírgula)</div>
-      <input id="cc-palavras" class="edit-input" placeholder="Ex: academia, gym, crossfit"/>
+      <input id="cc-palavras" class="edit-input" placeholder="Ex: academia, gym, crossfit" maxlength="200"/>
     </div>
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="fecharModalCustomCat()">Cancelar</button>
@@ -2624,7 +2640,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
   <button class="q-close" onclick="fecharQuiosque()" title="Fechar">×</button>
   <div class="q-title">⚡ Registro rápido</div>
   <div class="q-input-row">
-    <input id="q-inp" class="q-inp" type="text" placeholder="gasto 50 mercado..." autocomplete="off"
+    <input id="q-inp" class="q-inp" type="text" placeholder="gasto 50 mercado..." maxlength="200" autocomplete="off"
       onkeydown="if(event.key==='Enter')enviarQuiosque();else if(event.key==='Escape')fecharQuiosque()"/>
     <button class="q-btn" onclick="enviarQuiosque()">→</button>
   </div>
@@ -2662,7 +2678,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     <div class="split-desc-info" style="font-size:13px;margin-bottom:12px">Gasto: <span id="split-desc-label" style="font-weight:600"></span> — <span id="split-val-label" style="color:#E24B4A;font-weight:600"></span></div>
     <div class="edit-field">
       <div class="edit-label">Dividir com (nome)</div>
-      <input class="edit-input" id="split-pessoa" type="text" placeholder="Ex: João, Maria, Amigos..."/>
+      <input class="edit-input" id="split-pessoa" type="text" placeholder="Ex: João, Maria, Amigos..." maxlength="100"/>
     </div>
     <div class="edit-field">
       <div class="edit-label">Dividir em quantas partes iguais</div>
@@ -2727,7 +2743,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     </div>
     <div class="edit-field">
       <div class="edit-label">Descrição (opcional)</div>
-      <input class="edit-input" id="transfer-desc" type="text" placeholder="Ex: pagar fatura Nubank"/>
+      <input class="edit-input" id="transfer-desc" type="text" placeholder="Ex: pagar fatura Nubank" maxlength="100"/>
     </div>
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="fecharModalTransferencia()">Cancelar</button>
@@ -2744,7 +2760,7 @@ body.dark .cat-trend-eq{background:#1a2e26}
     <input type="hidden" id="carteira-modal-id"/>
     <div class="edit-field">
       <div class="edit-label">Nome</div>
-      <input class="edit-input" id="carteira-modal-nome" type="text" placeholder="Ex: Nubank, Dinheiro, Itaú..."/>
+      <input class="edit-input" id="carteira-modal-nome" type="text" placeholder="Ex: Nubank, Dinheiro, Itaú..." maxlength="50"/>
     </div>
     <div class="edit-row">
       <div class="edit-field">
@@ -4955,6 +4971,7 @@ function renderDashboard(){
   renderChartSaldoDiario(regs);
   renderComparativoMes();
   renderDietaDiaria();
+  detectarPadroes();
 }
 
 function renderScoreFinanceiro(){
@@ -6219,6 +6236,84 @@ function checarDietaDiaria(registro){
   }
 }
 
+// ── N: DETECÇÃO DE PADRÕES RECORRENTES ───────────────────────────────────────
+function detectarPadroes(){
+  const card=document.getElementById('card-padroes');
+  const lista=document.getElementById('padroes-lista');
+  if(!card||!lista) return;
+
+  const hoje=new Date();
+  const limite=new Date(hoje); limite.setDate(limite.getDate()-90);
+  const recentes=registros.filter(r=>r.tipo==='gasto'&&new Date(r.data)>=limite);
+
+  // agrupa por descrição normalizada
+  const grupos={};
+  recentes.forEach(r=>{
+    const chave=(r.descricao||'').toLowerCase().trim().replace(/\s+/g,' ');
+    if(!chave||chave.length<3) return;
+    if(!grupos[chave]) grupos[chave]={desc:r.descricao,cat:r.categoria,datas:[],valores:[]};
+    grupos[chave].datas.push(new Date(r.data));
+    grupos[chave].valores.push(r.valor);
+  });
+
+  // já cadastrados como fixos
+  const fixosDesc=new Set(recorrentes.map(f=>(f.descricao||'').toLowerCase().trim()));
+
+  const sugestoes=[];
+  Object.entries(grupos).forEach(([chave,g])=>{
+    if(g.datas.length<2) return;
+    if(fixosDesc.has(chave)) return;
+    const datas=g.datas.sort((a,b)=>a-b);
+    // calcula intervalos em dias entre ocorrências consecutivas
+    const intervalos=[];
+    for(let i=1;i<datas.length;i++) intervalos.push((datas[i]-datas[i-1])/(1000*60*60*24));
+    const medInt=intervalos.reduce((a,b)=>a+b,0)/intervalos.length;
+    const medVal=g.valores.reduce((a,b)=>a+b,0)/g.valores.length;
+    let freq=null;
+    if(medInt>=25&&medInt<=35) freq='mensal';
+    else if(medInt>=6&&medInt<=9) freq='semanal';
+    else if(medInt>=13&&medInt<=17) freq='quinzenal';
+    if(!freq) return;
+    sugestoes.push({desc:g.desc,cat:g.cat,freq,medVal,ocorrencias:g.datas.length,ultimaData:datas[datas.length-1]});
+  });
+
+  if(!sugestoes.length){ card.style.display='none'; return; }
+  const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const freqLabel={mensal:'todo mês',semanal:'toda semana',quinzenal:'a cada 2 semanas'};
+  lista.innerHTML=sugestoes.map((s,i)=>`
+    <div class="padrao-item">
+      <span class="padrao-icon">${s.cat&&s.cat.icon?s.cat.icon:'🔁'}</span>
+      <div class="padrao-info">
+        <div class="padrao-desc">${escapeHtml(s.desc)}</div>
+        <div class="padrao-meta">${freqLabel[s.freq]} · média ${fmt(s.medVal)} · ${s.ocorrencias}x em 90 dias</div>
+      </div>
+      <button class="padrao-add-btn" onclick="adicionarPadraoComoFixo(${i})" title="Adicionar como fixo">+ Fixo</button>
+    </div>`).join('');
+  card.style.display='block';
+  card._sugestoes=sugestoes;
+}
+
+function adicionarPadraoComoFixo(idx){
+  const card=document.getElementById('card-padroes');
+  const s=card&&card._sugestoes&&card._sugestoes[idx];
+  if(!s) return;
+  const diasRef={mensal:1,semanal:null,quinzenal:null};
+  const novo={
+    id:Date.now(),
+    descricao:s.desc,
+    valor:Math.round(s.medVal*100)/100,
+    tipo:'gasto',
+    categoria:s.cat||CATS.outros,
+    frequencia:s.freq,
+    dia:diasRef[s.freq]||s.ultimaData.getDate(),
+    ativo:true,
+  };
+  recorrentes.push(novo);
+  salvarRecorrentes();
+  mostrarToast(`✅ "${s.desc}" adicionado como gasto fixo!`);
+  detectarPadroes();
+}
+
 // ── S: RASTREAMENTO DE HUMOR ──────────────────────────────────────────────────
 let _humorRegistroId=null;
 function abrirHumor(registroId){
@@ -6674,10 +6769,10 @@ function driveSaveClientId(){
   if(v) FinStorage.setItem(DRIVE_CLIENT_KEY, v);
   else FinStorage.removeItem(DRIVE_CLIENT_KEY);
 }
-function driveGetToken(){ return FinStorage.getItem(DRIVE_TOKEN_KEY)||''; }
+function driveGetToken(){ return sessionStorage.getItem(DRIVE_TOKEN_KEY)||''; }
 function driveIsConnected(){
   const tok = driveGetToken();
-  const exp = parseInt(FinStorage.getItem(DRIVE_EXPIRY_KEY)||'0');
+  const exp = parseInt(sessionStorage.getItem(DRIVE_EXPIRY_KEY)||'0');
   return tok && Date.now() < exp;
 }
 
@@ -6727,8 +6822,8 @@ function driveHandleRedirect(){
   const token  = params.get('access_token');
   const expiresIn = parseInt(params.get('expires_in')||'3600');
   if(token){
-    FinStorage.setItem(DRIVE_TOKEN_KEY, token);
-    FinStorage.setItem(DRIVE_EXPIRY_KEY, String(Date.now() + expiresIn * 1000 - 30000));
+    sessionStorage.setItem(DRIVE_TOKEN_KEY, token);
+    sessionStorage.setItem(DRIVE_EXPIRY_KEY, String(Date.now() + expiresIn * 1000 - 30000));
     FinStorage.removeItem('finchat_drive_redirect_pending');
     history.replaceState(null,'',location.pathname); // limpa o hash da URL
     mostrarToast('✅ Google Drive conectado!');
@@ -6737,8 +6832,8 @@ function driveHandleRedirect(){
 }
 
 function driveLogout(){
-  FinStorage.removeItem(DRIVE_TOKEN_KEY);
-  FinStorage.removeItem(DRIVE_EXPIRY_KEY);
+  sessionStorage.removeItem(DRIVE_TOKEN_KEY);
+  sessionStorage.removeItem(DRIVE_EXPIRY_KEY);
   mostrarToast('Google Drive desconectado');
   driveUpdateUI();
 }
