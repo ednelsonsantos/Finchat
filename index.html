@@ -1495,6 +1495,48 @@ body.dark .comp-table td{color:#e8e8e6;border-color:#1e3a2a}
 .comp-diff-pos{color:#1D9E75;font-weight:600}
 .comp-diff-neg{color:#E24B4A;font-weight:600}
 
+/* ── CUPOM OCR ─────────────────────────────────────────────── */
+#modal-cupom{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:9100}
+.cupom-box{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto}
+body.dark .cupom-box{background:#1a2e26}
+.cupom-preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:14px;border:1px solid #eee}
+body.dark .cupom-preview{border-color:#2d4a3a}
+.cupom-title{font-size:16px;font-weight:700;margin-bottom:12px;color:#1a1a1a}
+body.dark .cupom-title{color:#e8e8e6}
+.cupom-ocr-status{font-size:13px;color:#888;margin-bottom:10px;text-align:center}
+.cupom-values{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.cupom-val-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f5f5f3;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:border-color .15s}
+body.dark .cupom-val-row{background:#0d2e1f}
+.cupom-val-row:hover,.cupom-val-row.selected{border-color:#1D9E75}
+.cupom-val-label{font-size:12px;color:#888;flex:1}
+.cupom-val-num{font-size:16px;font-weight:700;color:#1D9E75}
+.cupom-input-row{display:flex;gap:8px;align-items:center}
+.cupom-input-row input{flex:1;padding:10px 14px;border-radius:20px;border:1px solid #ddd;font-size:14px;background:#f5f5f3;color:#1a1a1a;outline:none}
+body.dark .cupom-input-row input{background:#1a2e26;border-color:#2d4a3a;color:#e8e8e6}
+.cupom-btn-ocr{padding:10px 18px;background:#1D9E75;color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer}
+.cupom-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(29,158,117,.3);border-top-color:#1D9E75;border-radius:50%;animation:splash-spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* ── FILTRO DE VALOR NO HISTÓRICO ─────────────────────────── */
+.hist-val-filter{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.hist-val-filter label{font-size:12px;color:#888}
+.hist-val-inp{width:80px;padding:5px 10px;border-radius:16px;border:1px solid #ddd;font-size:12px;background:#f5f5f3;color:#1a1a1a;outline:none;text-align:center}
+body.dark .hist-val-inp{background:#1a2e26;border-color:#2d4a3a;color:#e8e8e6}
+.hist-val-inp:focus{border-color:#1D9E75}
+
+/* ── REPETIR TRANSAÇÃO ─────────────────────────────────────── */
+.hist-repeat-btn{border:none;background:none;font-size:11px;color:#1D9E75;cursor:pointer;padding:3px 6px;border-radius:8px;font-weight:600}
+.hist-repeat-btn:hover{background:#e8f5ee}
+body.dark .hist-repeat-btn:hover{background:#1a2e26}
+
+/* ── TENDÊNCIA CATEGORIA ───────────────────────────────────── */
+.cat-trend{font-size:12px;font-weight:700;padding:2px 5px;border-radius:6px}
+.cat-trend-up{color:#E24B4A;background:#fdecea}
+.cat-trend-down{color:#1D9E75;background:#e8f5ee}
+.cat-trend-eq{color:#888;background:#f0f0ee}
+body.dark .cat-trend-up{background:#2d1010}
+body.dark .cat-trend-down{background:#0d2e1f}
+body.dark .cat-trend-eq{background:#1a2e26}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
@@ -1703,6 +1745,8 @@ body.dark .comp-table td{color:#e8e8e6;border-color:#1e3a2a}
         <input id="inp" type="text"
           placeholder='"gasto 80 farmácia" ou "recebi 4000 salário"'
           autocomplete="off"/>
+        <button class="home-mic-btn" id="ocr-btn" onclick="document.getElementById('cupom-file-input').click()" title="Escanear cupom fiscal">📷</button>
+        <input type="file" id="cupom-file-input" accept="image/*" capture="environment" style="display:none" onchange="abrirModalCupom(event)"/>
         <button class="home-mic-btn" id="mic-btn" onclick="iniciarVoz()" title="Falar para registrar">🎤</button>
         <button class="home-send-btn" id="btn" onclick="enviar()" disabled title="Registrar / Perguntar">
           <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2z"/></svg>
@@ -1917,6 +1961,13 @@ body.dark .comp-table td{color:#e8e8e6;border-color:#1e3a2a}
         <div class="hf active" onclick="setFiltro('todos')">Todos</div>
         <div class="hf" onclick="setFiltro('receita')">Receitas</div>
         <div class="hf" onclick="setFiltro('gasto')">Gastos</div>
+      </div>
+      <div class="hist-val-filter">
+        <label>R$ mín</label>
+        <input class="hist-val-inp" id="hist-val-min" type="number" min="0" placeholder="0" oninput="renderHistorico()" inputmode="numeric"/>
+        <label>máx</label>
+        <input class="hist-val-inp" id="hist-val-max" type="number" min="0" placeholder="∞" oninput="renderHistorico()" inputmode="numeric"/>
+        <button style="font-size:11px;color:#aaa;background:none;border:none;cursor:pointer;padding:0 4px" onclick="limparFiltroValor()" title="Limpar filtro de valor">✕</button>
       </div>
       <div class="history" id="history"><div class="empty">Nenhum registro ainda</div></div>
     </div>
@@ -2408,6 +2459,22 @@ body.dark .comp-table td{color:#e8e8e6;border-color:#1e3a2a}
       <button class="modal-btn-cancel" onclick="fecharModalCustomCat()">Cancelar</button>
       <button class="modal-btn-save" onclick="salvarCustomCat()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal OCR cupom fiscal -->
+<div id="modal-cupom" onclick="if(event.target===this)fecharCupom()">
+  <div class="cupom-box">
+    <div class="cupom-title">📷 Cupom Fiscal</div>
+    <img id="cupom-img-preview" class="cupom-preview" src="" alt=""/>
+    <div class="cupom-ocr-status" id="cupom-status">Processando...</div>
+    <div class="cupom-values" id="cupom-values"></div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px">Ou digite o valor manualmente:</div>
+    <div class="cupom-input-row">
+      <input id="cupom-manual" type="number" placeholder="R$ valor" inputmode="decimal" step="0.01"/>
+      <button class="cupom-btn-ocr" onclick="usarValorCupomManual()">Usar</button>
+    </div>
+    <button onclick="fecharCupom()" style="width:100%;margin-top:14px;padding:12px;border:none;background:#f0f0ee;border-radius:12px;font-size:14px;cursor:pointer;color:#555;font-weight:500">Cancelar</button>
   </div>
 </div>
 
@@ -3287,6 +3354,10 @@ function renderHistorico(){
       return n.includes(termoBusca);
     });
   }
+  // filtro de valor min/max
+  const vMin=parseFloat(document.getElementById('hist-val-min')?.value)||0;
+  const vMax=parseFloat(document.getElementById('hist-val-max')?.value)||Infinity;
+  if(vMin>0||vMax<Infinity) lista=lista.filter(r=>r.valor>=vMin&&r.valor<=vMax);
   document.getElementById('history').innerHTML =[...lista].reverse().map(r=>histHTML(r,true)).join('')||
     '<div class="empty">'+( termoBusca?'Nenhum resultado para "'+termoBusca+'"'  :'Nenhum registro neste mês')+'</div>';
   addSwipeListeners();
@@ -3315,6 +3386,7 @@ function histHTML(r,del){
       <span class="hist-val" style="color:${s?'#1D9E75':'#E24B4A'}">${s?'+':'−'} ${fmt(r.valor)}</span>
       <div style="display:flex;gap:4px;margin-top:3px;justify-content:flex-end">
         ${!s&&del?`<span class="split-badge" onclick="event.stopPropagation();abrirSplit(${r.id})" title="Dividir gasto">${r.divisao?`÷ ${r.divisao.pessoa}`:'÷ dividir'}</span>`:''}
+        <button class="hist-repeat-btn" onclick="event.stopPropagation();repetirRegistro(${r.id})" title="Repetir hoje">↺</button>
         <span style="font-size:11px;color:#ddd">✏️</span>
       </div>
     </div>
@@ -3322,7 +3394,6 @@ function histHTML(r,del){
 }
 function renderCategorias(){
   const gc={};
-  // para a contagem global usamos todos os registros, não só o mês filtrado
   regsDoMesFiltro().filter(r=>r.tipo==='gasto').forEach(r=>{
     const k=r.categoria.label;
     const key=r.categoria.key||'outros';
@@ -3330,25 +3401,38 @@ function renderCategorias(){
     gc[k].total+=r.valor;
     gc[k].count+=1;
   });
-  // contagem global (todos os meses) por categoria
+  // gastos do mês anterior por categoria (para tendência)
+  const hoje=new Date();
+  let mA=hoje.getMonth()-1,yA=hoje.getFullYear();
+  if(mA<0){mA=11;yA--;}
+  const gcAnt={};
+  registros.filter(r=>{const d=new Date(r.data);return r.tipo==='gasto'&&d.getFullYear()===yA&&d.getMonth()===mA;})
+    .forEach(r=>{const k=r.categoria.label;gcAnt[k]=(gcAnt[k]||0)+r.valor;});
+  // contagem global
   const globalCount={};
-  registros.filter(r=>r.tipo==='gasto').forEach(r=>{
-    const k=r.categoria.label;
-    globalCount[k]=(globalCount[k]||0)+1;
-  });
+  registros.filter(r=>r.tipo==='gasto').forEach(r=>{const k=r.categoria.label;globalCount[k]=(globalCount[k]||0)+1;});
   const entries=Object.entries(gc).sort((a,b)=>b[1].total-a[1].total);
-  if(!entries.length){document.getElementById('cat-bars').innerHTML ='<div class="empty">Sem dados de gastos</div>';return;}
+  if(!entries.length){document.getElementById('cat-bars').innerHTML='<div class="empty">Sem dados de gastos</div>';return;}
   const max=entries[0][1].total;
   const cores=k=>corBadgeNum(gc[k]?.key||'outros');
-  document.getElementById('cat-bars').innerHTML =entries.map(([cat,d])=>{
+  document.getElementById('cat-bars').innerHTML=entries.map(([cat,d])=>{
     const c=cores(cat);
     const totGlobal=globalCount[cat]||d.count;
+    const ant=gcAnt[cat]||0;
+    let trendHTML='';
+    if(ant>0){
+      const pct=Math.round((d.total-ant)/ant*100);
+      if(pct>5)       trendHTML=`<span class="cat-trend cat-trend-up" title="vs mês anterior">↑${pct}%</span>`;
+      else if(pct<-5) trendHTML=`<span class="cat-trend cat-trend-down" title="vs mês anterior">↓${Math.abs(pct)}%</span>`;
+      else            trendHTML=`<span class="cat-trend cat-trend-eq" title="vs mês anterior">≈</span>`;
+    }
     return`<div class="bar-row">
       <span class="bar-lbl">${cat}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.total/max*100)}%;background:${d.cor}"></div></div>
       <span style="display:flex;align-items:center;gap:5px">
         <span class="bar-val">${fmt(d.total)}</span>
-        <span class="cat-num" style="background:${c.bg};color:${c.txt}" title="Total de lançamentos nesta categoria">${totGlobal} lanç.</span>
+        ${trendHTML}
+        <span class="cat-num" style="background:${c.bg};color:${c.txt}" title="Total de lançamentos">${totGlobal} lanç.</span>
       </span>
     </div>`;
   }).join('');
@@ -6174,6 +6258,123 @@ function mostrarToastAcao(msg, btnLabel, fn){
     const b=el.querySelector('button');
     if(b){b.textContent='Desfazer';b.onclick=desfazerRegistro;}
   },6000);
+}
+
+// ── Q: OCR CUPOM FISCAL ───────────────────────────────────────────────────────
+let _cupomObjectURL=null;
+function abrirModalCupom(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  event.target.value='';
+  if(_cupomObjectURL) URL.revokeObjectURL(_cupomObjectURL);
+  _cupomObjectURL=URL.createObjectURL(file);
+  const img=document.getElementById('cupom-img-preview');
+  img.src=_cupomObjectURL;
+  document.getElementById('cupom-status').textContent='Analisando imagem...';
+  document.getElementById('cupom-values').innerHTML='';
+  document.getElementById('cupom-manual').value='';
+  document.getElementById('modal-cupom').style.display='flex';
+  processarOCRCupom(file);
+}
+function fecharCupom(){
+  document.getElementById('modal-cupom').style.display='none';
+  if(_cupomObjectURL){URL.revokeObjectURL(_cupomObjectURL);_cupomObjectURL=null;}
+}
+async function processarOCRCupom(file){
+  const statusEl=document.getElementById('cupom-status');
+  const valuesEl=document.getElementById('cupom-values');
+  // lazy-load Tesseract.js
+  if(typeof Tesseract==='undefined'){
+    try{
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+    }catch{
+      statusEl.textContent='OCR não disponível. Use o campo manual.';
+      return;
+    }
+  }
+  try{
+    statusEl.innerHTML='<span class="cupom-spinner"></span>Lendo cupom...';
+    const worker=await Tesseract.createWorker('por');
+    const {data:{text}}=await worker.recognize(file);
+    await worker.terminate();
+    const valores=extrairValoresCupom(text);
+    if(!valores.length){
+      statusEl.textContent='Nenhum valor encontrado. Digite manualmente.';
+      return;
+    }
+    statusEl.textContent=`${valores.length} valor(es) encontrado(s) — toque para usar:`;
+    valuesEl.innerHTML=valores.map((v,i)=>`
+      <div class="cupom-val-row" onclick="selecionarValorCupom(${v.raw},this)" title="${v.contexto}">
+        <span class="cupom-val-label">${v.label}</span>
+        <span class="cupom-val-num">R$ ${v.raw.toFixed(2).replace('.',',')}</span>
+      </div>`).join('');
+  }catch(e){
+    statusEl.textContent='Erro ao processar. Use o campo manual.';
+  }
+}
+function extrairValoresCupom(text){
+  const lines=text.split('\n');
+  const vals=[];
+  const seenVals=new Set();
+  lines.forEach(line=>{
+    const n=line.toLowerCase().replace(/[^\w\s.,]/g,' ');
+    const isTotal=/total|valor\s*a\s*pagar|a\s*pagar|grand\s*total|subtotal/.test(n);
+    const matches=[...line.matchAll(/R?\$?\s*(\d{1,6}[.,]\d{2})\b/g)];
+    matches.forEach(m=>{
+      const raw=parseFloat(m[1].replace(',','.'));
+      if(isNaN(raw)||raw<0.5||raw>50000) return;
+      const key=raw.toFixed(2);
+      if(seenVals.has(key)) return;
+      seenVals.add(key);
+      vals.push({raw,label:isTotal?'💰 TOTAL':line.trim().slice(0,30)||'Valor',contexto:line.trim(),isTotal});
+    });
+  });
+  return vals.sort((a,b)=>(b.isTotal?1:0)-(a.isTotal?1:0)||(b.raw-a.raw)).slice(0,6);
+}
+function selecionarValorCupom(valor,el){
+  document.querySelectorAll('.cupom-val-row').forEach(r=>r.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('cupom-manual').value=valor.toFixed(2);
+}
+function usarValorCupomManual(){
+  const v=parseFloat(document.getElementById('cupom-manual').value);
+  if(!v||v<=0){mostrarToast('Digite um valor válido');return;}
+  fecharCupom();
+  const inp=document.getElementById('inp');
+  inp.value=`gasto ${v.toFixed(2).replace('.',',')} compra`;
+  inp.dispatchEvent(new Event('input'));
+  inp.focus();
+  mostrarHome();
+}
+
+// ── REPETIR TRANSAÇÃO ─────────────────────────────────────────────────────────
+function repetirRegistro(id){
+  const orig=registros.find(r=>r.id===id);
+  if(!orig) return;
+  const hoje=new Date().toISOString().split('T')[0];
+  const novo={...orig,id:novoId(),data:hoje,parcelaNum:undefined,parcelaTotal:undefined};
+  delete novo.humor;
+  registros.push(novo);
+  salvar(registros);
+  renderAll();
+  checarAlertasMetas(novo);
+  checarDietaDiaria(novo);
+  _ultimoRegistroId=novo.id;
+  mostrarUndoToast(`↺ ${novo.tipo==='receita'?'Receita':'Gasto'} de ${fmt(novo.valor)} repetido`);
+}
+
+// ── FILTRO DE VALOR NO HISTÓRICO ──────────────────────────────────────────────
+function limparFiltroValor(){
+  const mn=document.getElementById('hist-val-min');
+  const mx=document.getElementById('hist-val-max');
+  if(mn) mn.value='';
+  if(mx) mx.value='';
+  renderHistorico();
 }
 
 async function compartilharRelatorio(){
