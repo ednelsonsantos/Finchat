@@ -181,7 +181,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px}
 
 /* ── MODAL DE EDIÇÃO ──────────────────────────────────────────────────── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.open{display:flex}
+.modal-overlay.open{display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-sheet{background:#fff;border-radius:20px;padding:20px 16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn .22s ease}
 @keyframes modalIn{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 .modal-handle{display:none}
@@ -440,7 +440,7 @@ body{padding:0;background:#f5f5f3}
 
 /* ── MODAL DE EDIÇÃO ──────────────────────────────────────────────────── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.open{display:flex}
+.modal-overlay.open{display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-sheet{background:#fff;border-radius:20px;padding:20px 16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn .22s ease}
 @keyframes modalIn{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 .modal-handle{display:none}
@@ -921,7 +921,7 @@ body.dark #quiosque-overlay .q-close{background:#2a2a2a;color:#ccc}
 body.dark #quiosque-overlay .q-close:hover{background:#3a3a3a}
 #quiosque-overlay .q-fechar-btn{padding:10px 28px;border-radius:24px;background:#f0f0f0;color:#555;border:none;cursor:pointer;font-size:14px;font-weight:500;margin-top:4px}
 body.dark #quiosque-overlay .q-fechar-btn{background:#2a2a2a;color:#ccc}
-.quiosque-fab{position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:#1D9E75;color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:500;display:flex;align-items:center;justify-content:center}
+.quiosque-fab{position:fixed;bottom:160px;right:16px;width:44px;height:44px;border-radius:50%;background:#1D9E75;color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:500;display:flex;align-items:center;justify-content:center}
 .quiosque-fab:hover{background:#0F6E56}
 
 /* ── DESAFIO DE ECONOMIA ────────────────────────────────────────── */
@@ -3526,6 +3526,19 @@ function corBadgeNum(catKey){
 // ── EDIÇÃO DE REGISTROS ───────────────────────────────────────────────────────
 let editandoId = null;
 
+function _mostrarModal(id){
+  const e=document.getElementById(id);
+  if(!e) return;
+  e.style.display='flex';
+  e.style.alignItems='center';
+  e.style.justifyContent='center';
+  e.style.padding='16px';
+}
+function _fecharModalInline(id){
+  const e=document.getElementById(id);
+  if(!e) return;
+  e.style.display='none';
+}
 function abrirModal(id){
   const r = registros.find(x=>x.id===id);
   if(!r) return;
@@ -5405,7 +5418,7 @@ function abrirNovoDesafio(){
   document.getElementById('desafio-nome-inp').value='';
   document.getElementById('desafio-limite-inp').value='';
   document.getElementById('desafio-cat-inp').value='';
-  document.getElementById('modal-desafio').style.display='flex';
+  _mostrarModal('modal-desafio');
 }
 function fecharModalDesafio(){document.getElementById('modal-desafio').style.display='none';}
 function salvarDesafio(){
@@ -5708,7 +5721,7 @@ function abrirEditarRec(id){
   document.getElementById('rec-edit-cat').value = rec.catKey;
   document.getElementById('rec-edit-dia').value = rec.dia||'';
   document.getElementById('rec-edit-freq').value = rec.freq||'mensal';
-  document.getElementById('rec-edit-modal').style.display='flex';
+  _mostrarModal('rec-edit-modal');
 }
 function fecharEditarRec(){
   document.getElementById('rec-edit-modal').style.display='none';
@@ -6321,7 +6334,7 @@ function adicionarPadraoComoFixo(idx){
 let _humorRegistroId=null;
 function abrirHumor(registroId){
   _humorRegistroId=registroId;
-  document.getElementById('modal-humor').style.display='flex';
+  _mostrarModal('modal-humor');
 }
 function fecharHumor(){
   document.getElementById('modal-humor').style.display='none';
@@ -6404,7 +6417,7 @@ function abrirModalCupom(event){
   document.getElementById('cupom-status').textContent='Analisando imagem...';
   document.getElementById('cupom-values').innerHTML='';
   document.getElementById('cupom-manual').value='';
-  document.getElementById('modal-cupom').style.display='flex';
+  _mostrarModal('modal-cupom');
   processarOCRCupom(file);
 }
 function fecharCupom(){
@@ -7237,7 +7250,7 @@ carteiras=carregarCarteiras();
 function verificarOnboarding(){
   const cfg=carregarConfig();
   if(cfg.onboardingFeito||cfg.nome||registros.length>0) return;
-  document.getElementById('modal-onboarding').style.display='flex';
+  _mostrarModal('modal-onboarding');
 }
 function obProximo(step, acao){
   if(step===1){
@@ -7314,7 +7327,7 @@ function verificarRelatorioMensal(){
   const pct=totRec>0?Math.round(totGas/totRec*100):null;
   if(pct!==null) destaques.push(`📊 ${pct}% da receita comprometida${pct<=70?' — ótimo 👏':pct<=90?' — razoável':' — atenção ⚠️'}`);
   document.getElementById('rel-destaques').innerHTML=destaques.join('<br>');
-  document.getElementById('modal-relatorio').style.display='flex';
+  _mostrarModal('modal-relatorio');
 }
 function fecharRelatorio(){
   const m=document.getElementById('modal-relatorio');
@@ -7347,7 +7360,7 @@ function abrirModalCustomCat(){
   document.getElementById('cc-nome').value='';
   document.getElementById('cc-palavras').value='';
   renderCcEmojiGrid();
-  document.getElementById('modal-custom-cat').style.display='flex';
+  _mostrarModal('modal-custom-cat');
 }
 function fecharModalCustomCat(){document.getElementById('modal-custom-cat').style.display='none';}
 
@@ -7390,7 +7403,7 @@ function abrirSimulador(total,parcelas,taxa){
   document.getElementById('sim-parcelas').value=parcelas||'';
   document.getElementById('sim-taxa').value=taxa||'';
   document.getElementById('sim-resultado').style.display='none';
-  document.getElementById('modal-simulador').style.display='flex';
+  _mostrarModal('modal-simulador');
   if(total&&parcelas&&taxa) calcularSimulador();
 }
 function fecharSimulador(){document.getElementById('modal-simulador').style.display='none';}
@@ -7502,7 +7515,7 @@ function verificarResumoSemanal(){
   const top=Object.entries(porCat).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const allCats={...Object.fromEntries(Object.entries(CATS).map(([k,v])=>[k,v])),...Object.fromEntries(catsCustom.map(c=>[c.key,c]))};
   document.getElementById('resumo-sem-top').innerHTML='<b>Top categorias:</b><br>'+top.map(([k,v])=>`${allCats[k]?.icon||'📦'} ${allCats[k]?.label||k}: ${fmt2(v)}`).join('<br>');
-  document.getElementById('modal-resumo-semanal').style.display='flex';
+  _mostrarModal('modal-resumo-semanal');
 }
 function fecharResumoSemanal(){document.getElementById('modal-resumo-semanal').style.display='none';}
 

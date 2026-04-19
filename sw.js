@@ -1,7 +1,7 @@
 /* FinChat Service Worker
    SPDX-FileCopyrightText: 2026 Ednelson Santos
    SPDX-License-Identifier: MIT */
-const CACHE = 'finchat-v2';
+const CACHE = 'finchat-v3';
 const ASSETS = ['./'];
 
 self.addEventListener('install', e => {
